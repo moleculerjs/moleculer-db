@@ -3,7 +3,8 @@ cache:
   directories:
   - node_modules
 node_js:
-    - "7"
+    - "9"
+    - "8"
     - "6"
 script:
   - npm run setup && npm test
