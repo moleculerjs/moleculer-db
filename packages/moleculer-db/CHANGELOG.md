@@ -1,5 +1,5 @@
 <a name="0.7.0"></a>
-# 0.7.0 (2017-xx-xx)
+# 0.7.0 (2017-11-13)
 
 ## Breaking changes
 - `transformDocuments` and `entityChanged` calls have been moved from methods to actions. 
