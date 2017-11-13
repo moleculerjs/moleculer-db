@@ -14,8 +14,8 @@ class MongooseDbAdapter {
 
 	/**
 	 * Creates an instance of MongooseDbAdapter.
-	 * @param {any} opts 
-	 * 
+	 * @param {any} opts
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	constructor(opts) {
@@ -25,10 +25,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Initialize adapter
-	 * 
-	 * @param {ServiceBroker} broker 
-	 * @param {Service} service 
-	 * 
+	 *
+	 * @param {ServiceBroker} broker
+	 * @param {Service} service
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	init(broker, service) {
@@ -44,9 +44,9 @@ class MongooseDbAdapter {
 
 	/**
 	 * Connect to database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
@@ -72,14 +72,14 @@ class MongooseDbAdapter {
 				/* istanbul ignore next */
 				this.service.logger.warn("Disconnected from MongoDB.");
 			}.bind(this));
-		});	
+		});
 	}
 
 	/**
 	 * Disconnect from database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	disconnect() {
@@ -91,7 +91,7 @@ class MongooseDbAdapter {
 
 	/**
 	 * Find all entities by filters.
-	 * 
+	 *
 	 * Available filter props:
 	 * 	- limit
 	 *  - offset
@@ -99,10 +99,10 @@ class MongooseDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {any} filters 
+	 *
+	 * @param {any} filters
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	find(filters) {
@@ -110,11 +110,22 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	 * Find an entities by ID
-	 * 
-	 * @param {any} _id 
+	 * Find an entity by query
+	 *
+	 * @param {Object} query
 	 * @returns {Promise}
-	 * 
+	 * @memberof MemoryDbAdapter
+	 */
+	findOne(query) {
+		return this.model.findOne(query).exec();
+	}
+
+	/**
+	 * Find an entities by ID
+	 *
+	 * @param {any} _id
+	 * @returns {Promise}
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	findById(_id) {
@@ -123,10 +134,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Find any entities by IDs
-	 * 
-	 * @param {Array} idList 
+	 *
+	 * @param {Array} idList
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	findByIds(idList) {
@@ -139,15 +150,15 @@ class MongooseDbAdapter {
 
 	/**
 	 * Get count of filtered entites
-	 * 
+	 *
 	 * Available filter props:
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} [filters={}] 
+	 *
+	 * @param {Object} [filters={}]
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	count(filters = {}) {
@@ -156,10 +167,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Insert an entity
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	insert(entity) {
@@ -169,10 +180,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Insert many entities
-	 * 
-	 * @param {Array} entities 
+	 *
+	 * @param {Array} entities
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	insertMany(entities) {
@@ -181,11 +192,11 @@ class MongooseDbAdapter {
 
 	/**
 	 * Update many entities by `query` and `update`
-	 * 
-	 * @param {Object} query 
-	 * @param {Object} update 
+	 *
+	 * @param {Object} query
+	 * @param {Object} update
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	updateMany(query, update) {
@@ -194,11 +205,11 @@ class MongooseDbAdapter {
 
 	/**
 	 * Update an entity by ID and `update`
-	 * 
-	 * @param {any} _id 
-	 * @param {Object} update 
+	 *
+	 * @param {any} _id
+	 * @param {Object} update
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	updateById(_id, update) {
@@ -207,10 +218,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Remove entities which are matched by `query`
-	 * 
-	 * @param {Object} query 
+	 *
+	 * @param {Object} query
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	removeMany(query) {
@@ -219,10 +230,10 @@ class MongooseDbAdapter {
 
 	/**
 	 * Remove an entity by ID
-	 * 
-	 * @param {any} _id 
+	 *
+	 * @param {any} _id
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	removeById(_id) {
@@ -231,9 +242,9 @@ class MongooseDbAdapter {
 
 	/**
 	 * Clear all entities from collection
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongooseDbAdapter
 	 */
 	clear() {
@@ -242,8 +253,8 @@ class MongooseDbAdapter {
 
 	/**
 	 * Convert DB entity to JSON object
-	 * 
-	 * @param {any} entity 
+	 *
+	 * @param {any} entity
 	 * @returns {Object}
 	 * @memberof MongooseDbAdapter
 	 */
@@ -259,14 +270,14 @@ class MongooseDbAdapter {
 
 	/**
 	 * Create a filtered query
-	 * Available filters in `params`: 
+	 * Available filters in `params`:
 	 *  - search
 	 * 	- sort
 	 * 	- limit
 	 * 	- offset
 	 *  - query
-	 * 
- 	 * @param {Object} params 
+	 *
+ 	 * @param {Object} params
 	 * @returns {MongoQuery}
 	 */
 	createCursor(params) {
@@ -295,7 +306,7 @@ class MongooseDbAdapter {
 				if (_.isString(params.sort))
 					q.sort(params.sort.replace(/,/, " "));
 				else if (Array.isArray(params.sort))
-					q.sort(params.sort.join(" "));					
+					q.sort(params.sort.join(" "));
 			}
 
 			// Offset
