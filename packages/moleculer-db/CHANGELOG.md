@@ -14,6 +14,9 @@
 - `this.removeMany(ctx, params)` method has been removed. Use `this.adapter.removeMany(params.query)` instead.
 - `this.clear(ctx)` method has been removed. Use `this.adapter.clear()` instead and call the `entityChanged` method.
 
+## New
+- adapters have a new `findOne` method which returns with only one entity by `query`.
+
 --------------------------------------------------
 <a name="0.6.4"></a>
 # 0.6.4 (2017-11-12)
