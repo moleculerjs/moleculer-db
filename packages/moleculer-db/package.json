@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db",
-  "version": "0.7.0-beta1",
+  "version": "0.7.0-beta2",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "scripts": {
