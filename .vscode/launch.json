@@ -1,0 +1,50 @@
+{
+	// Use IntelliSense to learn about possible Node.js debug attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch dev",
+			"program": "${workspaceRoot}\\dev",
+			"cwd": "${workspaceRoot}",
+			"args": [
+				"moleculer-db-adapter-sequelize",
+				"simple"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch readme gen",
+			"program": "${workspaceRoot}/node_modules/moleculer-docgen/index.js",
+			"args": [
+				"-t",
+				"packages\\moleculer-db\\README.test.md",
+				"packages\\moleculer-db\\src\\index.js"
+			],
+			"stopOnEntry": true
+
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch readme",
+			"program": "${workspaceRoot}\\readme-generator",
+			"cwd": "${workspaceRoot}"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Jest",
+			"program": "${workspaceRoot}\\node_modules\\jest-cli\\bin\\jest.js",
+			"args": ["--runInBand"],
+			"cwd": "${workspaceRoot}",
+			"runtimeArgs": [
+                "--nolazy"
+            ]
+		}
+	]
+}

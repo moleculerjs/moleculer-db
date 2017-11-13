@@ -1,0 +1,47 @@
+{
+  "name": "moleculer-db-addons",
+  "description": ":gift: Official database addons for Moleculer framework",
+  "version": "1.0.0",
+  "scripts": {
+    "setup": "npm install && lerna bootstrap",
+    "clean": "lerna clean",
+    "dev": "nodemon dev.js",
+    "demo": "node dev.js",
+    "test": "jest --coverage",
+    "ci": "jest --watch",
+    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "init": "cd packages && moleculer init addon",
+    "deps": "lerna exec --concurrency 1 npm run deps",
+    "release": "lerna publish",
+    "readme": "node readme-generator.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ice-services/moleculer-db.git"
+  },
+  "keywords": [],
+  "author": "Ice Services",
+  "license": "MIT",
+  "homepage": "https://github.com/ice-services/moleculer-db#readme",
+  "devDependencies": {
+    "coveralls": "3.0.0",
+    "eslint": "4.8.0",
+    "glob": "7.1.2",
+    "jest": "20.0.4",
+    "jest-cli": "20.0.4",
+    "lerna": "2.3.1",
+    "lodash": "4.17.4",
+    "markdown-magic": "0.1.19",
+    "nodemon": "1.12.1"
+  },
+  "dependencies": {
+    "moleculer-cli": "0.4.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/services/"
+    ]
+  }
+}

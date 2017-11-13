@@ -1,0 +1,347 @@
+"use strict";
+
+const { ServiceBroker } = require("moleculer");
+
+jest.mock("sequelize");
+
+const model = {
+	sync: jest.fn(() => Promise.resolve()),
+	findAll: jest.fn(() => Promise.resolve()),
+	count: jest.fn(() => Promise.resolve()),
+	findById: jest.fn(() => Promise.resolve()),
+	create: jest.fn(() => Promise.resolve()),
+	update: jest.fn(() => Promise.resolve([1, 2])),
+	destroy: jest.fn(() => Promise.resolve()),
+};
+
+const db = {
+	authenticate: jest.fn(() => Promise.resolve()),
+	define: jest.fn(() => model),
+	close: jest.fn(),
+};
+
+let Sequelize = require("sequelize");
+Sequelize.mockImplementation(() => db);
+
+const SequelizeAdapter = require("../../src");
+
+function protectReject(err) {
+	if (err && err.stack) {
+		console.error(err);
+		console.error(err.stack);	
+	}
+	expect(err).toBe(true);
+}
+
+const fakeModel = {
+	name: "posts",
+	define: {
+		a: 5
+	},
+	options: {
+		b: 10
+	}
+};
+
+
+let fakeConn = Promise.resolve();
+fakeConn.connection = {
+	on: jest.fn(),
+	close: jest.fn()
+};
+
+describe("Test SequelizeAdapter", () => {
+	const broker = new ServiceBroker();
+	const service = broker.createService({
+		name: "store",
+		model: fakeModel
+	});
+
+	const opts = {
+		dialect: "sqlite"
+	};
+	const adapter = new SequelizeAdapter(opts);
+
+	it("should be created", () => {
+		expect(adapter).toBeDefined();
+		expect(adapter.opts).toEqual([opts]);
+		expect(adapter.init).toBeDefined();
+		expect(adapter.connect).toBeDefined();
+		expect(adapter.disconnect).toBeDefined();
+		expect(adapter.find).toBeDefined();
+		expect(adapter.findById).toBeDefined();
+		expect(adapter.findByIds).toBeDefined();
+		expect(adapter.count).toBeDefined();
+		expect(adapter.insert).toBeDefined();
+		expect(adapter.insertMany).toBeDefined();
+		expect(adapter.updateMany).toBeDefined();
+		expect(adapter.updateById).toBeDefined();
+		expect(adapter.removeMany).toBeDefined();
+		expect(adapter.removeById).toBeDefined();
+		expect(adapter.clear).toBeDefined();
+	});
+
+	it("call init", () => {
+		adapter.init(broker, service);
+		expect(adapter.broker).toBe(broker);
+		expect(adapter.service).toBe(service);
+	});
+
+	
+	it("call connect with uri", () => {
+		return adapter.connect().catch(protectReject).then(() => {
+			expect(Sequelize).toHaveBeenCalledTimes(1);
+			expect(Sequelize).toHaveBeenCalledWith(opts);
+
+			expect(adapter.db).toBe(db);
+			expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+			expect(adapter.db.define).toHaveBeenCalledTimes(1);
+			expect(adapter.db.define).toHaveBeenCalledWith(fakeModel.name, fakeModel.define, fakeModel.options);
+
+			expect(adapter.model).toBe(model);
+			expect(adapter.service.model).toBe(model);
+
+			expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+
+		});
+	});
+
+	it("call disconnect", () => {
+		adapter.db.close.mockClear();
+
+		return adapter.disconnect().catch(protectReject).then(() => {
+			expect(adapter.db.close).toHaveBeenCalledTimes(1);
+		});
+	});
+
+
+	describe("Test createCursor", () => {
+
+		it("call without params", () => {
+			adapter.model.findAll.mockClear();
+			adapter.createCursor();
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith();
+		});
+
+		it("call without params as counting", () => {
+			adapter.model.findAll.mockClear();
+			adapter.createCursor(null, true);
+			expect(adapter.model.count).toHaveBeenCalledTimes(1);
+			expect(adapter.model.count).toHaveBeenCalledWith();
+		});
+
+		it("call with query", () => {
+			adapter.model.findAll.mockClear();
+			let query = {};
+			adapter.createCursor({ query });
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({ where: query });
+		});
+
+		it("call with query & counting", () => {
+			adapter.model.count.mockClear();
+			let query = {};
+			adapter.createCursor({ query }, true);
+			expect(adapter.model.count).toHaveBeenCalledTimes(1);
+			expect(adapter.model.count).toHaveBeenCalledWith({ where: query });
+		});
+
+		it("call with sort string", () => {
+			adapter.model.findAll.mockClear();
+			let query = {};
+			adapter.createCursor({ query, sort: "-votes title" });
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({
+				where: query,
+				order: [["votes", "DESC"], ["title", "ASC"]]
+			});
+		});
+
+		it("call with sort array", () => {
+			adapter.model.findAll.mockClear();
+			let query = {};
+			adapter.createCursor({ query, sort: ["createdAt", "title"] });
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({
+				where: query,
+				order: [["createdAt", "ASC"], ["title", "ASC"]]
+			});
+		});
+
+		it("call with sort object", () => {
+			adapter.model.findAll.mockClear();
+			let query = {};
+			adapter.createCursor({ query, sort: { createdAt: 1, title: -1 }});
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({
+				where: query,
+				order: [["createdAt", "ASC"], ["title", "DESC"]]
+			});
+		});
+
+		it("call with limit & offset", () => {
+			adapter.model.findAll.mockClear();
+			adapter.createCursor({ limit: 5, offset: 10 });
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({
+				offset: 10,
+				limit: 5,
+				where: {}
+			});
+		});
+
+		it("call with full-text search", () => {
+			adapter.model.findAll.mockClear();
+			adapter.createCursor({ search: "walter", searchFields: ["title", "content"] });
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({
+				where: {
+					"$or": [
+						{
+							title: {
+								"$like": "%walter%"
+							}
+						}, 
+						{
+							content: {
+								"$like": "%walter%"
+							}
+						}
+					]
+				}
+			});
+		});
+
+	});
+
+
+	it("call find", () => {
+		adapter.createCursor = jest.fn(() => Promise.resolve());
+
+		let params = {};
+		return adapter.find(params).catch(protectReject).then(() => {
+			expect(adapter.createCursor).toHaveBeenCalledTimes(1);
+			expect(adapter.createCursor).toHaveBeenCalledWith(params);
+		});
+	});
+
+	it("call findById", () => {
+		adapter.model.findById.mockClear();
+
+		return adapter.findById(5).catch(protectReject).then(() => {
+			expect(adapter.model.findById).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findById).toHaveBeenCalledWith(5);
+		});
+	});
+
+	it("call findByIds", () => {
+		adapter.model.findAll.mockClear();
+
+		return adapter.findByIds(5).catch(protectReject).then(() => {
+			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findAll).toHaveBeenCalledWith({"where": {"id": 5}});
+		});
+	});
+
+	it("call count", () => {
+		adapter.createCursor = jest.fn(() => Promise.resolve());
+
+		let params = {};
+		return adapter.count(params).catch(protectReject).then(() => {
+			expect(adapter.createCursor).toHaveBeenCalledTimes(1);
+			expect(adapter.createCursor).toHaveBeenCalledWith(params, true);
+		});
+	});
+
+	it("call insert", () => {
+		let entity = {};
+		return adapter.insert(entity).catch(protectReject).then(() => {
+			expect(adapter.model.create).toHaveBeenCalledTimes(1);
+			expect(adapter.model.create).toHaveBeenCalledWith(entity);
+		});
+	});
+
+	it("call inserts", () => {
+		adapter.model.create.mockClear();
+		let entities = [{ name: "John" }, { name: "Jane" }];
+
+		return adapter.insertMany(entities).catch(protectReject).then(() => {
+			expect(adapter.model.create).toHaveBeenCalledTimes(2);
+			expect(adapter.model.create).toHaveBeenCalledWith(entities[0]);
+			expect(adapter.model.create).toHaveBeenCalledWith(entities[1]);
+		});
+	});
+
+	it("call updateMany", () => {
+		let where = {};
+		let update = {};
+		
+		return adapter.updateMany(where, update).catch(protectReject).then(res => {
+			expect(res).toBe(1);
+			expect(adapter.model.update).toHaveBeenCalledTimes(1);
+			expect(adapter.model.update).toHaveBeenCalledWith(update, { where });
+		});
+	});
+
+	it("call updateById", () => {
+		let updateCB = jest.fn();
+		adapter.findById = jest.fn(() => Promise.resolve({
+			update: updateCB
+		}));
+
+		let update = {
+			$set: { title: "Test" }
+		};
+		return adapter.updateById(5, update).catch(protectReject).then(() => {
+			expect(adapter.findById).toHaveBeenCalledTimes(1);
+			expect(adapter.findById).toHaveBeenCalledWith(5);
+
+			expect(updateCB).toHaveBeenCalledTimes(1);
+			expect(updateCB).toHaveBeenCalledWith(update["$set"]);
+		});
+	});
+
+	it("call destroy", () => {
+		let where = {};
+
+		return adapter.removeMany(where).catch(protectReject).then(() => {
+			expect(adapter.model.destroy).toHaveBeenCalledTimes(1);
+			expect(adapter.model.destroy).toHaveBeenCalledWith({ where });
+		});
+	});
+
+	it("call entity.destroy", () => {
+		let destroyCB = jest.fn(() => Promise.resolve());
+		adapter.findById = jest.fn(() => Promise.resolve({
+			id: 2,
+			destroy: destroyCB
+		}));
+		return adapter.removeById(5).catch(protectReject).then(res => {
+			expect(res.id).toBe(2);
+			expect(adapter.findById).toHaveBeenCalledTimes(1);
+			expect(adapter.findById).toHaveBeenCalledWith(5);
+
+			expect(destroyCB).toHaveBeenCalledTimes(1);
+		});
+	});	
+
+	it("call clear", () => {
+		adapter.model.destroy.mockClear();
+		return adapter.clear().catch(protectReject).then(() => {
+			expect(adapter.model.destroy).toHaveBeenCalledTimes(1);
+			expect(adapter.model.destroy).toHaveBeenCalledWith({ where: {} });
+		});
+	});	
+
+	it("call doc.toJSON", () => {
+		let doc = {
+			get: jest.fn()
+		};
+		adapter.entityToObject(doc);
+		expect(doc.get).toHaveBeenCalledTimes(1);
+		expect(doc.get).toHaveBeenCalledWith({ plain: true });
+	});	
+
+});
+
