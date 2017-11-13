@@ -11,7 +11,7 @@ const MongoClient = mongodb.MongoClient;
 function protectReject(err) {
 	if (err && err.stack) {
 		console.error(err);
-		console.error(err.stack);	
+		console.error(err.stack);
 	}
 	expect(err).toBe(true);
 }
@@ -62,6 +62,7 @@ describe("Test MongoDbAdapter", () => {
 		expect(adapter.connect).toBeInstanceOf(Function);
 		expect(adapter.disconnect).toBeInstanceOf(Function);
 		expect(adapter.find).toBeInstanceOf(Function);
+		expect(adapter.findOne).toBeInstanceOf(Function);
 		expect(adapter.findById).toBeInstanceOf(Function);
 		expect(adapter.findByIds).toBeInstanceOf(Function);
 		expect(adapter.count).toBeInstanceOf(Function);
@@ -147,7 +148,7 @@ describe("Test MongoDbAdapter", () => {
 
 		adapter.stringToObjectID = jest.fn(id => id);
 	});
-	
+
 	it("call ojectIDToString", () => {
 		let id = {
 			toHexString: jest.fn()
@@ -155,8 +156,8 @@ describe("Test MongoDbAdapter", () => {
 
 		adapter.ojectIDToString(id);
 		expect(id.toHexString).toHaveBeenCalledTimes(1);
-	});	
-	
+	});
+
 	describe("Test createCursor", () => {
 		adapter.collection = fakeCollection;
 
@@ -185,7 +186,7 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.collection.find).toHaveBeenCalledTimes(0);
 			expect(adapter.collection.count).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.count).toHaveBeenCalledWith({});
-		});		
+		});
 
 		it("call with query", () => {
 			adapter.collection.find.mockClear();
@@ -201,7 +202,7 @@ describe("Test MongoDbAdapter", () => {
 			adapter.createCursor({ query }, true);
 			expect(adapter.collection.count).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.count).toHaveBeenCalledWith(query);
-		});		
+		});
 
 		it("call with sort string", () => {
 			adapter.collection.find.mockClear();
@@ -209,7 +210,7 @@ describe("Test MongoDbAdapter", () => {
 			let q = adapter.createCursor({ query, sort: "-votes title" });
 			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.find).toHaveBeenCalledWith(query);
-			
+
 			expect(q.sort).toHaveBeenCalledTimes(1);
 			expect(q.sort).toHaveBeenCalledWith({ votes: -1, title: 1 });
 		});
@@ -220,7 +221,7 @@ describe("Test MongoDbAdapter", () => {
 			let q = adapter.createCursor({ query, sort: ["createdAt", "title"] });
 			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.find).toHaveBeenCalledWith(query);
-			
+
 			expect(q.sort).toHaveBeenCalledTimes(1);
 			expect(q.sort).toHaveBeenCalledWith({ createdAt: 1, title : 1 });
 		});
@@ -231,7 +232,7 @@ describe("Test MongoDbAdapter", () => {
 			let q = adapter.createCursor({ query, sort: { createdAt: 1, title: -1 } });
 			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.find).toHaveBeenCalledWith(query);
-			
+
 			expect(q.sort).toHaveBeenCalledTimes(1);
 			expect(q.sort).toHaveBeenCalledWith({ createdAt: 1, title: -1 });
 		});
@@ -241,7 +242,7 @@ describe("Test MongoDbAdapter", () => {
 			let q = adapter.createCursor({ limit: 5, offset: 10 });
 			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.find).toHaveBeenCalledWith(undefined);
-			
+
 			expect(q.limit).toHaveBeenCalledTimes(1);
 			expect(q.limit).toHaveBeenCalledWith(5);
 			expect(q.skip).toHaveBeenCalledTimes(1);
@@ -257,7 +258,7 @@ describe("Test MongoDbAdapter", () => {
 			}, {
 				"_score": { "$meta": "textScore" }
 			});
-			
+
 			expect(q.sort).toHaveBeenCalledTimes(1);
 			expect(q.sort).toHaveBeenCalledWith({"_score": {"$meta": "textScore"}});
 		});
@@ -276,7 +277,16 @@ describe("Test MongoDbAdapter", () => {
 		});
 	});
 
+	it("call findOne", () => {
+		let query = { age: 22 };
+		return adapter.findOne(query).catch(protectReject).then(() => {
+			expect(adapter.collection.findOne).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.findOne).toHaveBeenCalledWith(query);
+		});
+	});
+
 	it("call findById", () => {
+		adapter.collection.findOne.mockClear();
 		return adapter.findById(5).catch(protectReject).then(() => {
 			expect(adapter.collection.findOne).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.findOne).toHaveBeenCalledWith({ _id: 5 });
@@ -330,7 +340,7 @@ describe("Test MongoDbAdapter", () => {
 	it("call updateMany", () => {
 		let query = {};
 		let update = {};
-		
+
 		return adapter.updateMany(query, update).catch(protectReject).then(res => {
 			expect(res).toEqual(2);
 			expect(adapter.collection.updateMany).toHaveBeenCalledTimes(1);
@@ -348,7 +358,7 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledWith({ _id: 5 }, update, { returnOriginal: false });
 		});
 	});
-	
+
 	it("call removeMany", () => {
 		let query = {};
 
@@ -363,7 +373,7 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.collection.findOneAndDelete).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.findOneAndDelete).toHaveBeenCalledWith({ _id: 5 });
 		});
-	});	
+	});
 
 	it("call clear", () => {
 		adapter.collection.deleteMany.mockClear();
@@ -371,8 +381,8 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.collection.deleteMany).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.deleteMany).toHaveBeenCalledWith({});
 		});
-	});	
-	
+	});
+
 	it("call entityToObject", () => {
 		doc._id.toHexString.mockClear();
 		let res = adapter.entityToObject(doc);

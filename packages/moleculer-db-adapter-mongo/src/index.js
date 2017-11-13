@@ -16,8 +16,8 @@ class MongoDbAdapter {
 
 	/**
 	 * Creates an instance of MongoDbAdapter.
-	 * @param {any} opts 
-	 * 
+	 * @param {any} opts
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	constructor(opts) {
@@ -26,10 +26,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Initialize adapter
-	 * 
-	 * @param {ServiceBroker} broker 
-	 * @param {Service} service 
-	 * 
+	 *
+	 * @param {ServiceBroker} broker
+	 * @param {Service} service
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	init(broker, service) {
@@ -44,9 +44,9 @@ class MongoDbAdapter {
 
 	/**
 	 * Connect to database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	connect() {
@@ -61,20 +61,20 @@ class MongoDbAdapter {
 		return MongoClient.connect(uri, opts).then(db => {
 			this.db = db;
 			this.collection = db.collection(this.service.schema.collection);
- 
+
 			/* istanbul ignore next */
 			this.db.on("disconnected", function mongoDisconnected() {
 				this.service.logger.warn("Disconnected from MongoDB.");
 			}.bind(this));
-			
+
 		});
 	}
 
 	/**
 	 * Disconnect from database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	disconnect() {
@@ -86,7 +86,7 @@ class MongoDbAdapter {
 
 	/**
 	 * Find all entities by filters.
-	 * 
+	 *
 	 * Available filter props:
 	 * 	- limit
 	 *  - offset
@@ -94,10 +94,10 @@ class MongoDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} filters 
+	 *
+	 * @param {Object} filters
 	 * @returns {Promise<Array>}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	find(filters) {
@@ -105,11 +105,22 @@ class MongoDbAdapter {
 	}
 
 	/**
+	 * Find an entity by query
+	 *
+	 * @param {Object} query
+	 * @returns {Promise}
+	 * @memberof MemoryDbAdapter
+	 */
+	findOne(query) {
+		return this.collection.findOne(query);
+	}
+
+	/**
 	 * Find an entities by ID.
-	 * 
-	 * @param {String} _id 
+	 *
+	 * @param {String} _id
 	 * @returns {Promise<Object>} Return with the found document.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	findById(_id) {
@@ -118,10 +129,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Find any entities by IDs.
-	 * 
-	 * @param {Array} idList 
+	 *
+	 * @param {Array} idList
 	 * @returns {Promise<Array>} Return with the found documents in an Array.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	findByIds(idList) {
@@ -134,15 +145,15 @@ class MongoDbAdapter {
 
 	/**
 	 * Get count of filtered entites.
-	 * 
+	 *
 	 * Available query props:
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} [filters={}] 
+	 *
+	 * @param {Object} [filters={}]
 	 * @returns {Promise<Number>} Return with the count of documents.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	count(filters = {}) {
@@ -151,10 +162,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Insert an entity.
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Promise<Object>} Return with the inserted document.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	insert(entity) {
@@ -166,10 +177,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Insert many entities
-	 * 
-	 * @param {Array} entities 
+	 *
+	 * @param {Array} entities
 	 * @returns {Promise<Array<Object>>} Return with the inserted documents in an Array.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	insertMany(entities) {
@@ -180,11 +191,11 @@ class MongoDbAdapter {
 
 	/**
 	 * Update many entities by `query` and `update`
-	 * 
-	 * @param {Object} query 
-	 * @param {Object} update 
+	 *
+	 * @param {Object} query
+	 * @param {Object} update
 	 * @returns {Promise<Number>} Return with the count of modified documents.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	updateMany(query, update) {
@@ -193,11 +204,11 @@ class MongoDbAdapter {
 
 	/**
 	 * Update an entity by ID and `update`
-	 * 
+	 *
 	 * @param {String} _id - ObjectID as hexadecimal string.
-	 * @param {Object} update 
+	 * @param {Object} update
 	 * @returns {Promise<Object>} Return with the updated document.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	updateById(_id, update) {
@@ -206,10 +217,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Remove entities which are matched by `query`
-	 * 
-	 * @param {Object} query 
+	 *
+	 * @param {Object} query
 	 * @returns {Promise<Number>} Return with the count of deleted documents.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	removeMany(query) {
@@ -218,10 +229,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Remove an entity by ID
-	 * 
+	 *
 	 * @param {String} _id - ObjectID as hexadecimal string.
 	 * @returns {Promise<Object>} Return with the removed document.
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	removeById(_id) {
@@ -230,9 +241,9 @@ class MongoDbAdapter {
 
 	/**
 	 * Clear all entities from collection
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	clear() {
@@ -241,8 +252,8 @@ class MongoDbAdapter {
 
 	/**
 	 * Convert DB entity to JSON object. It converts the `_id` to hexadecimal `String`.
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Object}
 	 * @memberof MongoDbAdapter
 	 */
@@ -255,15 +266,15 @@ class MongoDbAdapter {
 
 	/**
 	 * Create a filtered cursor.
-	 * 
-	 * Available filters in `params`: 
+	 *
+	 * Available filters in `params`:
 	 *  - search
 	 * 	- sort
 	 * 	- limit
 	 * 	- offset
 	 *  - query
-	 * 
- 	 * @param {Object} params 
+	 *
+ 	 * @param {Object} params
  	 * @param {Boolean} isCounting
 	 * @returns {MongoCursor}
 	 */
@@ -272,7 +283,7 @@ class MongoDbAdapter {
 			let q;
 			if (isCounting)
 				q = this.collection.count(params.query);
-			else	
+			else
 				q = this.collection.find(params.query);
 			// Full-text search
 			// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
@@ -316,8 +327,8 @@ class MongoDbAdapter {
 
 	/**
 	 * Convert the `sort` param to a `sort` object to Mongo queries.
-	 * 
-	 * @param {String|Array<String>|Object} paramSort 
+	 *
+	 * @param {String|Array<String>|Object} paramSort
 	 * @returns {Object} Return with a sort object like `{ "votes": 1, "title": -1 }`
 	 * @memberof MongoDbAdapter
 	 */
@@ -342,10 +353,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Convert hex string to ObjectID
-	 * 
-	 * @param {String} id 
+	 *
+	 * @param {String} id
 	 * @returns {ObjectID}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	stringToObjectID(id) {
@@ -354,10 +365,10 @@ class MongoDbAdapter {
 
 	/**
 	 * Convert ObjectID to Hex string
-	 * 
-	 * @param {ObjectID} id 
+	 *
+	 * @param {ObjectID} id
 	 * @returns {String}
-	 * 
+	 *
 	 * @memberof MongoDbAdapter
 	 */
 	ojectIDToString(id) {

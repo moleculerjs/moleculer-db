@@ -98,17 +98,6 @@ class MemoryDbAdapter {
 	}
 
 	/**
-	 * Find an entity by ID
-	 *
-	 * @param {any} _id
-	 * @returns {Promise}
-	 * @memberof MemoryDbAdapter
-	 */
-	findById(_id) {
-		return this.db.findOne({ _id });
-	}
-
-	/**
 	 * Find an entity by query
 	 *
 	 * @param {Object} query
@@ -117,6 +106,17 @@ class MemoryDbAdapter {
 	 */
 	findOne(query) {
 		return this.db.findOne(query);
+	}
+
+	/**
+	 * Find an entity by ID
+	 *
+	 * @param {any} _id
+	 * @returns {Promise}
+	 * @memberof MemoryDbAdapter
+	 */
+	findById(_id) {
+		return this.db.findOne({ _id });
 	}
 
 	/**
