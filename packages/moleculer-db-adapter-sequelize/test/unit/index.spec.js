@@ -8,6 +8,7 @@ const model = {
 	sync: jest.fn(() => Promise.resolve()),
 	findAll: jest.fn(() => Promise.resolve()),
 	count: jest.fn(() => Promise.resolve()),
+	findOne: jest.fn(() => Promise.resolve()),
 	findById: jest.fn(() => Promise.resolve()),
 	create: jest.fn(() => Promise.resolve()),
 	update: jest.fn(() => Promise.resolve([1, 2])),
@@ -28,7 +29,7 @@ const SequelizeAdapter = require("../../src");
 function protectReject(err) {
 	if (err && err.stack) {
 		console.error(err);
-		console.error(err.stack);	
+		console.error(err.stack);
 	}
 	expect(err).toBe(true);
 }
@@ -69,6 +70,7 @@ describe("Test SequelizeAdapter", () => {
 		expect(adapter.connect).toBeDefined();
 		expect(adapter.disconnect).toBeDefined();
 		expect(adapter.find).toBeDefined();
+		expect(adapter.findOne).toBeDefined();
 		expect(adapter.findById).toBeDefined();
 		expect(adapter.findByIds).toBeDefined();
 		expect(adapter.count).toBeDefined();
@@ -87,7 +89,7 @@ describe("Test SequelizeAdapter", () => {
 		expect(adapter.service).toBe(service);
 	});
 
-	
+
 	it("call connect with uri", () => {
 		return adapter.connect().catch(protectReject).then(() => {
 			expect(Sequelize).toHaveBeenCalledTimes(1);
@@ -202,7 +204,7 @@ describe("Test SequelizeAdapter", () => {
 							title: {
 								"$like": "%walter%"
 							}
-						}, 
+						},
 						{
 							content: {
 								"$like": "%walter%"
@@ -223,6 +225,16 @@ describe("Test SequelizeAdapter", () => {
 		return adapter.find(params).catch(protectReject).then(() => {
 			expect(adapter.createCursor).toHaveBeenCalledTimes(1);
 			expect(adapter.createCursor).toHaveBeenCalledWith(params);
+		});
+	});
+
+	it("call findOne", () => {
+		adapter.model.findOne.mockClear();
+		let age = { age: 25 };
+
+		return adapter.findOne(age).catch(protectReject).then(() => {
+			expect(adapter.model.findOne).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findOne).toHaveBeenCalledWith(age);
 		});
 	});
 
@@ -276,7 +288,7 @@ describe("Test SequelizeAdapter", () => {
 	it("call updateMany", () => {
 		let where = {};
 		let update = {};
-		
+
 		return adapter.updateMany(where, update).catch(protectReject).then(res => {
 			expect(res).toBe(1);
 			expect(adapter.model.update).toHaveBeenCalledTimes(1);
@@ -324,7 +336,7 @@ describe("Test SequelizeAdapter", () => {
 
 			expect(destroyCB).toHaveBeenCalledTimes(1);
 		});
-	});	
+	});
 
 	it("call clear", () => {
 		adapter.model.destroy.mockClear();
@@ -332,7 +344,7 @@ describe("Test SequelizeAdapter", () => {
 			expect(adapter.model.destroy).toHaveBeenCalledTimes(1);
 			expect(adapter.model.destroy).toHaveBeenCalledWith({ where: {} });
 		});
-	});	
+	});
 
 	it("call doc.toJSON", () => {
 		let doc = {
@@ -341,7 +353,7 @@ describe("Test SequelizeAdapter", () => {
 		adapter.entityToObject(doc);
 		expect(doc.get).toHaveBeenCalledTimes(1);
 		expect(doc.get).toHaveBeenCalledWith({ plain: true });
-	});	
+	});
 
 });
 

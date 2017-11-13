@@ -14,8 +14,8 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Creates an instance of SequelizeDbAdapter.
-	 * @param {any} opts 
-	 * 
+	 * @param {any} opts
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	constructor(...opts) {
@@ -25,10 +25,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Initialize adapter
-	 * 
-	 * @param {ServiceBroker} broker 
-	 * @param {Service} service 
-	 * 
+	 *
+	 * @param {ServiceBroker} broker
+	 * @param {Service} service
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	init(broker, service) {
@@ -43,9 +43,9 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Connect to database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	connect() {
@@ -63,9 +63,9 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Disconnect from database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	disconnect() {
@@ -77,7 +77,7 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Find all entities by filters.
-	 * 
+	 *
 	 * Available filter props:
 	 * 	- limit
 	 *  - offset
@@ -85,10 +85,10 @@ class SequelizeDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {any} filters 
+	 *
+	 * @param {any} filters
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	find(filters) {
@@ -96,11 +96,22 @@ class SequelizeDbAdapter {
 	}
 
 	/**
-	 * Find an entities by ID
-	 * 
-	 * @param {any} _id 
+	 * Find an entity by query
+	 *
+	 * @param {Object} query
 	 * @returns {Promise}
-	 * 
+	 * @memberof MemoryDbAdapter
+	 */
+	findOne(query) {
+		return this.model.findOne(query);
+	}
+
+	/**
+	 * Find an entities by ID
+	 *
+	 * @param {any} _id
+	 * @returns {Promise}
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	findById(_id) {
@@ -109,10 +120,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Find any entities by IDs
-	 * 
-	 * @param {Array} idList 
+	 *
+	 * @param {Array} idList
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	findByIds(idList) {
@@ -125,15 +136,15 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Get count of filtered entites
-	 * 
+	 *
 	 * Available filter props:
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} [filters={}] 
+	 *
+	 * @param {Object} [filters={}]
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	count(filters = {}) {
@@ -142,10 +153,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Insert an entity
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	insert(entity) {
@@ -154,10 +165,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Insert many entities
-	 * 
-	 * @param {Array} entities 
+	 *
+	 * @param {Array} entities
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	insertMany(entities) {
@@ -167,11 +178,11 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Update many entities by `where` and `update`
-	 * 
-	 * @param {Object} where 
-	 * @param {Object} update 
+	 *
+	 * @param {Object} where
+	 * @param {Object} update
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	updateMany(where, update) {
@@ -180,11 +191,11 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Update an entity by ID and `update`
-	 * 
-	 * @param {any} _id 
-	 * @param {Object} update 
+	 *
+	 * @param {any} _id
+	 * @param {Object} update
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	updateById(_id, update) {
@@ -195,10 +206,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Remove entities which are matched by `where`
-	 * 
-	 * @param {Object} where 
+	 *
+	 * @param {Object} where
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	removeMany(where) {
@@ -207,10 +218,10 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Remove an entity by ID
-	 * 
-	 * @param {any} _id 
+	 *
+	 * @param {any} _id
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	removeById(_id) {
@@ -221,9 +232,9 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Clear all entities from collection
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof SequelizeDbAdapter
 	 */
 	clear() {
@@ -232,8 +243,8 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Convert DB entity to JSON object
-	 * 
-	 * @param {any} entity 
+	 *
+	 * @param {any} entity
 	 * @returns {Object}
 	 * @memberof SequelizeDbAdapter
 	 */
@@ -243,14 +254,14 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Create a filtered query
-	 * Available filters in `params`: 
+	 * Available filters in `params`:
 	 *  - search
 	 * 	- sort
 	 * 	- limit
 	 * 	- offset
 	 *  - query
-	 * 
- 	 * @param {Object} params 
+	 *
+ 	 * @param {Object} params
  	 * @param {Boolean} isCounting
 	 * @returns {Promise}
 	 */
@@ -277,7 +288,7 @@ class SequelizeDbAdapter {
 					})
 				};
 			}
-			
+
 			// Sort
 			if (params.sort) {
 				let sort = this.transformSort(params.sort);
@@ -307,8 +318,8 @@ class SequelizeDbAdapter {
 
 	/**
 	 * Convert the `sort` param to a `sort` object to Mongo queries.
-	 * 
-	 * @param {String|Array<String>|Object} paramSort 
+	 *
+	 * @param {String|Array<String>|Object} paramSort
 	 * @returns {Object} Return with a sort object like `[["votes", "ASC"], ["title", "DESC"]]`
 	 * @memberof MongoDbAdapter
 	 */
@@ -334,7 +345,7 @@ class SequelizeDbAdapter {
 
 		/* istanbul ignore next*/
 		return [];
-	}	
+	}
 
 }
 
