@@ -7,7 +7,7 @@ const Adapter = require("../../src/memory-adapter");
 function protectReject(err) {
 	if (err && err.stack) {
 		console.error(err);
-		console.error(err.stack);	
+		console.error(err.stack);
 	}
 	expect(err).toBe(true);
 }
@@ -41,10 +41,10 @@ describe("Test Adapter methods", () => {
 		return expect(adapter.connect()).resolves.toBeUndefined();
 	});
 
-	const doc = { 
-		name: "Walter White", 
-		age: 48, 
-		email: "heisenberg@gmail.com" 
+	const doc = {
+		name: "Walter White",
+		age: 48,
+		email: "heisenberg@gmail.com"
 	};
 
 	let savedDoc;
@@ -83,6 +83,10 @@ describe("Test Adapter methods", () => {
 
 	it("should find by ID", () => {
 		return expect(adapter.findById(savedDoc._id)).resolves.toEqual(savedDoc);
+	});
+
+	it("should find one", () => {
+		return expect(adapter.findOne({ age: 48 })).resolves.toEqual(savedDoc);
 	});
 
 	it("should find by multiple ID", () => {
@@ -139,7 +143,7 @@ describe("Test Adapter methods", () => {
 		return expect(adapter.find({ sort: ["name"] })).resolves.toEqual([
 			multipleDocs[2],
 			multipleDocs[1],
-			multipleDocs[0], 
+			multipleDocs[0],
 			savedDoc,
 		]);
 	});
@@ -147,7 +151,7 @@ describe("Test Adapter methods", () => {
 	it("should sort by two fields in array", () => {
 		return expect(adapter.find({ sort: ["-age", "-name"] })).resolves.toEqual([
 			savedDoc,
-			multipleDocs[0], 
+			multipleDocs[0],
 			multipleDocs[1],
 			multipleDocs[2],
 		]);
@@ -170,7 +174,7 @@ describe("Test Adapter methods", () => {
 
 	it("should update a document", () => {
 		return expect(adapter.updateById(savedDoc._id, { $set: { e: 1234 } })).resolves.toEqual(Object.assign({}, savedDoc, { e: 1234 }));
-	});	
+	});
 
 	it("should update many documents", () => {
 		return expect(adapter.updateMany({ age: 35 }, { $set: { gender: "male" } })).resolves.toBe(2);
@@ -178,21 +182,21 @@ describe("Test Adapter methods", () => {
 
 	it("should remove by ID", () => {
 		return expect(adapter.removeById(multipleDocs[0]._id)).resolves.toBe(1);
-	});	
+	});
 
 	it("should remove many documents", () => {
 		return expect(adapter.removeMany({ name: { $regex: /Doe/ } })).resolves.toBe(1);
-	});	
+	});
 
 	it("should count all entities", () => {
 		return expect(adapter.count()).resolves.toBe(2);
-	});	
+	});
 
 	it("should clear all documents", () => {
 		return expect(adapter.clear()).resolves.toBe(2);
-	});	
+	});
 
 	it("should disconnect", () => {
 		return expect(adapter.disconnect()).resolves.toBeUndefined();
-	});	
+	});
 });

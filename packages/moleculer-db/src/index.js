@@ -459,21 +459,6 @@ module.exports = {
 		},
 
 		/**
-		 * Find first item.
-		 *
-		 * @methods
-		 * @param {Object} params
-		 * @returns {Object} Found entity.
-		 */
-		findOne(params) {
-			return this.adapter.find(params)
-				.then(res => {
-					if (res && res.length > 0)
-						return res[0];
-				});
-		},
-
-		/**
 		 * Get entity(ies) by ID(s).
 		 *
 		 * @methods

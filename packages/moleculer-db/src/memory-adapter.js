@@ -12,15 +12,15 @@ const Datastore = require("nedb");
 
 /**
  * NeDB adapter for `moleculer-db`
- * 
+ *
  * @class MemoryDbAdapter
  */
 class MemoryDbAdapter {
 
 	/**
 	 * Creates an instance of MemoryDbAdapter.
-	 * 
-	 * @param {Object} opts 
+	 *
+	 * @param {Object} opts
 	 * @memberof MemoryDbAdapter
 	 */
 	constructor(opts) {
@@ -29,9 +29,9 @@ class MemoryDbAdapter {
 
 	/**
 	 * Initialize adapter
-	 * 
-	 * @param {ServiceBroker} broker 
-	 * @param {Service} service 
+	 *
+	 * @param {ServiceBroker} broker
+	 * @param {Service} service
 	 * @memberof MemoryDbAdapter
 	 */
 	init(broker, service) {
@@ -41,7 +41,7 @@ class MemoryDbAdapter {
 
 	/**
 	 * Connect to database
-	 * 
+	 *
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -60,7 +60,7 @@ class MemoryDbAdapter {
 
 	/**
 	 * Disconnect from database
-	 * 
+	 *
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -71,7 +71,7 @@ class MemoryDbAdapter {
 
 	/**
 	 * Find all entities by filters.
-	 * 
+	 *
 	 * Available filter props:
 	 * 	- limit
 	 *  - offset
@@ -79,8 +79,8 @@ class MemoryDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} filters 
+	 *
+	 * @param {Object} filters
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -99,8 +99,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Find an entity by ID
-	 * 
-	 * @param {any} _id 
+	 *
+	 * @param {any} _id
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -109,9 +109,20 @@ class MemoryDbAdapter {
 	}
 
 	/**
+	 * Find an entity by query
+	 *
+	 * @param {Object} query
+	 * @returns {Promise}
+	 * @memberof MemoryDbAdapter
+	 */
+	findOne(query) {
+		return this.db.findOne(query);
+	}
+
+	/**
 	 * Find all entites by IDs
-	 * 
-	 * @param {Array<Number>} ids 
+	 *
+	 * @param {Array<Number>} ids
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -130,13 +141,13 @@ class MemoryDbAdapter {
 
 	/**
 	 * Get count of filtered entites
-	 * 
+	 *
 	 * Available filter props:
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} [filters={}] 
+	 *
+	 * @param {Object} [filters={}]
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -155,8 +166,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Insert an entity
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -166,8 +177,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Insert multiple entities
-	 * 
-	 * @param {Array<Object>} entities 
+	 *
+	 * @param {Array<Object>} entities
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -177,9 +188,9 @@ class MemoryDbAdapter {
 
 	/**
 	 * Update many entities by `query` and `update`
-	 * 
-	 * @param {Object} query 
-	 * @param {Object} update 
+	 *
+	 * @param {Object} query
+	 * @param {Object} update
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -189,9 +200,9 @@ class MemoryDbAdapter {
 
 	/**
 	 * Update an entity by ID
-	 * 
-	 * @param {any} _id 
-	 * @param {Object} update 
+	 *
+	 * @param {any} _id
+	 * @param {Object} update
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -201,8 +212,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Remove many entities which are matched by `query`
-	 * 
-	 * @param {Object} query 
+	 *
+	 * @param {Object} query
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -212,8 +223,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Remove an entity by ID
-	 * 
-	 * @param {any} _id 
+	 *
+	 * @param {any} _id
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -223,7 +234,7 @@ class MemoryDbAdapter {
 
 	/**
 	 * Clear all entities from DB
-	 * 
+	 *
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
@@ -233,8 +244,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Convert DB entity to JSON object
-	 * 
-	 * @param {any} entity 
+	 *
+	 * @param {any} entity
 	 * @returns {Object}
 	 * @memberof MongooseStoreAdapter
 	 */
@@ -244,8 +255,8 @@ class MemoryDbAdapter {
 
 	/**
 	 * Add filters to query
-	 * 
-	 * Available filters: 
+	 *
+	 * Available filters:
 	 *  - search
 	 *  - searchFields
 	 * 	- sort
@@ -253,7 +264,7 @@ class MemoryDbAdapter {
 	 * 	- offset
 	 *  - query
 	 *
-	 * @param {Object} params 
+	 * @param {Object} params
 	 * @returns {Query}
 	 */
 	createCursor(params) {
@@ -267,7 +278,7 @@ class MemoryDbAdapter {
 					fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
 				}
 
-				q = this.db.find({ 
+				q = this.db.find({
 					$where: function() {
 						let item = this;
 						if (fields.length > 0)
@@ -279,7 +290,7 @@ class MemoryDbAdapter {
 					}
 				});
 			} else {
-				if (params.query) 
+				if (params.query)
 					q = this.db.find(params.query);
 				else
 					q = this.db.find({});
@@ -291,7 +302,7 @@ class MemoryDbAdapter {
 				params.sort.forEach(field => {
 					if (field.startsWith("-"))
 						sortFields[field.slice(1)] = -1;
-					else 
+					else
 						sortFields[field] = 1;
 				});
 				q.sort(sortFields);

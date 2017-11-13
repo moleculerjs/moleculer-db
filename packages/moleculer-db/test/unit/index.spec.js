@@ -485,17 +485,6 @@ describe("Test DbService methods", () => {
 
 	});
 
-	it("should call 'find' of adapter", () => {
-		adapter.find.mockClear();
-		let params = {query: { username: "john" }};
-		return service.findOne(params).then(res => {
-			expect(res).toBe(docs[0]);
-
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith(params);
-		}).catch(protectReject);
-	});
-
 	it("should call 'disconnect' of adapter", () => {
 		return broker.stop().delay(100).then(() => {
 			expect(adapter.disconnect).toHaveBeenCalledTimes(1);
