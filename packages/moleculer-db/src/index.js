@@ -7,6 +7,7 @@
 "use strict";
 
 const _ = require("lodash");
+const Promise = require("bluebird");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
@@ -170,7 +171,7 @@ module.exports = {
 					countParams.offset = null;
 
 
-				return this.Promise.all([
+				return Promise.all([
 					// Get rows
 					this.adapter.find(params),
 
@@ -233,7 +234,7 @@ module.exports = {
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 
-				return this.Promise.resolve()
+				return Promise.resolve()
 					.then(() => {
 						if (Array.isArray(params.entities)) {
 							return this.validateEntity(params.entities)
@@ -481,7 +482,7 @@ module.exports = {
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
 		getById(id, decoding) {
-			return this.Promise.resolve()
+			return Promise.resolve()
 				.then(() => {
 					if (_.isArray(id)) {
 						if (decoding)
@@ -522,7 +523,7 @@ module.exports = {
 			this.broker.broadcast(`cache.clean.${this.name}`);
 			if (this.broker.cacher)
 				this.broker.cacher.clean(`${this.name}.*`);
-			return this.Promise.resolve();
+			return Promise.resolve();
 		},
 
 		/**
@@ -540,10 +541,10 @@ module.exports = {
 					docs = [docs];
 				}
 				else
-					return this.Promise.resolve(docs);
+					return Promise.resolve(docs);
 			}
 
-			return this.Promise.resolve(docs)
+			return Promise.resolve(docs)
 
 				// Convert entity to JS object
 				.then(docs => docs.map(doc => this.adapter.entityToObject(doc)))
@@ -650,10 +651,10 @@ module.exports = {
 		 */
 		populateDocs(ctx, docs, populateFields) {
 			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
-				return this.Promise.resolve(docs);
+				return Promise.resolve(docs);
 
 			if (docs == null || !_.isObject(docs) || !Array.isArray(docs))
-				return this.Promise.resolve(docs);
+				return Promise.resolve(docs);
 
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, field) => {
@@ -664,7 +665,7 @@ module.exports = {
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
 					rule = {
-						handler: this.Promise.method(rule)
+						handler: Promise.method(rule)
 					};
 				}
 
@@ -707,7 +708,7 @@ module.exports = {
 				}
 			});
 
-			return this.Promise.all(promises).then(() => docs);
+			return Promise.all(promises).then(() => docs);
 		},
 
 		/**
@@ -718,10 +719,10 @@ module.exports = {
 		 */
 		validateEntity(entity) {
 			if (!_.isFunction(this.settings.entityValidator))
-				return this.Promise.resolve(entity);
+				return Promise.resolve(entity);
 
 			let entities = Array.isArray(entity) ? entity : [entity];
-			return this.Promise.all(entities.map(entity => this.settings.entityValidator(entity))).then(() => entity);
+			return Promise.all(entities.map(entity => this.settings.entityValidator(entity))).then(() => entity);
 		},
 
 		/**
@@ -769,9 +770,9 @@ module.exports = {
 			this.settings.entityValidator = entity => {
 				const res = check(entity);
 				if (res === true)
-					return this.Promise.resolve();
+					return Promise.resolve();
 				else
-					return this.Promise.reject(new ValidationError("Entity validation error!", null, res));
+					return Promise.reject(new ValidationError("Entity validation error!", null, res));
 			};
 		}
 
@@ -782,7 +783,7 @@ module.exports = {
 	 */
 	started() {
 		if (this.adapter) {
-			return new this.Promise(resolve => {
+			return new Promise(resolve => {
 				let connecting = () => {
 					this.connect().then(resolve).catch(err => {
 						setTimeout(() => {
@@ -798,7 +799,7 @@ module.exports = {
 		}
 
 		/* istanbul ignore next */
-		return this.Promise.reject(new Error("Please set the store adapter in schema!"));
+		return Promise.reject(new Error("Please set the store adapter in schema!"));
 	},
 
 	/**
