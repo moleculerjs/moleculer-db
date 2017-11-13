@@ -18,9 +18,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:ice-services/moleculer-addons.git"
+    "url": "git@github.com:ice-services/moleculer-db.git"
   },
-  "homepage": "https://github.com/ice-services/moleculer-addons/tree/master/packages/moleculer-db-adapter-mongo#readme",
+  "homepage": "https://github.com/ice-services/moleculer-db/tree/master/packages/moleculer-db-adapter-mongo#readme",
   "author": "Ice Services",
   "license": "MIT",
   "peerDependencies": {
