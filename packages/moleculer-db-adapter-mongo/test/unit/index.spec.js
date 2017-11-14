@@ -142,11 +142,12 @@ describe("Test MongoDbAdapter", () => {
 	it("call stringToObjectID", () => {
 		mongodb.ObjectID.createFromHexString = jest.fn();
 
-		adapter.stringToObjectID(123);
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith(123);
+		adapter.stringToObjectID({});
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(0);
 
-		adapter.stringToObjectID = jest.fn(id => id);
+		adapter.stringToObjectID("123");
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
 	});
 
 	it("call ojectIDToString", () => {
