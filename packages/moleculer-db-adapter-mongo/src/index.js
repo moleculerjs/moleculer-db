@@ -300,7 +300,7 @@ class MongoDbAdapter {
 				});
 			} else {
 				// Sort
-				if (params.sort) {
+				if (params.sort && q.sort) {
 					let sort = this.transformSort(params.sort);
 					if (sort)
 						q.sort(sort);
@@ -360,7 +360,10 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	stringToObjectID(id) {
-		return new ObjectID.createFromHexString(id);
+		if (typeof id == "string")
+			return new ObjectID.createFromHexString(id);
+
+		return id;
 	}
 
 	/**
