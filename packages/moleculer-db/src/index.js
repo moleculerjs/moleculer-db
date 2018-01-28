@@ -96,7 +96,7 @@ module.exports = {
 				searchFields: { type: "array", optional: true },
 				query: { type: "object", optional: true }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 
 				return this.getAdapter(ctx).then((adapter) => {
@@ -128,7 +128,7 @@ module.exports = {
 				searchFields: { type: "array", optional: true },
 				query: { type: "object", optional: true }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 
 				// Remove pagination params
@@ -172,7 +172,7 @@ module.exports = {
 				searchFields: { type: "array", optional: true },
 				query: { type: "object", optional: true }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 
 				let countParams = Object.assign({}, params);
@@ -219,7 +219,7 @@ module.exports = {
 		 * @returns {Object} Saved entity.
 		 */
 		create: {
-			handler (ctx) {
+			handler(ctx) {
 				let entity = ctx.params;
 
 				return this.getAdapter(ctx).then((adapter) => {
@@ -247,7 +247,7 @@ module.exports = {
 				entity: { type: "object", optional: true },
 				entities: { type: "array", optional: true }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 
 				return this.getAdapter(ctx).then((adapter) => {
@@ -297,7 +297,7 @@ module.exports = {
 				fields: { type: "array", optional: true, items: "string" },
 				mapping: { type: "boolean", optional: true }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				let id = params.id;
 
@@ -338,7 +338,7 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		update: {
-			handler (ctx) {
+			handler(ctx) {
 				let id;
 				let sets = {};
 
@@ -378,7 +378,7 @@ module.exports = {
 			params: {
 				id: { type: "any" }
 			},
-			handler (ctx) {
+			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				const id = this.decodeID(params.id);
 
@@ -405,7 +405,7 @@ module.exports = {
 		 * if ctx and tenant stratergy are present it will call getAdapter and getAdapterHash
 		 * @param {*} [ctx]
 		 */
-		getAdapter (ctx) {
+		getAdapter(ctx) {
 			const useTenantStrategy = this.tenantStrategy && ctx;
 			const hash = useTenantStrategy ? this.tenantStrategy.getAdapterHash(ctx) : "default";
 
@@ -430,7 +430,7 @@ module.exports = {
 		 * @param {string} [adapterWithHash.hash]
 		 * @param {object} [adapterWithHash.adapter]
 		 */
-		connect (adapterWithHash) {
+		connect(adapterWithHash) {
 			const adapters = adapterWithHash ? { [adapterWithHash.hash]: adapterWithHash.adapter } : this.adapters;
 			return Promise.all(Object.keys(adapters).map((adapterHash) => {
 				return new Promise((resolve) => {
@@ -464,7 +464,7 @@ module.exports = {
 		/**
 		 * Disconnect from database.
 		 */
-		disconnect () {
+		disconnect() {
 			const adapters = Object.values(this.adapters);
 			// clear adapters cache
 			this.adapters = {};
@@ -481,7 +481,7 @@ module.exports = {
 		 * @param {any} origParams
 		 * @returns {Promise}
 		 */
-		sanitizeParams (ctx, params) {
+		sanitizeParams(ctx, params) {
 			let p = Object.assign({}, params);
 
 			// Convert from string to number
@@ -536,7 +536,7 @@ module.exports = {
 		 * @param {Context} [ctx]
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
-		getById (id, decoding, ctx) {
+		getById(id, decoding, ctx) {
 			return this.getAdapter(ctx).then((adapter) => {
 				if (_.isArray(id)) {
 					if (decoding)
@@ -558,7 +558,7 @@ module.exports = {
 		 * @param {Context} ctx
 		 * @returns {Promise}
 		 */
-		entityChanged (type, json, ctx) {
+		entityChanged(type, json, ctx) {
 			return this.clearCache().then(() => {
 				const eventName = `entity${_.capitalize(type)}`;
 				if (this.schema[eventName] != null) {
@@ -573,7 +573,7 @@ module.exports = {
 		 * @methods
 		 * @returns {Promise}
 		 */
-		clearCache () {
+		clearCache() {
 			this.broker.broadcast(`cache.clean.${this.name}`);
 			if (this.broker.cacher)
 				this.broker.cacher.clean(`${this.name}.*`);
@@ -587,7 +587,7 @@ module.exports = {
 		 * @param {Object} 			Params
 		 * @returns {Array|Object}
 		 */
-		transformDocuments (ctx, params, docs) {
+		transformDocuments(ctx, params, docs) {
 			let isDoc = false;
 			if (!Array.isArray(docs)) {
 				if (_.isObject(docs)) {
@@ -641,7 +641,7 @@ module.exports = {
 		 * @param {Array} 	fields	Filter properties of model.
 		 * @returns	{Object}
 		 */
-		filterFields (doc, fields) {
+		filterFields(doc, fields) {
 			// Apply field filter (support nested paths)
 			if (Array.isArray(fields)) {
 				let res = {};
@@ -662,7 +662,7 @@ module.exports = {
 		 * @param {Array} fields
 		 * @returns {Array}
 		 */
-		authorizeFields (fields) {
+		authorizeFields(fields) {
 			if (this.settings.fields && this.settings.fields.length > 0) {
 				let res = [];
 				if (Array.isArray(fields) && fields.length > 0) {
@@ -704,7 +704,7 @@ module.exports = {
 		 * @param {Array}			populateFields
 		 * @returns	{Promise}
 		 */
-		populateDocs (ctx, docs, populateFields) {
+		populateDocs(ctx, docs, populateFields) {
 			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
 				return Promise.resolve(docs);
 
@@ -772,7 +772,7 @@ module.exports = {
 		 * @param {any} entity
 		 * @returns {Promise}
 		 */
-		validateEntity (entity) {
+		validateEntity(entity) {
 			if (!_.isFunction(this.settings.entityValidator))
 				return Promise.resolve(entity);
 
@@ -787,7 +787,7 @@ module.exports = {
 		 * @param {any} id
 		 * @returns {any}
 		 */
-		encodeID (id) {
+		encodeID(id) {
 			return id;
 		},
 
@@ -798,7 +798,7 @@ module.exports = {
 		 * @param {any} id
 		 * @returns {any}
 		 */
-		decodeID (id) {
+		decodeID(id) {
 			return id;
 		}
 	},
@@ -806,7 +806,7 @@ module.exports = {
 	/**
 	 * Service created lifecycle event handler
 	 */
-	created () {
+	created() {
 		// Compatibility with < 0.4
 		if (_.isString(this.settings.fields)) {
 			this.settings.fields = this.settings.fields.split(" ");
@@ -841,7 +841,7 @@ module.exports = {
 	/**
 	 * Service started lifecycle event handler
 	 */
-	started () {
+	started() {
 		// connect error retry happens lazily
 		return this.connect();
 	},
@@ -849,7 +849,7 @@ module.exports = {
 	/**
 	 * Service stopped lifecycle event handler
 	 */
-	stopped () {
+	stopped() {
 		return this.disconnect();
 	},
 
