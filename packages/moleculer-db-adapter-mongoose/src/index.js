@@ -6,9 +6,9 @@
 
 "use strict";
 
-const _ 		= require("lodash");
-const Promise	= require("bluebird");
-const mongoose  = require("mongoose");
+const _ = require("lodash");
+const Promise = require("bluebird");
+const mongoose = require("mongoose");
 
 class MongooseDbAdapter {
 
@@ -18,7 +18,7 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(opts) {
+	constructor (opts) {
 		this.opts = opts;
 		mongoose.Promise = Promise;
 	}
@@ -35,10 +35,19 @@ class MongooseDbAdapter {
 		this.broker = broker;
 		this.service = service;
 
-		this.model = this.service.schema.model;
-		if (!this.model) {
+		if (this.service.schema.model) {
+			this.model = this.service.schema.model;
+		} else if (this.service.schema.schema) {
+			if (!this.service.schema.modelName) {
+				throw new Error("`modelName` is required when `schema` is given in schema of service!");
+			}
+			this.schema = this.service.schema.schema;
+			this.modelName = this.service.schema.modelName;
+		}
+
+		if (!this.model && !this.schema) {
 			/* istanbul ignore next */
-			throw new Error("Missing `model` definition in schema of service!");
+			throw new Error("Missing `model` or `schema` definition in schema of service!");
 		}
 	}
 
@@ -50,7 +59,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let uri, opts;
+		let uri, opts, conn;
 		if (_.isObject(this.opts) && this.opts.uri != null) {
 			uri = this.opts.uri;
 			opts = this.opts.opts;
@@ -58,13 +67,19 @@ class MongooseDbAdapter {
 			uri = this.opts;
 		}
 
-		/* istanbul ignore next */
-		if (mongoose.connection.readyState != 0) {
-			this.db = mongoose.connection;
-			return Promise.resolve();
+		if (this.model) {
+			/* istanbul ignore next */
+			if (mongoose.connection.readyState != 0) {
+				this.db = mongoose.connection;
+				return Promise.resolve();
+			}
+
+			conn = mongoose.connect(uri, opts);
+		} else if (this.schema) {
+			conn = mongoose.createConnection(uri, opts);
+			this.model = conn.model(this.modelName, this.schema);
 		}
 
-		const conn = mongoose.connect(uri, opts);
 		return conn.then(result => {
 			this.db = conn.connection || result.db;
 

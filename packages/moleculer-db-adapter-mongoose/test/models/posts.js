@@ -31,4 +31,7 @@ PostSchema.index({
 	"content": "text"
 });
 
-module.exports = mongoose.model("Post", PostSchema);
+module.exports = {
+	Model: mongoose.model("Post", PostSchema),
+	Schema: PostSchema
+};
