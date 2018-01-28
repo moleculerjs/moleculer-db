@@ -6,9 +6,9 @@
 
 "use strict";
 
-const _ = require("lodash");
-const Promise = require("bluebird");
-const mongoose = require("mongoose");
+const _ 		= require("lodash");
+const Promise	= require("bluebird");
+const mongoose  = require("mongoose");
 
 class MongooseDbAdapter {
 
@@ -18,7 +18,7 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor (opts) {
+	constructor(opts) {
 		this.opts = opts;
 		mongoose.Promise = Promise;
 	}
