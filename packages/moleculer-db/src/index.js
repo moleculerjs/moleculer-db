@@ -465,7 +465,7 @@ module.exports = {
 		 * Disconnect from database.
 		 */
 		disconnect() {
-			const adapters = Object.values(this.adapters);
+			const adapters = _.values(this.adapters);
 			// clear adapters cache
 			this.adapters = {};
 			return Promise.all(adapters.map((_adapter) => {
