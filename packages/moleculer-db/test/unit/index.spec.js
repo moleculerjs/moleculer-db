@@ -252,7 +252,7 @@ describe("Test DbService actions", () => {
 			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
-			expect(service.getById).toHaveBeenCalledWith(5, true);
+			expect(service.getById).toHaveBeenCalledWith(5, true, jasmine.any(Context));
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, doc);
@@ -288,7 +288,7 @@ describe("Test DbService actions", () => {
 			});
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
-			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], true);
+			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], true, jasmine.any(Context));
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);

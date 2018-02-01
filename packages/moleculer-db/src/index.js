@@ -302,7 +302,7 @@ module.exports = {
 				let id = params.id;
 
 				let origDoc;
-				return this.getById(id, true)
+				return this.getById(id, true, ctx)
 					.then(doc => {
 						if (!doc)
 							return Promise.reject(new EntityNotFoundError(id));
