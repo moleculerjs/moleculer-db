@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ice-services/moleculer-db.git"
+    "url": "git+https://github.com/moleculerjs/moleculer-db.git"
   },
   "keywords": [],
-  "author": "Ice Services",
+  "author": "MoleculerJS",
   "license": "MIT",
-  "homepage": "https://github.com/ice-services/moleculer-db#readme",
+  "homepage": "https://github.com/moleculerjs/moleculer-db#readme",
   "devDependencies": {
     "coveralls": "3.0.0",
     "eslint": "4.8.0",

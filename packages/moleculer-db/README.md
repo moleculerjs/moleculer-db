@@ -73,7 +73,8 @@ broker.start()
 
 # Settings
 
-<!-- AUTO-CONTENT-START:SETTINGS -->| Property | Type | Default | Description |
+<!-- AUTO-CONTENT-START:SETTINGS -->
+| Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `idField` | `String` | **required** | Name of ID field. |
 | `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
@@ -99,7 +100,8 @@ broker.start()
 
 # Actions
 
-<!-- AUTO-CONTENT-START:ACTIONS -->## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+<!-- AUTO-CONTENT-START:ACTIONS -->
+## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
 
 Find entities by query.
 
@@ -280,7 +282,8 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->## `getById` 
+<!-- AUTO-CONTENT-START:METHODS -->
+## `getById` 
 
 Get entity(ies) by ID(s).
 
@@ -494,6 +497,6 @@ $ npm run ci
 The project is available under the [MIT license](https://tldrlegal.com/license/mit-license).
 
 # Contact
-Copyright (c) 2016-2017 Ice Services
+Copyright (c) 2016-2018 Ice Services
 
-[![@ice-services](https://img.shields.io/badge/github-ice--services-green.svg)](https://github.com/ice-services) [![@MoleculerJS](https://img.shields.io/badge/twitter-MoleculerJS-blue.svg)](https://twitter.com/MoleculerJS)
+[![@moleculerjs](https://img.shields.io/badge/github-ice--services-green.svg)](https://github.com/moleculerjs) [![@MoleculerJS](https://img.shields.io/badge/twitter-MoleculerJS-blue.svg)](https://twitter.com/MoleculerJS)
