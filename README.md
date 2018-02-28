@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/moleculerjs/moleculer-db.svg?branch=master)](https://travis-ci.org/moleculerjs/moleculer-db)
 [![Coverage Status](https://coveralls.io/repos/github/moleculerjs/moleculer-db/badge.svg?branch=master)](https://coveralls.io/github/moleculerjs/moleculer-db?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/69ae37a7584d47e0a0e47032a7a9f967)](https://www.codacy.com/app/mereg-norbert/moleculer-db?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=moleculerjs/moleculer-db&amp;utm_campaign=Badge_Grade)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8abeb7f25576e59e91bc/maintainability)](https://codeclimate.com/github/moleculerjs/moleculer-db/maintainability)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ea41176f5d764839969633e854b9905a)](https://www.codacy.com/app/mereg-norbert/moleculer-db?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=moleculerjs/moleculer-db&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/0c7fa55afd189410eff3/maintainability)](https://codeclimate.com/github/moleculerjs/moleculer-db/maintainability)
 [![Known Vulnerabilities](https://snyk.io/test/github/moleculerjs/moleculer-db/badge.svg)](https://snyk.io/test/github/moleculerjs/moleculer-db)
 [![Join the chat at https://gitter.im/moleculerjs/moleculer](https://badges.gitter.im/moleculerjs/moleculer.svg)](https://gitter.im/moleculerjs/moleculer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
