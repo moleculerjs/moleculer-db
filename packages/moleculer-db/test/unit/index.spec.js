@@ -45,7 +45,7 @@ describe("Test DbService actions", () => {
 	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(docs));
 
 	it("should set default settings", () => {
-		expect(service.adapter).toBe(adapter);
+		expect(service.adapter).toEqual(adapter);
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
@@ -142,7 +142,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'count' method", () => {
 		service.sanitizeParams.mockClear();
-		adapter.count = jest.fn();
+		adapter.count.mockClear();
 		const p = {};
 
 		return broker.call("store.count", p).then(() => {
@@ -156,7 +156,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'count' method with pagination params", () => {
 		service.sanitizeParams.mockClear();
-		adapter.count = jest.fn();
+		adapter.count.mockClear();
 		const p = { limit: 5, offset: 10 };
 
 		return broker.call("store.count", p).then(() => {
