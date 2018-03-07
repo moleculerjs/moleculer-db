@@ -61,7 +61,7 @@ new MongooseAdapter("mongodb://localhost/moleculer-db")
 ```js
 new MongooseAdapter({
     uri: "mongodb://db-server-hostname/my-db",
-    options: {
+    opts: {
         user: process.env.MONGO_USERNAME,
         pass: process.env.MONGO_PASSWORD
         server: {
