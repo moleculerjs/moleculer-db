@@ -11,7 +11,7 @@ let broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
-const adapter = new MongoAdapter("mongodb://localhost/moleculer-db-demo");
+const adapter = new MongoAdapter("mongodb://localhost/moleculer-db-demo?autoReconnect=true");
 
 // Load my service
 broker.createService(StoreService, {
@@ -22,7 +22,7 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.clear().then(() => {
+		return this.adapter.clear().then(() => {
 			this.adapter.collection.createIndex( { title: "text", content: "text" } );
 		}).then(() => start());
 	}
@@ -37,7 +37,7 @@ function start() {
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
-		.then(() => checker.printTotal());	
+		.then(() => checker.printTotal());
 }
 
 // --- TEST CASES ---
@@ -96,7 +96,7 @@ checker.add("INSERT MANY", () => adapter.insertMany([
 checker.add("COUNT", () => adapter.count(), res => {
 	console.log(res);
 	return res == 3;
-});		
+});
 
 // Find
 checker.add("FIND by query", () => adapter.find({ query: { title: "Last" } }), res => {
@@ -139,8 +139,8 @@ checker.add("GET BY IDS", () => adapter.findByIds([ids[2], ids[0]]), res => {
 });
 
 // Update a posts
-checker.add("UPDATE", () => adapter.updateById(ids[2], { $set: { 
-	title: "Last 2", 
+checker.add("UPDATE", () => adapter.updateById(ids[2], { $set: {
+	title: "Last 2",
 	updatedAt: new Date(),
 	status: true
 }}), doc => {
@@ -149,7 +149,7 @@ checker.add("UPDATE", () => adapter.updateById(ids[2], { $set: {
 });
 
 // Update by query
-checker.add("UPDATE BY QUERY", () => adapter.updateMany({ votes: { $lt: 5 }}, { 
+checker.add("UPDATE BY QUERY", () => adapter.updateMany({ votes: { $lt: 5 }}, {
 	$set: { status: false }
 }), count => {
 	console.log("Updated: ", count);
@@ -166,7 +166,7 @@ checker.add("REMOVE BY QUERY", () => adapter.removeMany({ votes: { $lt: 5 }}), c
 checker.add("COUNT", () => adapter.count(), res => {
 	console.log(res);
 	return res == 1;
-});	
+});
 
 // Remove by ID
 checker.add("REMOVE BY ID", () => adapter.removeById(ids[1]), doc => {
