@@ -45,13 +45,11 @@ const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
 
 const fakeSchema = {};
 
-let fakeConn = Promise.resolve();
-fakeConn.connection = {
+let fakeConn = {
 	on: jest.fn(),
-	close: jest.fn()
+	close: jest.fn(),
+	model: jest.fn(() => fakeModel)
 };
-
-fakeConn.model = jest.fn(() => fakeModel);
 
 describe("Test MongooseStoreAdapter", () => {
 	const broker = new ServiceBroker();
@@ -125,24 +123,24 @@ describe("Test MongooseStoreAdapter", () => {
 
 	describe("Test connect", () => {
 		it("call connect with uri", () => {
-			fakeConn.connection.on.mockClear();
+			fakeConn.on.mockClear();
 
-			mongoose.connect = jest.fn(() => fakeConn);
+			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
 			adapter.opts = "mongodb://server";
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
 				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://server", undefined);
 
-				expect(adapter.db).toBe(fakeConn.connection);
+				expect(adapter.db).toBe(fakeConn);
 				expect(adapter.db.on).toHaveBeenCalledTimes(1);
 				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", jasmine.any(Function));
 			});
 		});
 
 		it("call connect with uri & opts", () => {
-			fakeConn.connection.on.mockClear();
+			fakeConn.on.mockClear();
 
-			mongoose.connect = jest.fn(() => fakeConn);
+			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
 			adapter.opts = {
 				uri: "mongodb://server",
 				opts: {
@@ -158,15 +156,15 @@ describe("Test MongooseStoreAdapter", () => {
 		});
 
 		it("call disconnect", () => {
-			fakeConn.connection.close.mockClear();
+			fakeConn.close.mockClear();
 
 			return adapter.disconnect().catch(protectReject).then(() => {
-				expect(fakeConn.connection.close).toHaveBeenCalledTimes(1);
+				expect(fakeConn.close).toHaveBeenCalledTimes(1);
 			});
 		});
 
 		it("call connect with schema and modelName", () => {
-			fakeConn.connection.on.mockClear();
+			fakeConn.on.mockClear();
 			const service = broker.createService({
 				name: "store",
 				schema: fakeSchema,
@@ -175,7 +173,13 @@ describe("Test MongooseStoreAdapter", () => {
 			const adapter = new MongooseStoreAdapter(opts);
 			adapter.init(broker, service);
 
-			mongoose.createConnection = jest.fn(() => fakeConn);
+			const makeModel = jest.fn(() => fakeModel);
+			mongoose.createConnection = jest.fn(() => {
+				const conn = Promise.resolve({ connection: fakeConn });
+				conn.model = makeModel;
+				return conn;
+			});
+
 			adapter.opts = {
 				uri: "mongodb://server",
 				opts: {
@@ -187,8 +191,8 @@ describe("Test MongooseStoreAdapter", () => {
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
 				expect(mongoose.createConnection).toHaveBeenCalledWith(adapter.opts.uri, adapter.opts.opts);
-				expect(fakeConn.model).toHaveBeenCalledWith("fakeModel", fakeSchema);
-				expect(fakeConn.model).toHaveBeenCalledTimes(1);
+				expect(makeModel).toHaveBeenCalledWith("fakeModel", fakeSchema);
+				expect(makeModel).toHaveBeenCalledTimes(1);
 				expect(adapter.model).toBe(fakeModel);
 			});
 		});
