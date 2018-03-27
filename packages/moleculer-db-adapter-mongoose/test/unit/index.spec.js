@@ -39,7 +39,7 @@ const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
 	create: jest.fn(() => Promise.resolve()),
 	update: jest.fn(() => Promise.resolve({ n: 2 })),
 	findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
-	remove: jest.fn(() => Promise.resolve({ result: { n: 2 }})),
+	remove: jest.fn(() => Promise.resolve({ n: 2 })),
 	findByIdAndRemove: jest.fn(() => Promise.resolve()),
 });
 
@@ -360,7 +360,8 @@ describe("Test MongooseStoreAdapter", () => {
 		let query = {};
 		let update = {};
 
-		return adapter.updateMany(query, update).catch(protectReject).then(() => {
+		return adapter.updateMany(query, update).catch(protectReject).then(res => {
+			expect(res).toBe(2);
 			expect(adapter.model.update).toHaveBeenCalledTimes(1);
 			expect(adapter.model.update).toHaveBeenCalledWith(query, update, { multi: true, "new": true });
 		});
@@ -379,7 +380,8 @@ describe("Test MongooseStoreAdapter", () => {
 	it("call removeMany", () => {
 		let query = {};
 
-		return adapter.removeMany(query).catch(protectReject).then(() => {
+		return adapter.removeMany(query).catch(protectReject).then(res=> {
+			expect(res).toBe(2);
 			expect(adapter.model.remove).toHaveBeenCalledTimes(1);
 			expect(adapter.model.remove).toHaveBeenCalledWith(query);
 		});
