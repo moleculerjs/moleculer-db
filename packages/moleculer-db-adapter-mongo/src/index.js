@@ -11,6 +11,7 @@ const Promise		= require("bluebird");
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
 const ObjectID 		= mongodb.ObjectID;
+const { URL } = require("url");
 
 class MongoDbAdapter {
 
@@ -50,17 +51,21 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	connect() {
-		let uri, opts;
-		if (_.isObject(this.opts) && this.opts.uri != null) {
+		let uri, opts, database;
+		if (_.isObject(this.opts) && this.opts.uri != null && this.opts.database != null) {
 			uri = this.opts.uri;
+			database = this.opts.database;
 			opts = Object.assign({ promiseLibrary: Promise }, this.opts.opts);
 		} else {
-			uri = this.opts;
+			const url = new URL(this.opts);
+			uri = `${url.protocol}//${url.host}/${url.search}`;
+			database = url.pathname.replace("/", "");
 		}
 
-		return MongoClient.connect(uri, opts).then(db => {
+		return MongoClient.connect(uri, opts).then(client => {
+			const db = client.db ? client.db(database) : client;
 			this.db = db;
-			this.collection = db.collection(this.service.schema.collection);
+			this.collection = this.db.collection(this.service.schema.collection);
 
 			/* istanbul ignore next */
 			this.db.on("disconnected", function mongoDisconnected() {

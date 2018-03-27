@@ -98,7 +98,7 @@ describe("Test MongoDbAdapter", () => {
 		adapter.opts = "mongodb://server";
 		return adapter.connect().catch(protectReject).then(() => {
 			expect(MongoClient.connect).toHaveBeenCalledTimes(1);
-			expect(MongoClient.connect).toHaveBeenCalledWith("mongodb://server", undefined);
+			expect(MongoClient.connect).toHaveBeenCalledWith("mongodb://server/", undefined);
 
 			expect(adapter.db).toBe(fakeConn);
 			expect(adapter.db.on).toHaveBeenCalledTimes(1);
@@ -116,6 +116,7 @@ describe("Test MongoDbAdapter", () => {
 		MongoClient.connect = jest.fn(() => Promise.resolve(fakeConn));
 		adapter.opts = {
 			uri: "mongodb://server",
+			database: "test",
 			opts: {
 				user: "admin",
 				pass: "123456"
