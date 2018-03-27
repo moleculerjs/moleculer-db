@@ -21,6 +21,7 @@ let users = [];
 broker.createService(StoreService, {
 	name: "posts",
 	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	dependencies: ["users"],
 	model: Post,
 	settings: {
 		fields: ["_id", "title", "content", "votes", "author"],
@@ -37,18 +38,18 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.clear().delay(1000).then(() => {
+		return this.adapter.clear().delay(3000).then(() => {
 			if (users.length == 0) return;
 
 			this.logger.info("Seed Posts collection...");
-			return this.createMany(null, [
+			return this.adapter.insertMany([
 				{ title: "1st post", content: "First post content.", votes: 3, author: users[2]._id },
 				{ title: "2nd post", content: "Labore eum veritatis ut.", votes: 8, author: users[1]._id },
 				{ title: "3rd post", content: "Rerum deleniti repellendus error ea.", votes: 0, author: users[4]._id },
 				{ title: "4th post", content: "Normal post content.", votes: 4, author: users[3]._id },
 				{ title: "5th post", content: "Voluptatum praesentium voluptatibus est nesciunt fugiat.", votes: 6, author: users[1]._id }
 			]).then(docs => posts = docs);
-		});			
+		});
 	}
 });
 
@@ -63,9 +64,9 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.clear().then(() => {
+		return this.adapter.clear().then(() => {
 			this.logger.info("Seed Users collection...");
-			return this.createMany(null, [
+			return this.adapter.insertMany([
 				{ username: "John", fullName: "John Doe", email: "john.doe@gmail.com", status: 1 },
 				{ username: "Adam", fullName: "Adam Doe", email: "adam.doe@gmail.com", status: 1 },
 				{ username: "Jane", fullName: "Jane Doe", email: "jane.doe@gmail.com", status: 0 },
@@ -83,11 +84,11 @@ const checker = new ModuleChecker(13);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.delay(1000)
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
-		.then(() => checker.printTotal());	
+		.then(() => checker.printTotal());
 }
 
 // --- TEST CASES ---
@@ -116,7 +117,7 @@ checker.add("FIND POSTS (limit: 3, offset: 2, sort: title, no author)", () => br
 	];
 });
 
-checker.add("GET POST (page: 2, pageSize: 5, sort: -votes)", () => broker.call("posts.get", { id: posts[2]._id, populate: ["author"], fields: ["title", "author"] }), res => {
+checker.add("GET POST (page: 2, pageSize: 5, sort: -votes)", () => broker.call("posts.get", { id: posts[2]._id.toString(), populate: ["author"], fields: ["title", "author"] }), res => {
 	console.log(res);
 	return res.title === "3rd post" && res.author.username === "Bill" && res.author.fullName === "Bill Doe" && res.author.email == null && res.votes == null;
 });

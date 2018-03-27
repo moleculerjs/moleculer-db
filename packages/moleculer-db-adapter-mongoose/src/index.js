@@ -81,7 +81,7 @@ class MongooseDbAdapter {
 		}
 
 		return conn.then(result => {
-			this.db = conn.connection || result.db;
+			this.db = result.connection;
 
 			this.db.on("disconnected", function mongoDisconnected() {
 				/* istanbul ignore next */
@@ -240,7 +240,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	removeMany(query) {
-		return this.model.remove(query).then(res => res.result.n);
+		return this.model.remove(query).then(res => res.n);
 	}
 
 	/**
@@ -263,7 +263,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	clear() {
-		return this.model.remove({}).then(res => res.result.n);
+		return this.model.remove({}).then(res => res.n);
 	}
 
 	/**
