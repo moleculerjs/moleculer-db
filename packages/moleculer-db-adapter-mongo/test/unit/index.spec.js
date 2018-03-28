@@ -166,6 +166,7 @@ describe("Test MongoDbAdapter", () => {
 		it("init", () => {
 			adapter.collection.find = jest.fn(() => ({
 				sort: jest.fn(),
+				project: jest.fn(),
 				skip: jest.fn(),
 				limit: jest.fn(),
 				toArray: toArrayCB
@@ -257,7 +258,9 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.collection.find).toHaveBeenCalledTimes(2);
 			expect(adapter.collection.find).toHaveBeenCalledWith({
 				"$text": { "$search": "walter" }
-			}, {
+			});
+			expect(q.project).toHaveBeenCalledTimes(1);
+			expect(q.project).toHaveBeenCalledWith({
 				"_score": { "$meta": "textScore" }
 			});
 
