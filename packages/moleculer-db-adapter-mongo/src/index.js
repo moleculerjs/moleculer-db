@@ -11,7 +11,7 @@ const Promise		= require("bluebird");
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
 const ObjectID 		= mongodb.ObjectID;
-const { URL } = require("url");
+const { URL } 		= require("url");
 
 class MongoDbAdapter {
 
@@ -63,6 +63,7 @@ class MongoDbAdapter {
 		}
 
 		return MongoClient.connect(uri, opts).then(client => {
+			this.client = client;
 			const db = client.db ? client.db(database) : client;
 			this.db = db;
 			this.collection = this.db.collection(this.service.schema.collection);
@@ -83,8 +84,8 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	disconnect() {
-		if (this.db) {
-			this.db.close();
+		if (this.client) {
+			this.client.close();
 		}
 		return Promise.resolve();
 	}
@@ -297,7 +298,8 @@ class MongoDbAdapter {
 					$text: {
 						$search: params.search
 					}
-				}), { _score: { $meta: "textScore" } });
+				}));
+				q.project({ _score: { $meta: "textScore" } });
 				q.sort({
 					_score: {
 						$meta: "textScore"

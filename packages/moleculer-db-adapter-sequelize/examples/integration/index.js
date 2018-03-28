@@ -18,9 +18,9 @@ const broker = new ServiceBroker({
 
 		MySQL:
 			Server:
-				docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mysql -d mysql 
+				docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mysql -d mysql
 
-			CLI: 			
+			CLI:
 				docker run -it --link mysql:mysql --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
 
 				CREATE DATABASE moleculer_test;
@@ -81,7 +81,7 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.clear().then(() => start());
+		return this.adapter.clear().then(() => start());
 	}
 });
 
@@ -94,7 +94,7 @@ function start() {
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
-		.then(() => checker.printTotal());	
+		.then(() => checker.printTotal());
 }
 
 // --- TEST CASES ---
@@ -127,7 +127,7 @@ checker.add("--- GET ---", () => broker.call("posts.get", { id }), res => {
 });
 
 // Vote a post
-checker.add("--- VOTE ---", () => broker.call("posts.vote", { 
+checker.add("--- VOTE ---", () => broker.call("posts.vote", {
 	id
 }), res => {
 	console.log(res);
@@ -135,9 +135,9 @@ checker.add("--- VOTE ---", () => broker.call("posts.vote", {
 });
 
 // Update a posts
-checker.add("--- UPDATE ---", () => broker.call("posts.update", { 
-	id, 
-	title: "Hello 2", 
+checker.add("--- UPDATE ---", () => broker.call("posts.update", {
+	id,
+	title: "Hello 2",
 	content: "Post content 2",
 	updatedAt: new Date()
 }), doc => {
@@ -152,7 +152,7 @@ checker.add("--- GET ---", () => broker.call("posts.get", { id }), doc => {
 });
 
 // Unvote a post
-checker.add("--- UNVOTE ---", () => broker.call("posts.unvote", { 
+checker.add("--- UNVOTE ---", () => broker.call("posts.unvote", {
 	id
 }), res => {
 	console.log(res);

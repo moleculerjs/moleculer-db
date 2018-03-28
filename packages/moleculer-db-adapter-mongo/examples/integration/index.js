@@ -24,18 +24,18 @@ broker.createService(StoreService, {
 	actions: {
 		vote(ctx) {
 			return this.Promise.resolve(ctx)
-				.then(ctx => this.updateById(ctx, { id: ctx.params.id, update: { $inc: { votes: 1 } }}));
+				.then(ctx => this.adapter.updateById(ctx.params.id, { $inc: { votes: 1 } }));
 		},
 
 		unvote(ctx) {
 			return this.Promise.resolve(ctx)
-				.then(ctx => this.updateById(ctx, { id: ctx.params.id, update: { $inc: { votes: -1 } }}));		
+				.then(ctx => this.adapter.updateById(ctx.params.id, { $inc: { votes: -1 } }));
 		}
 	},
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.clear().then(() => {
+		return this.adapter.clear().then(() => {
 			this.adapter.collection.createIndex( { title: "text", content: "text" } );
 		}).then(() => start());
 	}
@@ -50,7 +50,7 @@ function start() {
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
-		.then(() => checker.printTotal());	
+		.then(() => checker.printTotal());
 }
 
 // --- TEST CASES ---
@@ -71,9 +71,9 @@ checker.add("--- CREATE ---", () => broker.call("posts.create", { title: "Hello"
 });
 
 // List posts
-checker.add("--- FIND ---", () => broker.call("posts.find"), res => {
+checker.add("--- FIND ---", () => broker.call("posts.find", { fields: ["_id", "title"]}), res => {
 	console.log(res);
-	return res.length == 1 && res[0]._id == id;
+	return res.length == 1 && res[0]._id == id && res[0].content == null && res[0].votes == null && res[0].status == null;
 });
 
 // Get a post
@@ -83,7 +83,7 @@ checker.add("--- GET ---", () => broker.call("posts.get", { id }), res => {
 });
 
 // Vote a post
-checker.add("--- VOTE ---", () => broker.call("posts.vote", { 
+checker.add("--- VOTE ---", () => broker.call("posts.vote", {
 	id
 }), res => {
 	console.log(res);
@@ -91,9 +91,9 @@ checker.add("--- VOTE ---", () => broker.call("posts.vote", {
 });
 
 // Update a posts
-checker.add("--- UPDATE ---", () => broker.call("posts.update", { 
-	id, 
-	title: "Hello 2", 
+checker.add("--- UPDATE ---", () => broker.call("posts.update", {
+	id,
+	title: "Hello 2",
 	content: "Post content 2",
 	updatedAt: new Date()
 }), doc => {
@@ -108,7 +108,7 @@ checker.add("--- GET ---", () => broker.call("posts.get", { id }), doc => {
 });
 
 // Unvote a post
-checker.add("--- UNVOTE ---", () => broker.call("posts.unvote", { 
+checker.add("--- UNVOTE ---", () => broker.call("posts.unvote", {
 	id
 }), res => {
 	console.log(res);

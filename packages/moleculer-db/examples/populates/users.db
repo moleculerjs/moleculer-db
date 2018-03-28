@@ -1,15 +1,15 @@
-{"username":"John","fullName":"John Doe","email":"john.doe@gmail.com","status":1,"_id":"0DPqMhv09lJ9gbMy"}
-{"username":"Susan","fullName":"Susan Doe","email":"susan.doe@gmail.com","status":1,"_id":"64QH4QdH8gqW69Wn"}
-{"username":"Jane","fullName":"Jane Doe","email":"jane.doe@gmail.com","status":0,"_id":"MTD5GN0zgoQIMQeD"}
-{"username":"Adam","fullName":"Adam Doe","email":"adam.doe@gmail.com","status":1,"_id":"d8LCEZHurwJYGuej"}
-{"username":"Bill","fullName":"Bill Doe","email":"bill.doe@gmail.com","status":1,"_id":"nf5FJ7LaO0JTzCa4"}
-{"$$deleted":true,"_id":"0DPqMhv09lJ9gbMy"}
-{"$$deleted":true,"_id":"64QH4QdH8gqW69Wn"}
-{"$$deleted":true,"_id":"MTD5GN0zgoQIMQeD"}
-{"$$deleted":true,"_id":"d8LCEZHurwJYGuej"}
-{"$$deleted":true,"_id":"nf5FJ7LaO0JTzCa4"}
 {"username":"John","fullName":"John Doe","email":"john.doe@gmail.com","status":1,"_id":"2hoopsBB2CKgmOar"}
 {"username":"Adam","fullName":"Adam Doe","email":"adam.doe@gmail.com","status":1,"_id":"NCswTaXDSTUngn2N"}
+{"username":"Bill","fullName":"Bill Doe","email":"bill.doe@gmail.com","status":1,"_id":"TUEwODS3pyDQUgAD"}
 {"username":"Jane","fullName":"Jane Doe","email":"jane.doe@gmail.com","status":0,"_id":"UtiL2sKWnKdWstUt"}
 {"username":"Susan","fullName":"Susan Doe","email":"susan.doe@gmail.com","status":1,"_id":"cXhfflrqBJ4ZymTq"}
-{"username":"Bill","fullName":"Bill Doe","email":"bill.doe@gmail.com","status":1,"_id":"TUEwODS3pyDQUgAD"}
+{"$$deleted":true,"_id":"2hoopsBB2CKgmOar"}
+{"$$deleted":true,"_id":"NCswTaXDSTUngn2N"}
+{"$$deleted":true,"_id":"TUEwODS3pyDQUgAD"}
+{"$$deleted":true,"_id":"UtiL2sKWnKdWstUt"}
+{"$$deleted":true,"_id":"cXhfflrqBJ4ZymTq"}
+{"username":"John","fullName":"John Doe","email":"john.doe@gmail.com","status":1,"_id":"VTuc5xBhV1T5wx2R"}
+{"username":"Adam","fullName":"Adam Doe","email":"adam.doe@gmail.com","status":1,"_id":"YclZ9Ndr1GR7x6bB"}
+{"username":"Jane","fullName":"Jane Doe","email":"jane.doe@gmail.com","status":0,"_id":"gjb5oURFi7BdIk4C"}
+{"username":"Susan","fullName":"Susan Doe","email":"susan.doe@gmail.com","status":1,"_id":"TTrU3V8j8Z3Tn74D"}
+{"username":"Bill","fullName":"Bill Doe","email":"bill.doe@gmail.com","status":1,"_id":"9HEKYU8MiqwFcil5"}

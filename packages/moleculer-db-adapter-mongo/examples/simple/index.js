@@ -11,17 +11,18 @@ let broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
-const adapter = new MongoAdapter("mongodb://localhost/moleculer-db-demo?autoReconnect=true");
+let adapter;
 
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter,
+	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo?autoReconnect=true"),
 	collection: "posts",
 	settings: {},
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
+		adapter = this.adapter;
 		return this.adapter.clear().then(() => {
 			this.adapter.collection.createIndex( { title: "text", content: "text" } );
 		}).then(() => start());
