@@ -1,5 +1,5 @@
-<a name="0.5.2"></a>
-# 0.5.2 (2018-03-28)
+<a name="0.5.1"></a>
+# 0.5.1 (2018-03-28)
 
 ## Breaking changes
 - Update mongoose to v5.0.12
