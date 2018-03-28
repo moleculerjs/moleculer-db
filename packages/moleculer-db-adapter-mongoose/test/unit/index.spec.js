@@ -58,11 +58,13 @@ describe("Test MongooseStoreAdapter", () => {
 		model: fakeModel
 	});
 
+	const uri = "mongodb://localhost";
 	const opts = {};
-	const adapter = new MongooseStoreAdapter(opts);
+	const adapter = new MongooseStoreAdapter(uri, opts);
 
 	it("should be created", () => {
 		expect(adapter).toBeDefined();
+		expect(adapter.uri).toBe(uri);
 		expect(adapter.opts).toBe(opts);
 		expect(adapter.init).toBeDefined();
 		expect(adapter.connect).toBeDefined();
@@ -126,10 +128,10 @@ describe("Test MongooseStoreAdapter", () => {
 			fakeConn.on.mockClear();
 
 			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
-			adapter.opts = "mongodb://server";
+			adapter.opts = undefined;
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
-				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://server", undefined);
+				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://localhost", undefined);
 
 				expect(adapter.db).toBe(fakeConn);
 				expect(adapter.db.on).toHaveBeenCalledTimes(1);
@@ -142,16 +144,13 @@ describe("Test MongooseStoreAdapter", () => {
 
 			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
 			adapter.opts = {
-				uri: "mongodb://server",
-				opts: {
-					user: "admin",
-					pass: "123456"
-				}
+				user: "admin",
+				pass: "123456"
 			};
 
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
-				expect(mongoose.connect).toHaveBeenCalledWith(adapter.opts.uri, adapter.opts.opts);
+				expect(mongoose.connect).toHaveBeenCalledWith(adapter.uri, adapter.opts);
 			});
 		});
 
@@ -181,16 +180,13 @@ describe("Test MongooseStoreAdapter", () => {
 			});
 
 			adapter.opts = {
-				uri: "mongodb://server",
-				opts: {
-					user: "admin",
-					pass: "123456"
-				}
+				user: "admin",
+				pass: "123456"
 			};
 
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
-				expect(mongoose.createConnection).toHaveBeenCalledWith(adapter.opts.uri, adapter.opts.opts);
+				expect(mongoose.createConnection).toHaveBeenCalledWith(adapter.uri, adapter.opts);
 				expect(makeModel).toHaveBeenCalledWith("fakeModel", fakeSchema);
 				expect(makeModel).toHaveBeenCalledTimes(1);
 				expect(adapter.model).toBe(fakeModel);
