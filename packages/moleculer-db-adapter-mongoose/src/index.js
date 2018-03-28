@@ -14,11 +14,13 @@ class MongooseDbAdapter {
 
 	/**
 	 * Creates an instance of MongooseDbAdapter.
-	 * @param {any} opts
+	 * @param {String} uri
+	 * @param {Object?} opts
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(opts) {
+	constructor(uri, opts) {
+		this.uri = uri,
 		this.opts = opts;
 		mongoose.Promise = Promise;
 	}
@@ -59,13 +61,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let uri, opts, conn;
-		if (_.isObject(this.opts) && this.opts.uri != null) {
-			uri = this.opts.uri;
-			opts = this.opts.opts;
-		} else {
-			uri = this.opts;
-		}
+		let conn;
 
 		if (this.model) {
 			/* istanbul ignore next */
@@ -74,14 +70,14 @@ class MongooseDbAdapter {
 				return Promise.resolve();
 			}
 
-			conn = mongoose.connect(uri, opts);
+			conn = mongoose.connect(this.uri, this.opts);
 		} else if (this.schema) {
-			conn = mongoose.createConnection(uri, opts);
+			conn = mongoose.createConnection(this.uri, this.opts);
 			this.model = conn.model(this.modelName, this.schema);
 		}
 
 		return conn.then(result => {
-			this.db = result.connection;
+			this.db = result.connection || result.db;
 
 			this.db.on("disconnected", function mongoDisconnected() {
 				/* istanbul ignore next */

@@ -50,26 +50,19 @@ broker.start()
 ```
 
 ## Options
-The constructor options need to be a `String` or an `Object`.
 
 **Example with connection URI**
 ```js
 new MongooseAdapter("mongodb://localhost/moleculer-db")
 ```
 
-**Example with connection options**
+**Example with URI and options**
 ```js
-new MongooseAdapter({
-    uri: "mongodb://db-server-hostname/my-db",
-    opts: {
-        user: process.env.MONGO_USERNAME,
-        pass: process.env.MONGO_PASSWORD
-        server: {
-            socketOptions: {
-                keepAlive: 1
-            }
-        }
-    })
+new MongooseAdapter("mongodb://db-server-hostname/my-db", {
+    user: process.env.MONGO_USERNAME,
+    pass: process.env.MONGO_PASSWORD
+    keepAlive: true
+})
 ```
 
 # Test
