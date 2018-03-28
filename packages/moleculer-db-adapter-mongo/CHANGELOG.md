@@ -3,7 +3,7 @@
 
 ## Breaking changes
 - Update `mongodb` lib to v3.0.5
-- Changed constructor signature
+- Changed constructor signature (compatible with mongodb driver)
 
     **Example with connection URI**
     ```js
