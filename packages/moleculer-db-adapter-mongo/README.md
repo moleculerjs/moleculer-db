@@ -6,7 +6,7 @@ MongoDB native adapter for Moleculer DB service.
 
 ## Features
 - schemaless adapter
-- MongoDB driver v2.2
+- MongoDB driver v3.0
 
 ## Install
 
@@ -47,26 +47,17 @@ broker.start()
 ```
 
 ## Options
-The constructor options need to be a `String` or an `Object`.
 
 **Example with connection URI**
 ```js
 new MongoDBAdapter("mongodb://localhost/moleculer-db")
 ```
 
-**Example with connection options**
+**Example with connection URI & options**
 ```js
-new MongoDBAdapter({
-    uri: "mongodb://db-server-hostname/my-db",
-    opts: {
-        user: process.env.MONGO_USERNAME,
-        pass: process.env.MONGO_PASSWORD
-        server: {
-            socketOptions: {
-                keepAlive: 1
-            }
-        }
-    })
+new MongoDBAdapter("mongodb://db-server-hostname/my-db", {
+    keepAlive: 1
+})
 ```
 
 # Test

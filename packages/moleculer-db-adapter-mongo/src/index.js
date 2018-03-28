@@ -17,11 +17,13 @@ class MongoDbAdapter {
 
 	/**
 	 * Creates an instance of MongoDbAdapter.
-	 * @param {any} opts
+	 * @param {String} uri
+	 * @param {Object?} opts
 	 *
 	 * @memberof MongoDbAdapter
 	 */
-	constructor(opts) {
+	constructor(uri, opts) {
+		this.uri = uri,
 		this.opts = opts;
 	}
 
@@ -51,18 +53,9 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	connect() {
-		let uri, opts, database;
-		if (_.isObject(this.opts) && this.opts.uri != null && this.opts.database != null) {
-			uri = this.opts.uri;
-			database = this.opts.database;
-			opts = Object.assign({ promiseLibrary: Promise }, this.opts.opts);
-		} else {
-			const url = new URL(this.opts);
-			uri = `${url.protocol}//${url.host}/${url.search}`;
-			database = url.pathname.replace("/", "");
-		}
+		let database;
 
-		return MongoClient.connect(uri, opts).then(client => {
+		return MongoClient.connect(this.uri, this.opts).then(client => {
 			this.client = client;
 			const db = client.db ? client.db(database) : client;
 			this.db = db;
