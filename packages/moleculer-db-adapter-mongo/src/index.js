@@ -374,7 +374,7 @@ class MongoDbAdapter {
 	 *
 	 * @memberof MongoDbAdapter
 	 */
-	ojectIDToString(id) {
+	objectIDToString(id) {
 		return id.toHexString();
 	}
 
