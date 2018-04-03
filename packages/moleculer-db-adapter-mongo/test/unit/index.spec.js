@@ -149,12 +149,12 @@ describe("Test MongoDbAdapter", () => {
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
 	});
 
-	it("call ojectIDToString", () => {
+	it("call objectIDToString", () => {
 		let id = {
 			toHexString: jest.fn()
 		};
 
-		adapter.ojectIDToString(id);
+		adapter.objectIDToString(id);
 		expect(id.toHexString).toHaveBeenCalledTimes(1);
 	});
 
