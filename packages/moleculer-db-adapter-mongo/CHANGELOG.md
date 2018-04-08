@@ -1,3 +1,10 @@
+<a name="0.4.0"></a>
+# 0.4.0 (2018-04-08)
+
+## Breaking changes
+- fix wrong method name from `ojectIDToString` to `objectIDToString`
+
+--------------------------------------------------
 <a name="0.3.0"></a>
 # 0.3.0 (2018-03-28)
 
