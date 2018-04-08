@@ -1,3 +1,15 @@
+<a name="0.7.0"></a>
+# 0.7.0 (2018-04-08)
+
+## Breaking changes
+Dependency `mongoose` moved to peer dependencies. It means you should install `mongoose` in your project.
+
+**New install script**
+```bash
+$ npm install moleculer-db moleculer-db-adapter-mongoose mongoose --save
+```
+
+--------------------------------------------------
 <a name="0.6.0"></a>
 # 0.6.0 (2018-03-28)
 
