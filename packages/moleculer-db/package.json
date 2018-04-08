@@ -37,7 +37,7 @@
     "lolex": "^2.3.2",
     "moleculer": "0.12.1",
     "moleculer-docgen": "0.2.1",
-    "nodemon": "1.17.2",
+    "nodemon": "1.17.3",
     "npm-check": "5.6.0"
   },
   "jest": {

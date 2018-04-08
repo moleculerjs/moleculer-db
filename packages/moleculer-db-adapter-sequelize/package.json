@@ -38,7 +38,7 @@
     "moleculer": "0.12.1",
     "moleculer-docgen": "0.2.1",
     "mysql2": "1.5.3",
-    "nodemon": "1.17.2",
+    "nodemon": "1.17.3",
     "npm-check": "5.6.0",
     "pg": "^7.4.1",
     "pg-hstore": "2.3.2",
@@ -56,6 +56,6 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "sequelize": "4.37.4"
+    "sequelize": "4.37.6"
   }
 }
