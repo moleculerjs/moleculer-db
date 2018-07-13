@@ -707,7 +707,7 @@ module.exports = {
 				return Promise.resolve(entity);
 
 			let entities = Array.isArray(entity) ? entity : [entity];
-			return Promise.all(entities.map(entity => this.settings.entityValidator(entity))).then(() => entity);
+			return Promise.all(entities.map(entity => this.settings.entityValidator.call(this, entity))).then(() => entity);
 		},
 
 		/**
@@ -750,7 +750,7 @@ module.exports = {
 		this.adapter.init(this.broker, this);
 
 		// Transform entity validation schema to checker function
-		if (this.broker.validator && _.isObject(this.settings.entityValidator)) {
+		if (this.broker.validator && _.isObject(this.settings.entityValidator) && !_.isFunction(this.settings.entityValidator)) {
 			const check = this.broker.validator.compile(this.settings.entityValidator);
 			this.settings.entityValidator = entity => {
 				const res = check(entity);

@@ -1,6 +1,6 @@
 "use strict";
 
-const { ServiceBroker, Context } = require("moleculer");
+const { ServiceBroker, Service, Context } = require("moleculer");
 const { ValidationError } = require("moleculer").Errors;
 const DbService = require("../../src");
 //const lolex = require("lolex");
@@ -1028,23 +1028,25 @@ describe("Test validateEntity method", () => {
 		});
 
 		it("should call 'entityValidator'", () => {
-			let entity = {};
+			let entity = { param1: "value1", param2: "value2" };
 			return service.validateEntity(entity).catch(protectReject).then(() => {
 				expect(validator).toHaveBeenCalledTimes(1);
 				expect(validator).toHaveBeenCalledWith(entity);
+				expect(validator.mock.instances[0]).toBeInstanceOf(Service);
 			});
 		});
 
 		it("should call 'entityValidator' multiple times", () => {
 			validator.mockClear();
-			let entities = [{}, {}];
+			let entities = [{}, { param: "value" }];
 			return service.validateEntity(entities).catch(protectReject).then(() => {
 				expect(validator).toHaveBeenCalledTimes(2);
 				expect(validator).toHaveBeenCalledWith(entities[0]);
 				expect(validator).toHaveBeenCalledWith(entities[1]);
+				expect(validator.mock.instances[0]).toBeInstanceOf(Service);
+				expect(validator.mock.instances[1]).toBeInstanceOf(Service);
 			});
 		});
-
 	});
 
 	describe("Test with built-in validator function", () => {
