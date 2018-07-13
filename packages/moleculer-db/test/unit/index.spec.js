@@ -35,7 +35,7 @@ describe("Test DbService actions", () => {
 		entityToObject: jest.fn(obj => obj)
 	};
 
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter,
@@ -367,7 +367,7 @@ describe("Test reconnecting", () => {
 			.mockImplementationOnce(() => Promise.resolve()),
 		disconnect: jest.fn(() => Promise.resolve())
 	};
-	const broker = new ServiceBroker();
+	const broker = new ServiceBroker({ logger: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter,
@@ -406,7 +406,7 @@ describe("Test DbService methods", () => {
 
 	const afterConnected = jest.fn();
 
-	const broker = new ServiceBroker({ validation: false, cacher: true });
+	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter,
@@ -494,7 +494,7 @@ describe("Test DbService methods", () => {
 
 
 describe("Test entityChanged method", () => {
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		settings: {},
@@ -540,7 +540,7 @@ describe("Test entityChanged method", () => {
 });
 
 describe("Test sanitizeParams method", () => {
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		settings: {
@@ -627,7 +627,7 @@ describe("Test transformDocuments method", () => {
 	describe("Test with object", () => {
 		const doc = { _id : 1 };
 
-		const broker = new ServiceBroker({ validation: false });
+		const broker = new ServiceBroker({ logger: false, validation: false });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter
@@ -709,7 +709,7 @@ describe("Test transformDocuments method", () => {
 			{ _id : 5 }
 		];
 
-		const broker = new ServiceBroker({ validation: false });
+		const broker = new ServiceBroker({ logger: false, validation: false });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter
@@ -762,7 +762,7 @@ describe("Test authorizeFields method", () => {
 	};*/
 
 	describe("Test with nested fields", () => {
-		const broker = new ServiceBroker();
+		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -788,7 +788,7 @@ describe("Test authorizeFields method", () => {
 	});
 
 	describe("Test with enabled nested fields", () => {
-		const broker = new ServiceBroker();
+		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -820,7 +820,7 @@ describe("Test filterFields method", () => {
 		}
 	};
 
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter: mockAdapter,
@@ -859,7 +859,7 @@ describe("Test populateDocs method", () => {
 	const RATES = ["No rate", "Poor", "Acceptable", "Average", "Good", "Excellent"];
 	const docs = [{ id: 1, author: 3, rate: 4 }, { id: 2, author: 5, comments: [8, 3, 8], rate: 0 }, { id: 3, author: 8, rate: 5 }];
 
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter: mockAdapter,
@@ -1018,7 +1018,7 @@ describe("Test validateEntity method", () => {
 
 		const validator = jest.fn();
 
-		const broker = new ServiceBroker({ validation: false });
+		const broker = new ServiceBroker({ logger: false, validation: false });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -1051,7 +1051,7 @@ describe("Test validateEntity method", () => {
 
 	describe("Test with built-in validator function", () => {
 
-		const broker = new ServiceBroker({ validation: true });
+		const broker = new ServiceBroker({ logger: false, validation: true });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -1090,7 +1090,7 @@ describe("Test validateEntity method", () => {
 
 describe("Test encodeID/decodeID method", () => {
 
-	const broker = new ServiceBroker({ validation: false });
+	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
 		adapter: mockAdapter,

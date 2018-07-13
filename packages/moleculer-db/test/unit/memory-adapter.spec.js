@@ -27,7 +27,7 @@ describe("Test Adapter constructor", () => {
 });
 
 describe("Test Adapter methods", () => {
-	const broker = new ServiceBroker();
+	const broker = new ServiceBroker({ logger: false });
 	const service = broker.createService({
 		name: "test"
 	});

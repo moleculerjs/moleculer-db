@@ -4,11 +4,11 @@ const { ServiceBroker } = require("moleculer");
 //const MyService = require("../../src");
 
 describe("Test MyService", () => {
-	const broker = new ServiceBroker();
-//	const service = broker.createService(MyService);
+	const broker = new ServiceBroker({ logger: false });
+	//	const service = broker.createService(MyService);
 
 	it("should be created", () => {
-//		expect(service).toBeDefined();
+		//		expect(service).toBeDefined();
 	});
 /*
 	it("should return with 'Hello Anonymous'", () => {

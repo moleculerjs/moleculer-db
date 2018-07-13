@@ -52,7 +52,7 @@ fakeConn.connection = {
 };
 
 describe("Test SequelizeAdapter", () => {
-	const broker = new ServiceBroker();
+	const broker = new ServiceBroker({ logger: false });
 	const service = broker.createService({
 		name: "store",
 		model: fakeModel
