@@ -317,11 +317,11 @@ class SequelizeDbAdapter {
 	}
 
 	/**
-	 * Convert the `sort` param to a `sort` object to Mongo queries.
+	 * Convert the `sort` param to a `sort` object to Sequelize queries.
 	 *
 	 * @param {String|Array<String>|Object} paramSort
 	 * @returns {Object} Return with a sort object like `[["votes", "ASC"], ["title", "DESC"]]`
-	 * @memberof MongoDbAdapter
+	 * @memberof SequelizeDbAdapter
 	 */
 	transformSort(paramSort) {
 		let sort = paramSort;

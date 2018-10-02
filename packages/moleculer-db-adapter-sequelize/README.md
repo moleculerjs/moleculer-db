@@ -39,7 +39,7 @@ const Sequelize = require("sequelize");
 
 const broker = new ServiceBroker();
 
-// Create a Mongoose service for `post` entities
+// Create a Sequelize service for `post` entities
 broker.createService({
     name: "posts",
     mixins: [DbService],
