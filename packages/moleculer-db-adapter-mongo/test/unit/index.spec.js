@@ -139,6 +139,7 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call stringToObjectID", () => {
+		mongodb.ObjectID.isValid = jest.fn(() => true);
 		mongodb.ObjectID.createFromHexString = jest.fn();
 
 		adapter.stringToObjectID({});
@@ -149,7 +150,11 @@ describe("Test MongoDbAdapter", () => {
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
 	});
 
-	it("call objectIDToString", () => {
+	it("call objectIDToString with not ObjectID", () => {
+		expect(adapter.objectIDToString("123")).toBe("123");
+	});
+
+	it("call objectIDToString with ObjectID", () => {
 		let id = {
 			toHexString: jest.fn()
 		};
@@ -387,10 +392,14 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call entityToObject", () => {
-		doc._id.toHexString.mockClear();
-		let res = adapter.entityToObject(doc);
-		expect(doc._id.toHexString).toHaveBeenCalledTimes(1);
-		expect(res._id).toBe("123");
+		adapter.objectIDToString = jest.fn();
+		doc._id = null;
+		adapter.entityToObject(doc);
+		expect(adapter.objectIDToString).toHaveBeenCalledTimes(0);
+
+		doc._id = 1;
+		adapter.entityToObject(doc);
+		expect(adapter.objectIDToString).toHaveBeenCalledTimes(1);
 	});
 
 });

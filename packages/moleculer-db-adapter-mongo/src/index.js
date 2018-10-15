@@ -183,9 +183,7 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	insertMany(entities) {
-		return this.collection.insertMany(entities).then(res => {
-			return res.ops;
-		});
+		return this.collection.insertMany(entities).then(res => res.ops);
 	}
 
 	/**
@@ -259,7 +257,7 @@ class MongoDbAdapter {
 	entityToObject(entity) {
 		let json = Object.assign({}, entity);
 		if (entity._id)
-			json._id = entity._id.toHexString();
+			json._id = this.objectIDToString(entity._id);
 		return json;
 	}
 
@@ -360,7 +358,7 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	stringToObjectID(id) {
-		if (typeof id == "string")
+		if (typeof id == "string" && ObjectID.isValid(id))
 			return new ObjectID.createFromHexString(id);
 
 		return id;
@@ -375,7 +373,10 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	objectIDToString(id) {
-		return id.toHexString();
+		if (id && id.toHexString)
+			return id.toHexString();
+
+		return id;
 	}
 
 }
