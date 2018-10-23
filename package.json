@@ -32,10 +32,10 @@
     "lerna": "2.9.0",
     "lodash": "4.17.5",
     "markdown-magic": "0.1.20",
-    "nodemon": "1.12.1"
+    "nodemon": "^1.18.4"
   },
   "dependencies": {
-    "moleculer-cli": "0.5.7"
+    "moleculer-cli": "^0.6.1"
   },
   "jest": {
     "testEnvironment": "node",
