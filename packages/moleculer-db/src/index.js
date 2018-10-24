@@ -500,7 +500,7 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (_.isArray(id)) {
-						return this.adapter.findByIds(decoding ? id.map(this.decodeID) : id);
+						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id);
 					} else {
 						return this.adapter.findById(decoding ? this.decodeID(id) : id);
 					}
