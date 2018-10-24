@@ -173,7 +173,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	count(filters = {}) {
-		return this.createCursor(filters).count().exec();
+		return this.createCursor(filters).countDocuments().exec();
 	}
 
 	/**
@@ -211,7 +211,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	updateMany(query, update) {
-		return this.model.update(query, update, { multi: true, "new": true }).then(res => res.n);
+		return this.model.updateMany(query, update, { multi: true, "new": true }).then(res => res.n);
 	}
 
 	/**
@@ -236,7 +236,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	removeMany(query) {
-		return this.model.remove(query).then(res => res.n);
+		return this.model.deleteMany(query).then(res => res.n);
 	}
 
 	/**
@@ -259,7 +259,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	clear() {
-		return this.model.remove({}).then(res => res.n);
+		return this.model.deleteMany({}).then(res => res.n);
 	}
 
 	/**

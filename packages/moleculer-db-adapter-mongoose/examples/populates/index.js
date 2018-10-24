@@ -20,7 +20,7 @@ let users = [];
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
 	dependencies: ["users"],
 	model: Post,
 	settings: {
@@ -56,7 +56,7 @@ broker.createService(StoreService, {
 // Load my service
 broker.createService(StoreService, {
 	name: "users",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
 	model: User,
 	settings: {
 		fields: ["_id", "username", "fullName", "email"]
@@ -83,7 +83,7 @@ const checker = new ModuleChecker(13);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	broker.start()
 		.delay(1000)
 		.then(() => checker.execute())
 		.catch(console.error)
@@ -133,4 +133,4 @@ checker.add("LIST POSTS (page: 2, pageSize: 5, sort: -votes)", () => broker.call
 	];
 });
 
-broker.start().then(() => start());
+start();

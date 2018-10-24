@@ -30,16 +30,16 @@ const execCB = jest.fn(() => Promise.resolve());
 const saveCB = jest.fn(() => Promise.resolve());
 const leanCB = jest.fn(() => ({ exec: execCB }));
 const countCB = jest.fn(() => ({ exec: execCB }));
-const query = jest.fn(() => ({ lean: leanCB, exec: execCB, count: countCB }));
+const query = jest.fn(() => ({ lean: leanCB, exec: execCB, countDocuments: countCB }));
 
 const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
 	find: jest.fn(() => query()),
 	findOne: jest.fn(() => query()),
 	findById: jest.fn(() => query()),
 	create: jest.fn(() => Promise.resolve()),
-	update: jest.fn(() => Promise.resolve({ n: 2 })),
+	updateMany: jest.fn(() => Promise.resolve({ n: 2 })),
 	findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
-	remove: jest.fn(() => Promise.resolve({ n: 2 })),
+	deleteMany: jest.fn(() => Promise.resolve({ n: 2 })),
 	findByIdAndRemove: jest.fn(() => Promise.resolve()),
 });
 
@@ -362,8 +362,8 @@ describe("Test MongooseStoreAdapter", () => {
 
 		return adapter.updateMany(query, update).catch(protectReject).then(res => {
 			expect(res).toBe(2);
-			expect(adapter.model.update).toHaveBeenCalledTimes(1);
-			expect(adapter.model.update).toHaveBeenCalledWith(query, update, { multi: true, "new": true });
+			expect(adapter.model.updateMany).toHaveBeenCalledTimes(1);
+			expect(adapter.model.updateMany).toHaveBeenCalledWith(query, update, { multi: true, "new": true });
 		});
 	});
 
@@ -382,8 +382,8 @@ describe("Test MongooseStoreAdapter", () => {
 
 		return adapter.removeMany(query).catch(protectReject).then(res=> {
 			expect(res).toBe(2);
-			expect(adapter.model.remove).toHaveBeenCalledTimes(1);
-			expect(adapter.model.remove).toHaveBeenCalledWith(query);
+			expect(adapter.model.deleteMany).toHaveBeenCalledTimes(1);
+			expect(adapter.model.deleteMany).toHaveBeenCalledWith(query);
 		});
 	});
 
@@ -395,10 +395,10 @@ describe("Test MongooseStoreAdapter", () => {
 	});
 
 	it("call clear", () => {
-		adapter.model.remove.mockClear();
+		adapter.model.deleteMany.mockClear();
 		return adapter.clear().catch(protectReject).then(() => {
-			expect(adapter.model.remove).toHaveBeenCalledTimes(1);
-			expect(adapter.model.remove).toHaveBeenCalledWith({});
+			expect(adapter.model.deleteMany).toHaveBeenCalledTimes(1);
+			expect(adapter.model.deleteMany).toHaveBeenCalledWith({});
 		});
 	});
 
