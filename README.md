@@ -27,14 +27,14 @@ $ npm run setup
 ```
 
 ## Development
-**Run the `simple` example in `moleculer-mail` service with watching**
+**Run the `simple` example in `moleculer-db` service with watching**
 ```bash
-$ npm run dev moleculer-mail
+$ npm run dev moleculer-db
 ```
 
-**Run the `full` example in `moleculer-fake` service w/o watching**
+**Run the `full` example in `moleculer-db` service w/o watching**
 ```bash
-$ npm run demo moleculer-fake full
+$ npm run demo moleculer-db full
 ```
 
 ## Test
