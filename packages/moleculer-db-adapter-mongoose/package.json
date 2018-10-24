@@ -24,21 +24,21 @@
   "author": "MoleculerJS",
   "license": "MIT",
   "peerDependencies": {
-    "moleculer": "^0.12.0",
+    "moleculer": "^0.12.0 || ^0.13.0",
     "mongoose": "^5.0.12"
   },
   "devDependencies": {
     "benchmarkify": "2.1.0",
     "coveralls": "3.0.2",
-    "eslint": "5.1.0",
+    "eslint": "5.7.0",
     "fakerator": "0.3.0",
-    "jest": "23.4.0",
-    "jest-cli": "23.4.0",
-    "lolex": "2.7.1",
-    "moleculer": "0.13.0",
-    "mongoose": "5.2.3",
-    "nodemon": "1.18.1",
-    "npm-check": "5.7.1"
+    "jest": "23.6.0",
+    "jest-cli": "23.6.0",
+    "lolex": "3.0.0",
+    "moleculer": "0.13.3",
+    "mongoose": "5.3.6",
+    "nodemon": "1.18.4",
+    "npm-check": "5.9.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -51,7 +51,7 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "bluebird": "3.5.1",
-    "lodash": "4.17.10"
+    "bluebird": "3.5.2",
+    "lodash": "4.17.11"
   }
 }
