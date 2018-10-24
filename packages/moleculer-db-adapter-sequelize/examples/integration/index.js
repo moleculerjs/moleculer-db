@@ -41,7 +41,7 @@ const broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new SequelizeAdapter("sqlite://:memory:"),
+	adapter: new SequelizeAdapter("sqlite://:memory:", { operatorsAliases: false }),
 	//adapter: new SequelizeAdapter({ dialect: "sqlite", storage: "d:\\moleculer-test.db"}),
 	//adapter: new SequelizeAdapter("mssql://sa:<password>@localhost/moleculer-test"),
 	//adapter: new SequelizeAdapter("mysql://root:mysql@192.168.51.29/moleculer_test"),
@@ -81,7 +81,7 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.adapter.clear().then(() => start());
+		return this.adapter.clear();
 	}
 });
 
@@ -89,7 +89,7 @@ const checker = new ModuleChecker(11);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	broker.start()
 		.delay(500)
 		.then(() => checker.execute())
 		.catch(console.error)
@@ -178,4 +178,4 @@ checker.add("--- COUNT ---", () => broker.call("posts.count"), res => {
 });
 
 
-broker.start();
+start();

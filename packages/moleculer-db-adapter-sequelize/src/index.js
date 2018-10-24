@@ -9,6 +9,7 @@
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
 const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 class SequelizeDbAdapter {
 
@@ -115,7 +116,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	findById(_id) {
-		return this.model.findById(_id);
+		return this.model.findByPk(_id);
 	}
 
 	/**
@@ -129,7 +130,9 @@ class SequelizeDbAdapter {
 	findByIds(idList) {
 		return this.model.findAll({
 			where: {
-				id:  idList
+				id: {
+					[Op.in]: idList
+				}
 			}
 		});
 	}
@@ -172,8 +175,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	insertMany(entities) {
-		const p = entities.map(e => this.model.create(e));
-		return Promise.all(p);
+		return Promise.all(entities.map(e => this.model.create(e)));
 	}
 
 	/**
@@ -279,10 +281,10 @@ class SequelizeDbAdapter {
 				}
 
 				q.where = {
-					$or: fields.map(f => {
+					[Op.or]: fields.map(f => {
 						return {
 							[f]: {
-								$like: "%" + params.search + "%"
+								[Op.like]: "%" + params.search + "%"
 							}
 						};
 					})

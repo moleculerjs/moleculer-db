@@ -9,7 +9,7 @@ const model = {
 	findAll: jest.fn(() => Promise.resolve()),
 	count: jest.fn(() => Promise.resolve()),
 	findOne: jest.fn(() => Promise.resolve()),
-	findById: jest.fn(() => Promise.resolve()),
+	findByPk: jest.fn(() => Promise.resolve()),
 	create: jest.fn(() => Promise.resolve()),
 	update: jest.fn(() => Promise.resolve([1, 2])),
 	destroy: jest.fn(() => Promise.resolve()),
@@ -22,6 +22,8 @@ const db = {
 };
 
 let Sequelize = require("sequelize");
+const Op = Sequelize.Op;
+
 Sequelize.mockImplementation(() => db);
 
 const SequelizeAdapter = require("../../src");
@@ -199,15 +201,15 @@ describe("Test SequelizeAdapter", () => {
 			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 			expect(adapter.model.findAll).toHaveBeenCalledWith({
 				where: {
-					"$or": [
+					[Op.or]: [
 						{
 							title: {
-								"$like": "%walter%"
+								[Op.like]: "%walter%"
 							}
 						},
 						{
 							content: {
-								"$like": "%walter%"
+								[Op.like]: "%walter%"
 							}
 						}
 					]
@@ -238,21 +240,21 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
-	it("call findById", () => {
-		adapter.model.findById.mockClear();
+	it("call findByPk", () => {
+		adapter.model.findByPk.mockClear();
 
 		return adapter.findById(5).catch(protectReject).then(() => {
-			expect(adapter.model.findById).toHaveBeenCalledTimes(1);
-			expect(adapter.model.findById).toHaveBeenCalledWith(5);
+			expect(adapter.model.findByPk).toHaveBeenCalledTimes(1);
+			expect(adapter.model.findByPk).toHaveBeenCalledWith(5);
 		});
 	});
 
 	it("call findByIds", () => {
 		adapter.model.findAll.mockClear();
 
-		return adapter.findByIds(5).catch(protectReject).then(() => {
+		return adapter.findByIds([5]).catch(protectReject).then(() => {
 			expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
-			expect(adapter.model.findAll).toHaveBeenCalledWith({"where": {"id": 5}});
+			expect(adapter.model.findAll).toHaveBeenCalledWith({"where": {"id": { [Op.in]: [5] }}});
 		});
 	});
 

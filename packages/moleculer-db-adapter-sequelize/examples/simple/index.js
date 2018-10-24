@@ -6,6 +6,9 @@ const ModuleChecker = require("../../../moleculer-db/test/checker");
 const SequelizeAdapter = require("../../index");
 const Promise = require("bluebird");
 const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
+
+process.on("warning", e => console.warn(e.stack));
 
 // Create broker
 const broker = new ServiceBroker({
@@ -17,7 +20,7 @@ let adapter;
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new SequelizeAdapter("sqlite://:memory:"),
+	adapter: new SequelizeAdapter("sqlite://:memory:", { operatorsAliases: false }),
 	model: {
 		name: "post",
 		define: {
@@ -36,7 +39,7 @@ broker.createService(StoreService, {
 	afterConnected() {
 		adapter = this.adapter;
 		this.logger.info("Connected successfully");
-		return this.adapter.clear().then(() => start());
+		return this.adapter.clear();
 	}
 });
 
@@ -44,7 +47,7 @@ const checker = new ModuleChecker(22);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	broker.start()
 		.delay(500)
 		.then(() => checker.execute())
 		.catch(console.error)
@@ -123,13 +126,13 @@ checker.add("FIND by limit, sort, query", () => adapter.find({ limit: 1, sort: [
 });
 
 // Find
-checker.add("FIND by query ($gt)", () => adapter.find({ query: { votes: { $gt: 2 } } }), res => {
+checker.add("FIND by query (Op.gt)", () => adapter.find({ query: { votes: { [Op.gt]: 2 } } }), res => {
 	console.log(res.map(adapter.entityToObject));
 	return res.length == 2;
 });
 
 // Find
-checker.add("COUNT by query ($gt)", () => adapter.count({ query: { votes: { $gt: 2 } } }), res => {
+checker.add("COUNT by query (Op.gt)", () => adapter.count({ query: { votes: { [Op.gt]: 2 } } }), res => {
 	console.log(res);
 	return res == 2;
 });
@@ -159,7 +162,7 @@ checker.add("UPDATE", () => adapter.updateById(ids[2], { $set: {
 });
 
 // Update by query
-checker.add("UPDATE BY QUERY", () => adapter.updateMany({ votes: { $lt: 5 }}, {
+checker.add("UPDATE BY QUERY", () => adapter.updateMany({ votes: { [Op.lt]: 5 }}, {
 	$set: { status: false }
 }), count => {
 	console.log("Updated: ", count);
@@ -167,7 +170,7 @@ checker.add("UPDATE BY QUERY", () => adapter.updateMany({ votes: { $lt: 5 }}, {
 });
 
 // Remove by query
-checker.add("REMOVE BY QUERY", () => adapter.removeMany({ votes: { $lt: 5 }}), count => {
+checker.add("REMOVE BY QUERY", () => adapter.removeMany({ votes: { [Op.lt]: 5 }}), count => {
 	console.log("Removed: ", count);
 	return count == 2;
 });
@@ -196,4 +199,4 @@ checker.add("CLEAR", () => adapter.clear(), res => {
 	return res == 0;
 });
 
-broker.start();
+start();
