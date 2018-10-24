@@ -16,7 +16,7 @@ let adapter;
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo?autoReconnect=true"),
+	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
 	collection: "posts",
 	settings: {},
 

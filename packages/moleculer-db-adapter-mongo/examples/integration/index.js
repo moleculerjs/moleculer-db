@@ -15,7 +15,7 @@ let broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
 	collection: "posts",
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]
@@ -45,7 +45,7 @@ const checker = new ModuleChecker(11);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	Promise.resolve()
 		.delay(500)
 		.then(() => checker.execute())
 		.catch(console.error)

@@ -11,7 +11,6 @@ const Promise		= require("bluebird");
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
 const ObjectID 		= mongodb.ObjectID;
-const { URL } 		= require("url");
 
 class MongoDbAdapter {
 

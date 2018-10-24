@@ -27,7 +27,7 @@ const toArrayCB = jest.fn(() => Promise.resolve());
 const query = jest.fn(() => ({ toArray: toArrayCB }));
 
 const fakeCollection = {
-	count: jest.fn(() => Promise.resolve(7)),
+	countDocuments: jest.fn(() => Promise.resolve(7)),
 	find: jest.fn(() => query()),
 	findOne: jest.fn(() => Promise.resolve(doc)),
 	insertOne: jest.fn(doc => Promise.resolve({ insertedCount: 1, ops: [doc] })),
@@ -184,14 +184,14 @@ describe("Test MongoDbAdapter", () => {
 		});
 
 		it("call without params & count", () => {
-			adapter.collection.count.mockClear();
+			adapter.collection.countDocuments.mockClear();
 			adapter.collection.find.mockClear();
 
 			adapter.createCursor(null, true);
 
 			expect(adapter.collection.find).toHaveBeenCalledTimes(0);
-			expect(adapter.collection.count).toHaveBeenCalledTimes(1);
-			expect(adapter.collection.count).toHaveBeenCalledWith({});
+			expect(adapter.collection.countDocuments).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.countDocuments).toHaveBeenCalledWith({});
 		});
 
 		it("call with query", () => {
@@ -203,11 +203,11 @@ describe("Test MongoDbAdapter", () => {
 		});
 
 		it("call with query & count", () => {
-			adapter.collection.count.mockClear();
+			adapter.collection.countDocuments.mockClear();
 			let query = {};
 			adapter.createCursor({ query }, true);
-			expect(adapter.collection.count).toHaveBeenCalledTimes(1);
-			expect(adapter.collection.count).toHaveBeenCalledWith(query);
+			expect(adapter.collection.countDocuments).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.countDocuments).toHaveBeenCalledWith(query);
 		});
 
 		it("call with sort string", () => {
