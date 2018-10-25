@@ -11,7 +11,6 @@ const Promise		= require("bluebird");
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
 const ObjectID 		= mongodb.ObjectID;
-const { URL } 		= require("url");
 
 class MongoDbAdapter {
 
@@ -279,7 +278,7 @@ class MongoDbAdapter {
 		if (params) {
 			let q;
 			if (isCounting)
-				q = this.collection.count(params.query);
+				q = this.collection.countDocuments(params.query);
 			else
 				q = this.collection.find(params.query);
 			// Full-text search
@@ -318,7 +317,7 @@ class MongoDbAdapter {
 
 		// If not params
 		if (isCounting)
-			return this.collection.count({});
+			return this.collection.countDocuments({});
 		else
 			return this.collection.find({});
 	}

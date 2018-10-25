@@ -593,6 +593,11 @@ describe("Test sanitizeParams method", () => {
 		expect(res).toEqual({ populate: ["author", "voters"] });
 	});
 
+	it("should convert searchFields to array", () => {
+		const res = service.sanitizeParams(ctx, { searchFields: "name votes author" });
+		expect(res).toEqual({ searchFields: ["name", "votes", "author"] });
+	});
+
 	it("should fill pagination fields", () => {
 		const res = service.sanitizeParams(ctxList, {});
 		expect(res).toEqual({ limit: 25, offset: 0, page: 1, pageSize: 25});

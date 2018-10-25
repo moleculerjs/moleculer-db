@@ -77,13 +77,22 @@ module.exports = {
 				keys: ["populate", "fields", "limit", "offset", "sort", "search", "searchFields", "query"]
 			},
 			params: {
-				populate: { type: "array", optional: true, items: "string" },
-				fields: { type: "array", optional: true, items: "string" },
+				populate: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				limit: { type: "number", integer: true, min: 0, optional: true, convert: true },
 				offset: { type: "number", integer: true, min: 0, optional: true, convert: true },
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
-				searchFields: { type: "array", optional: true },
+				searchFields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
@@ -113,7 +122,10 @@ module.exports = {
 			},
 			params: {
 				search: { type: "string", optional: true },
-				searchFields: { type: "array", optional: true },
+				searchFields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
@@ -151,13 +163,22 @@ module.exports = {
 				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
 			},
 			params: {
-				populate: { type: "array", optional: true, items: "string" },
-				fields: { type: "array", optional: true, items: "string" },
+				populate: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				page: { type: "number", integer: true, min: 1, optional: true, convert: true },
 				pageSize: { type: "number", integer: true, min: 0, optional: true, convert: true },
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
-				searchFields: { type: "array", optional: true },
+				searchFields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
@@ -286,8 +307,14 @@ module.exports = {
 					{ type: "number" },
 					{ type: "array" }
 				],
-				populate: { type: "array", optional: true, items: "string" },
-				fields: { type: "array", optional: true, items: "string" },
+				populate: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
 				mapping: { type: "boolean", optional: true }
 			},
 			handler(ctx) {
@@ -437,13 +464,16 @@ module.exports = {
 				p.pageSize = Number(p.pageSize);
 
 			if (typeof(p.sort) === "string")
-				p.sort = p.sort.replace(/,/, " ").split(" ");
+				p.sort = p.sort.replace(/,/g, " ").split(" ");
 
 			if (typeof(p.fields) === "string")
-				p.fields = p.fields.replace(/,/, " ").split(" ");
+				p.fields = p.fields.replace(/,/g, " ").split(" ");
 
 			if (typeof(p.populate) === "string")
-				p.populate = p.populate.replace(/,/, " ").split(" ");
+				p.populate = p.populate.replace(/,/g, " ").split(" ");
+
+			if (typeof(p.searchFields) === "string")
+				p.searchFields = p.searchFields.replace(/,/g, " ").split(" ");
 
 			if (ctx.action.name.endsWith(".list")) {
 				// Default `pageSize`
@@ -481,13 +511,9 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (_.isArray(id)) {
-						if (decoding)
-							id = id.map(id => this.decodeID(id));
-						return this.adapter.findByIds(id);
+						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id);
 					} else {
-						if (decoding)
-							id = this.decodeID(id);
-						return this.adapter.findById(id);
+						return this.adapter.findById(decoding ? this.decodeID(id) : id);
 					}
 				});
 		},
@@ -783,8 +809,8 @@ module.exports = {
 			return new Promise(resolve => {
 				let connecting = () => {
 					this.connect().then(resolve).catch(err => {
+						this.logger.error("Connection error!", err);
 						setTimeout(() => {
-							this.logger.error("Connection error!", err);
 							this.logger.warn("Reconnecting...");
 							connecting();
 						}, 1000);

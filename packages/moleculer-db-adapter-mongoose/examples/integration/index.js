@@ -16,7 +16,7 @@ const broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
 	model: Post,
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]
@@ -36,7 +36,7 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		this.logger.info("Connected successfully");
-		return this.adapter.clear().then(() => start());
+		return this.adapter.clear();
 	}
 });
 
@@ -44,7 +44,7 @@ const checker = new ModuleChecker(11);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	broker.start()
 		.delay(500)
 		.then(() => checker.execute())
 		.catch(console.error)
@@ -133,4 +133,4 @@ checker.add("--- COUNT ---", () => broker.call("posts.count"), res => {
 });
 
 
-broker.start();
+start();
