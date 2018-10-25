@@ -347,6 +347,28 @@ class SequelizeDbAdapter {
 		return [];
 	}
 
+	/**
+	* For compatibility only.
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof SequelizeDbAdapter
+	* @returns {Object} Entity
+	*/
+	beforeSaveTransformID (entity, idField) {
+		return entity;
+	}
+
+	/**
+	* For compatibility only.
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof SequelizeDbAdapter
+	* @returns {Object} Entity
+	*/
+	afterRetrieveTransformID (entity, idField) {
+		return entity;
+	}
+
 }
 
 module.exports = SequelizeDbAdapter;

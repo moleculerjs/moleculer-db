@@ -209,16 +209,8 @@ module.exports = {
 				let entity = ctx.params;
 
 				return this.validateEntity(entity)
-					.then(entity => {
-						// let newEntity = { ...entity };
-						let newEntity = _.cloneDeep(entity);
-						if (this.settings.idField !== "_id" && entity[this.settings.idField] !== undefined) {
-							newEntity._id = newEntity[this.settings.idField];
-							delete newEntity[this.settings.idField];
-						}
-
-						return newEntity;
-					})
+					// Apply idField
+					.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 					.then(entity => this.adapter.insert(entity))
 					.then(doc => this.transformDocuments(ctx, {}, doc))
 					.then(json => this.entityChanged("created", json, ctx).then(() => json));
@@ -248,33 +240,18 @@ module.exports = {
 					.then(() => {
 						if (Array.isArray(params.entities)) {
 							return this.validateEntity(params.entities)
+								// Apply idField
 								.then(entities => {
 									if (this.settings.idField === "_id") return entities;
 
-									return entities.map(entity => {
-										// let newEntity = { ...entity };
-										let newEntity = _.cloneDeep(entity);
-										if(newEntity[this.settings.idField] !== undefined) {
-											newEntity._id = newEntity[this.settings.idField];
-											delete newEntity[this.settings.idField];
-										}
-										return newEntity;
-									});
+									return entities.map(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField));
 									
 								})
 								.then(entities => this.adapter.insertMany(entities));
 						} else if (params.entity) {
 							return this.validateEntity(params.entity)
-								.then(entity => {
-									// let newEntity = { ...entity };
-									let newEntity = _.cloneDeep(entity);
-									if (this.settings.idField !== "_id" && entity[this.settings.idField] !== undefined) {
-										newEntity._id = newEntity[this.settings.idField];
-										delete newEntity[this.settings.idField];
-									}
-
-									return newEntity;
-								})
+								// Apply idField
+								.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 								.then(entity => this.adapter.insert(entity));
 						}
 						return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
@@ -570,14 +547,11 @@ module.exports = {
 
 				// Encode IDs
 				.then(docs => docs.map(doc => {
-					// doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
-
-					doc[this.settings.idField] = this.encodeID(doc["_id"]);
-					if (this.settings.idField !== "_id") delete doc._id;
-
+					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
 					return doc;
 				}))
-
+				// Apply idField
+				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Populate
 				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
 
