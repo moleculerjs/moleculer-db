@@ -83,6 +83,8 @@ describe("Test SequelizeAdapter", () => {
 		expect(adapter.removeMany).toBeDefined();
 		expect(adapter.removeById).toBeDefined();
 		expect(adapter.clear).toBeDefined();
+		expect(adapter.beforeSaveTransformID).toBeInstanceOf(Function);
+		expect(adapter.afterRetrieveTransformID).toBeInstanceOf(Function);
 	});
 
 	it("call init", () => {
@@ -357,5 +359,25 @@ describe("Test SequelizeAdapter", () => {
 		expect(doc.get).toHaveBeenCalledWith({ plain: true });
 	});
 
+
+	it("should transform idField into _id", () => {
+		let entry = {
+			myID: "123456789",
+			title: "My first post"
+		};
+		let idField = "myID";
+		let res = adapter.beforeSaveTransformID(entry, idField);
+		expect(res).toEqual(entry);
+	});
+
+	it("should transform _id into idField", () => {
+		let entry = {
+			_id: "123456789",
+			title: "My first post"
+		};
+		let idField = "myID";
+		let res = adapter.afterRetrieveTransformID(entry, idField);
+		expect(res).toEqual(entry);
+	});
 });
 

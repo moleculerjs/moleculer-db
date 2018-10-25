@@ -378,6 +378,38 @@ class MongoDbAdapter {
 		return id;
 	}
 
+	/**
+	* Transforms 'idField' into MongoDB's '_id'
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof MongoDbAdapter
+	* @returns {Object} Modified entity
+	*/
+	beforeSaveTransformID (entity, idField) {
+		let newEntity = _.cloneDeep(entity);
+
+		if (idField !== "_id" && entity[idField] !== undefined) {
+			newEntity._id = this.stringToObjectID(newEntity[idField]);
+			delete newEntity[idField];
+		}
+
+		return newEntity;
+	}
+
+	/**
+	* Transforms MongoDB's '_id' into user defined 'idField'
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof MongoDbAdapter
+	* @returns {Object} Modified entity
+	*/
+	afterRetrieveTransformID (entity, idField) {
+		if (idField !== "_id") {
+			entity[idField] = this.objectIDToString(entity["_id"]);
+			delete entity._id;
+		} 
+		return entity;
+	}
 }
 
 module.exports = MongoDbAdapter;

@@ -230,6 +230,8 @@ module.exports = {
 				let entity = ctx.params;
 
 				return this.validateEntity(entity)
+					// Apply idField
+					.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 					.then(entity => this.adapter.insert(entity))
 					.then(doc => this.transformDocuments(ctx, {}, doc))
 					.then(json => this.entityChanged("created", json, ctx).then(() => json));
@@ -259,9 +261,18 @@ module.exports = {
 					.then(() => {
 						if (Array.isArray(params.entities)) {
 							return this.validateEntity(params.entities)
+								// Apply idField
+								.then(entities => {
+									if (this.settings.idField === "_id") return entities;
+
+									return entities.map(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField));
+									
+								})
 								.then(entities => this.adapter.insertMany(entities));
 						} else if (params.entity) {
 							return this.validateEntity(params.entity)
+								// Apply idField
+								.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 								.then(entity => this.adapter.insert(entity));
 						}
 						return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
@@ -551,7 +562,7 @@ module.exports = {
 					isDoc = true;
 					docs = [docs];
 				}
-				else
+				else 
 					return Promise.resolve(docs);
 			}
 
@@ -565,11 +576,12 @@ module.exports = {
 					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
 					return doc;
 				}))
-
+				// Apply idField
+				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Populate
 				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
 
-				// TODO onTransformHook
+			// TODO onTransformHook
 
 				// Filter fields
 				.then(json => {

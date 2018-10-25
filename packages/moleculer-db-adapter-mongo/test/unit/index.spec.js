@@ -75,6 +75,8 @@ describe("Test MongoDbAdapter", () => {
 		expect(adapter.removeMany).toBeInstanceOf(Function);
 		expect(adapter.removeById).toBeInstanceOf(Function);
 		expect(adapter.clear).toBeInstanceOf(Function);
+		expect(adapter.beforeSaveTransformID).toBeInstanceOf(Function);
+		expect(adapter.afterRetrieveTransformID).toBeInstanceOf(Function);
 	});
 
 	it("throw error in init if 'collection' is not defined", () => {
@@ -400,6 +402,62 @@ describe("Test MongoDbAdapter", () => {
 		doc._id = 1;
 		adapter.entityToObject(doc);
 		expect(adapter.objectIDToString).toHaveBeenCalledTimes(1);
+	});
+
+	it("should transform idField into _id", () => {
+		adapter.stringToObjectID = jest.fn(entry => entry);
+
+		let entry = {
+			myID: "123456789",
+			title: "My first post"
+		};
+		let idField = "myID";
+
+		let res = adapter.beforeSaveTransformID(entry, idField);
+
+		expect(res.myID).toEqual(undefined);
+		expect(res._id).toEqual(entry.myID);
+	});
+
+	it("should NOT transform idField into _id", () => {
+		// MongoDB will generate the _id
+		let entry = {
+			title: "My first post"
+		};
+		let idField = "myID";
+
+		let res = adapter.beforeSaveTransformID(entry, idField);
+
+		expect(res.myID).toEqual(undefined);
+		expect(res._id).toEqual(undefined);
+	});
+
+	it("should transform _id into idField", () => {
+		adapter.objectIDToString = jest.fn(entry => entry);
+		
+		let entry = {
+			_id: "123456789",
+			title: "My first post"
+		};
+		let idField = "myID";
+
+		let res = adapter.afterRetrieveTransformID(entry, idField);
+
+		expect(res.myID).toEqual(entry.myID);
+		expect(res._id).toEqual(undefined);
+	});
+
+	it("should NOT transform _id into idField", () => {
+		let entry = {
+			_id: "123456789",
+			title: "My first post"
+		};
+		let idField = "_id";
+
+		let res = adapter.afterRetrieveTransformID(entry, idField);
+
+		expect(res.myID).toEqual(undefined);
+		expect(res._id).toEqual(entry._id);
 	});
 
 });

@@ -32,7 +32,8 @@ describe("Test DbService actions", () => {
 		removeMany: jest.fn(() => Promise.resolve(5)),
 		removeById: jest.fn(() => Promise.resolve(3)),
 		clear: jest.fn(() => Promise.resolve(3)),
-		entityToObject: jest.fn(obj => obj)
+		entityToObject: jest.fn(obj => obj),
+		beforeSaveTransformID: jest.fn(obj => obj)
 	};
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
@@ -624,7 +625,8 @@ const mockAdapter = {
 	init: jest.fn(() => Promise.resolve()),
 	connect: jest.fn(() => Promise.resolve()),
 	disconnect: jest.fn(() => Promise.resolve()),
-	entityToObject: jest.fn(obj => obj)
+	entityToObject: jest.fn(obj => obj),
+	afterRetrieveTransformID: jest.fn(obj => obj)
 };
 
 describe("Test transformDocuments method", () => {

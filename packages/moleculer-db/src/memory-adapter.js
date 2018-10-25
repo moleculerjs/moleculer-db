@@ -247,7 +247,7 @@ class MemoryDbAdapter {
 	 *
 	 * @param {any} entity
 	 * @returns {Object}
-	 * @memberof MongooseStoreAdapter
+	 * @memberof MemoryDbAdapter
 	 */
 	entityToObject(entity) {
 		return entity;
@@ -266,6 +266,7 @@ class MemoryDbAdapter {
 	 *
 	 * @param {Object} params
 	 * @returns {Query}
+	 * @memberof MemoryDbAdapter
 	 */
 	createCursor(params) {
 		if (params) {
@@ -320,6 +321,39 @@ class MemoryDbAdapter {
 		}
 
 		return this.db.find({});
+	}
+
+	/**
+	* Transforms 'idField' into NeDB's '_id'
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof MemoryDbAdapter
+	* @returns {Object} Modified entity
+	*/
+	beforeSaveTransformID (entity, idField) {
+		let newEntity = _.cloneDeep(entity);
+
+		if (idField !== "_id" && entity[idField] !== undefined) {
+			newEntity._id = newEntity[idField];
+			delete newEntity[idField];
+		}
+
+		return newEntity;
+	}
+
+	/**
+	* Transforms NeDB's '_id' into user defined 'idField'
+	* @param {Object} entity 
+	* @param {String} idField 
+	* @memberof MemoryDbAdapter
+	* @returns {Object} Modified entity
+	*/
+	afterRetrieveTransformID (entity, idField) {
+		if (idField !== "_id") {
+			entity[idField] = entity["_id"];
+			delete entity._id;
+		} 
+		return entity;
 	}
 }
 
