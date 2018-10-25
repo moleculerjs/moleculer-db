@@ -405,12 +405,16 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("should transform idField into _id", () => {
+		adapter.stringToObjectID = jest.fn(entry => entry);
+
 		let entry = {
 			myID: "123456789",
 			title: "My first post"
 		};
 		let idField = "myID";
+
 		let res = adapter.beforeSaveTransformID(entry, idField);
+
 		expect(res.myID).toEqual(undefined);
 		expect(res._id).toEqual(entry.myID);
 	});
@@ -421,18 +425,24 @@ describe("Test MongoDbAdapter", () => {
 			title: "My first post"
 		};
 		let idField = "myID";
+
 		let res = adapter.beforeSaveTransformID(entry, idField);
+
 		expect(res.myID).toEqual(undefined);
 		expect(res._id).toEqual(undefined);
 	});
 
 	it("should transform _id into idField", () => {
+		adapter.objectIDToString = jest.fn(entry => entry);
+		
 		let entry = {
 			_id: "123456789",
 			title: "My first post"
 		};
 		let idField = "myID";
+
 		let res = adapter.afterRetrieveTransformID(entry, idField);
+
 		expect(res.myID).toEqual(entry.myID);
 		expect(res._id).toEqual(undefined);
 	});
@@ -443,7 +453,9 @@ describe("Test MongoDbAdapter", () => {
 			title: "My first post"
 		};
 		let idField = "_id";
+
 		let res = adapter.afterRetrieveTransformID(entry, idField);
+
 		expect(res.myID).toEqual(undefined);
 		expect(res._id).toEqual(entry._id);
 	});

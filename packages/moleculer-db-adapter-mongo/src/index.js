@@ -390,7 +390,7 @@ class MongoDbAdapter {
 		let newEntity = _.cloneDeep(entity);
 
 		if (idField !== "_id" && entity[idField] !== undefined) {
-			newEntity._id = newEntity[idField];
+			newEntity._id = this.stringToObjectID(newEntity[idField]);
 			delete newEntity[idField];
 		}
 
@@ -406,7 +406,7 @@ class MongoDbAdapter {
 	*/
 	afterRetrieveTransformID (entity, idField) {
 		if (idField !== "_id") {
-			entity[idField] = entity["_id"];
+			entity[idField] = this.objectIDToString(entity["_id"]);
 			delete entity._id;
 		} 
 		return entity;
