@@ -54,8 +54,12 @@ class SequelizeDbAdapter {
 
 		return this.db.authenticate().then(() => {
 
-			let m = this.service.schema.model;
-			this.model = this.db.define(m.name, m.define, m.options);
+			let modelAttribute = this.service.schema.model;
+			if (modelAttribute && modelAttribute.hasOwnProperty('attributes')){
+				this.model = modelAttribute;
+			}else {
+				this.model = this.db.define(modelAttribute.name, modelAttribute.define, modelAttribute.options);
+			}
 			this.service.model = this.model;
 
 			return this.model.sync();
@@ -351,8 +355,8 @@ class SequelizeDbAdapter {
 
 	/**
 	* For compatibility only.
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof SequelizeDbAdapter
 	* @returns {Object} Entity
 	*/
@@ -362,8 +366,8 @@ class SequelizeDbAdapter {
 
 	/**
 	* For compatibility only.
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof SequelizeDbAdapter
 	* @returns {Object} Entity
 	*/
