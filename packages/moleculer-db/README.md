@@ -81,7 +81,7 @@ broker.start()
 | `populates` | `Array` | `null` | Schema for population. [Read more](#populating). |
 | `pageSize` | `Number` | **required** | Default page size in `list` action. |
 | `maxPageSize` | `Number` | **required** | Maximum page size in `list` action. |
-| `maxLimit` | `Number` | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit) |
+| `maxLimit` | `Number` | `-1` (no limit) | Maximum value of limit in `find` action. |
 | `entityValidator` | `Object`, `function` | `null` | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. |
 
 >**Note**: `idField` does not work with Sequelize adapter as you can freely set your own ID while creating the model.
