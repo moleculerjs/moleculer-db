@@ -76,6 +76,10 @@ describe("Test SequelizeAdapter", () => {
 			model: fakeModel
 		});
 
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
 		it("should be created", () => {
 			expect(adapter).toBeDefined();
 			expect(adapter.opts).toEqual([opts]);
@@ -99,7 +103,6 @@ describe("Test SequelizeAdapter", () => {
 		});
 
 		it("call init", () => {
-			adapter.init(broker, service);
 			expect(adapter.broker).toBe(broker);
 			expect(adapter.service).toBe(service);
 		});
