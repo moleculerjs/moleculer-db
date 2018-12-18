@@ -49,7 +49,7 @@ class CouchDbNanoAdapter {
 	 * @memberof CouchDbNano
 	 */
 	connect() {
-		const opts = Object.assign({}, this.opts, {url: this.url ? this.uri.replace("couchdb://", "http://") : "" || "http://localhost:5984"});
+		const opts = Object.assign({}, this.opts, {url: this.uri ? this.uri.replace("couchdb://", "http://") : "" || "http://localhost:5984"});
 		const nano = require("nano")(opts);
 		const dbName = `${this.service.schema.collection}`;
 
