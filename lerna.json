@@ -4,9 +4,9 @@
     "packages/*"
   ],
   "version": "independent",
-  "commands": {
+  "command": {
     "publish": {
-      "ignore": [
+      "ignoreChanges": [
         "*.md",
         "package-lock.json"
       ]
