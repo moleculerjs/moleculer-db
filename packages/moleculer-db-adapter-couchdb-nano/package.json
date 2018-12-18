@@ -1,0 +1,55 @@
+{
+  "name": "moleculer-db-adapter-couchdb-nano",
+  "version": "0.1.2",
+  "description": "CouchDB Nano adapter for Moleculer DB service.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon examples/index.js",
+    "ci": "jest --watch",
+    "test": "jest --coverage",
+    "lint": "eslint --ext=.js src test",
+    "deps": "npm-check -u",
+    "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
+    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "keywords": [
+    "microservice",
+    "moleculer",
+    "couchdb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:moleculerjs/moleculer-db.git"
+  },
+  "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db-adapter-couchdb-nano#readme",
+  "author": "Mr. Kutin",
+  "license": "MIT",
+  "peerDependencies": {
+    "moleculer": "^0.12.0 || ^0.13.0"
+  },
+  "devDependencies": {
+    "benchmarkify": "2.1.0",
+    "coveralls": "3.0.2",
+    "eslint": "5.7.0",
+    "jest": "23.6.0",
+    "jest-cli": "23.6.0",
+    "lolex": "3.0.0",
+    "moleculer": "0.13.3",
+    "moleculer-docgen": "0.2.1",
+    "nodemon": "1.18.7",
+    "npm-check": "5.9.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/services/"
+    ]
+  },
+  "engines": {
+    "node": ">= 6.x.x"
+  },
+  "dependencies": {
+    "nano": "^7.1.1"
+  }
+}
