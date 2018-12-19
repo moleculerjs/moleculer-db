@@ -162,11 +162,12 @@ class CouchDbNanoAdapter {
 			delete selector.fields;
 		}
 
-		Object.entries(selector).forEach(([key, value]) => {
-			if (typeof value !== "object") {
-				selector[key] = {$eq: value};
+		Object.keys(selector).forEach(key => {
+			if (selector.hasOwnProperty(key) && typeof selector[key] !== "object") {
+				selector[key] = {$eq: selector[key]};
 			}
 		});
+
 		return Promise.resolve(this.db.find({selector, limit, skip, sort, fields}).then(result => result.docs));
 	}
 
