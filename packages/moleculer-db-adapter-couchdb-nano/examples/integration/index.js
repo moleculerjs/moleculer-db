@@ -1,13 +1,13 @@
 "use strict";
 
-let {ServiceBroker} = require("moleculer");
-let StoreService = require("../../../moleculer-db/index");
-let CouchAdapter = require("../../index");
-let ModuleChecker = require("../../../moleculer-db/test/checker");
-let Promise = require("bluebird");
+const {ServiceBroker} = require("moleculer");
+const StoreService = require("../../../moleculer-db/index");
+const CouchAdapter = require("../../index");
+const ModuleChecker = require("../../../moleculer-db/test/checker");
+const Promise = require("bluebird");
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -16,27 +16,14 @@ let broker = new ServiceBroker({
 broker.createService(StoreService, {
 	name: "posts",
 	adapter: new CouchAdapter("couchdb://127.0.0.1:5984", {useNewUrlParser: true}),
-	collection: "posts",
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]
 	},
 
-	// actions: {
-	// 	vote(ctx) {
-	// 		return this.Promise.resolve(ctx)
-	// 			.then(ctx => this.adapter.updateById(ctx.params.id, {$inc: {votes: 1}}));
-	// 	},
-	//
-	// 	unvote(ctx) {
-	// 		return this.Promise.resolve(ctx)
-	// 			.then(ctx => this.adapter.updateById(ctx.params.id, {$inc: {votes: -1}}));
-	// 	}
-	// },
-
 	afterConnected() {
 		this.logger.info("Connected successfully");
 		return this.adapter.clear().then(() => {
-			this.adapter.collection.createIndex({
+			this.adapter.db.createIndex({
 				index: {fields: ["votes", "title"]},
 				name: "votes-title"
 			});

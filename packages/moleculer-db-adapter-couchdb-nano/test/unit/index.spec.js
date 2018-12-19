@@ -1,194 +1,224 @@
 "use strict";
+
 const {ServiceBroker} = require("moleculer");
-const CouchDbNanoAdapter = require("../../src");
+
+const db = {
+	get: jest.fn(() => Promise.resolve()),
+	find: jest.fn(() => Promise.resolve([])),
+	fetch: jest.fn(() => Promise.resolve({rows: []})),
+	insert: jest.fn(() => Promise.resolve({})),
+	destroy: jest.fn(() => Promise.resolve({})),
+	bulk: jest.fn(() => Promise.resolve([])),
+	use: jest.fn(() => db)
+};
+
+jest.mock("nano");
+let Nano = require("nano");
+Nano.mockImplementation(() => {
+	return {
+		db
+	};
+});
+
+const NanoAdapter = require("../../src");
 
 function protectReject(err) {
 	if (err && err.stack) {
 		console.error(err);
 		console.error(err.stack);
 	}
-	expect(err).toBeDefined();
+	expect(err).toBe(true);
 }
 
-describe("Test CouchDbNanoAdapter", () => {
+const fakeModel = {
+	name: "posts",
+	define: {
+		a: 5
+	},
+	options: {
+		b: 10
+	}
+};
+
+const fakeConn = Promise.resolve();
+fakeConn.connection = {
+	on: jest.fn(),
+	close: jest.fn()
+};
+
+describe("Test NanoAdapter", () => {
+
+	beforeEach(() => {
+		Nano.mockClear();
+	});
+
+	const url = "couchdb://localhost:5984";
+	const opts = {};
+	const adapter = new NanoAdapter(url, opts);
+
 	const broker = new ServiceBroker({logger: false});
 	const service = broker.createService({
 		name: "store",
-		collection: "posts"
+		model: fakeModel
 	});
-	const uri = "";
-	const opts = {};
-	const adapter = new CouchDbNanoAdapter(uri, opts);
+
+	beforeEach(() => {
+		adapter.init(broker, service);
+	});
 
 	it("should be created", () => {
 		expect(adapter).toBeDefined();
-		expect(adapter.uri).toBe(uri);
-		expect(adapter.opts).toBe(opts);
-		expect(adapter.init).toBeInstanceOf(Function);
-		expect(adapter.connect).toBeInstanceOf(Function);
-		expect(adapter.disconnect).toBeInstanceOf(Function);
-		expect(adapter.find).toBeInstanceOf(Function);
-		expect(adapter.findOne).toBeInstanceOf(Function);
-		expect(adapter.findById).toBeInstanceOf(Function);
-		expect(adapter.findByIds).toBeInstanceOf(Function);
-		expect(adapter.count).toBeInstanceOf(Function);
-		expect(adapter.insert).toBeInstanceOf(Function);
-		expect(adapter.insertMany).toBeInstanceOf(Function);
-		expect(adapter.updateMany).toBeInstanceOf(Function);
-		expect(adapter.updateById).toBeInstanceOf(Function);
-		expect(adapter.removeMany).toBeInstanceOf(Function);
-		expect(adapter.removeById).toBeInstanceOf(Function);
-		expect(adapter.clear).toBeInstanceOf(Function);
+		expect(adapter.url).toEqual(url);
+		expect(adapter.opts).toEqual(opts);
+		expect(adapter.init).toBeDefined();
+		expect(adapter.connect).toBeDefined();
+		expect(adapter.disconnect).toBeDefined();
+		expect(adapter.find).toBeDefined();
+		expect(adapter.findOne).toBeDefined();
+		expect(adapter.findById).toBeDefined();
+		expect(adapter.findByIds).toBeDefined();
+		expect(adapter.count).toBeDefined();
+		expect(adapter.insert).toBeDefined();
+		expect(adapter.insertMany).toBeDefined();
+		expect(adapter.updateMany).toBeDefined();
+		expect(adapter.updateById).toBeDefined();
+		expect(adapter.removeMany).toBeDefined();
+		expect(adapter.removeById).toBeDefined();
+		expect(adapter.clear).toBeDefined();
 		expect(adapter.beforeSaveTransformID).toBeInstanceOf(Function);
 		expect(adapter.afterRetrieveTransformID).toBeInstanceOf(Function);
 	});
 
-	it("throw error in init if collection is not defined", () => {
-		expect(() => {
-			service.schema.collection = undefined;
-			adapter.init(broker, service);
-		}).toThrow("Missing `collection` definition in schema of service!");
-	});
-
 	it("call init", () => {
-		service.schema.collection = "posts";
-		adapter.init(broker, service);
 		expect(adapter.broker).toBe(broker);
 		expect(adapter.service).toBe(service);
 	});
 
-	it("call connect with default params", () => {
-		adapter.init(broker, service);
-		return adapter.connect()
-			.then(() => {
-				expect(adapter.collection).toBeInstanceOf(Object);
-			})
-			.catch(protectReject);
-	});
-
 	it("call connect with uri", () => {
-		adapter.init(broker, service);
-		adapter.uri = "couchdb://localhost:5984";
-		return adapter.connect(uri)
-			.then(() => {
-				expect(adapter.collection).toBeInstanceOf(Object);
-			})
-			.catch(protectReject);
-	});
-
-	it("call connect with uri & opts", () => {
-		adapter.init(broker, service);
-		adapter.uri = "couchdb://localhost:5984";
-		adapter.opts = {};
-		return adapter.connect(uri)
-			.then(() => {
-				expect(adapter.collection).toBeInstanceOf(Object);
-			})
-			.catch(protectReject);
-	});
-
-	it("call insert", () => {
-		return adapter.insert({_id: "1", a: 1, b: 2})
-			.then(res => expect(res._id).toBe("1"))
-			.catch(protectReject);
-	});
-
-	it("call findById", () => {
-		return adapter.findById("1")
-			.then(res => expect(res._id).toBe("1"))
-			.catch(protectReject);
+		return adapter.connect("couchdb://127.0.0.1:5984").catch(protectReject).then(() => {
+			expect(Nano).toHaveBeenCalledTimes(1);
+			expect(adapter.db).toBe(db);
+			expect(adapter.db.get).toHaveBeenCalledTimes(1);
+			expect(adapter.db.get).toHaveBeenCalledWith(fakeModel.name);
+			expect(adapter.db.use).toHaveBeenCalledTimes(1);
+			expect(adapter.db.use).toHaveBeenCalledWith(fakeModel.name);
+			expect(adapter.service.schema.model).toBe(fakeModel);
+		});
 	});
 
 	it("call find", () => {
-		return adapter.find({selector: {a: 1}})
-			.then(res => {
-				expect(res).toBeInstanceOf(Array);
-				expect(res[0].a).toBe(1);
-			})
-			.catch(protectReject);
+		adapter.db.find.mockClear();
+		const params = {};
+		return adapter.find(params).catch(protectReject).then(() => {
+			expect(adapter.db.find).toHaveBeenCalledTimes(1);
+			expect(adapter.db.find).toHaveBeenCalledWith({selector: params});
+		});
 	});
 
 	it("call findOne", () => {
-		return adapter.find({selector: {a: 1}})
-			.then(res => {
-				expect(res).toBeInstanceOf(Array);
-				expect(res).toHaveLength(1);
-				expect(res[0]).toMatchObject({a: 1});
-			})
-			.catch(protectReject);
+		adapter.find = jest.fn(() => Promise.resolve([{}]));
+		return adapter.findOne({age: 25}).catch(protectReject).then(() => {
+			expect(adapter.find).toHaveBeenCalledTimes(1);
+			expect(adapter.find).toHaveBeenCalledWith({age: 25, limit: 1});
+		});
 	});
 
-	it("call updateById", () => {
-		return adapter.updateById("1", {b: 2})
-			.then(res => expect(res.b).toBe(2))
-			.catch(protectReject);
-	});
-
-	it("call removeById", () => {
-		return adapter.removeById("1")
-			.then(res => expect(res._id).toBe("1"))
-			.catch(protectReject);
-	});
-
-	it("call insertMany", () => {
-		let entities = [
-			{_id: "2", a: 2, b: 20},
-			{_id: "3", a: 3, b: 20},
-			{_id: "4", a: 4, b: 20},
-			{_id: "5", a: 5, b: 30},
-			{_id: "6", a: 6, b: 30}
-		];
-		return adapter.insertMany(entities)
-			.then(res => {
-				expect(res).toBeInstanceOf(Array);
-				expect(res).toHaveLength(5);
-			})
-			.catch(protectReject);
-	});
-
-	it("call updateMany", () => {
-		let selector = {b: 20};
-		let update = {c: 100};
-		return adapter.updateMany(selector, update)
-			.then(res => {
-				expect(res).toBeGreaterThanOrEqual(3);
-			})
-			.catch(protectReject);
-	});
-
-	it("call count", () => {
-		let selector = {b: 20};
-		return adapter.count({selector})
-			.then(res => {
-				expect(res).toBeGreaterThanOrEqual(3);
-			})
-			.catch(protectReject);
+	it("call findById", () => {
+		adapter.db.get.mockClear();
+		return adapter.findById(5).catch(protectReject).then(() => {
+			expect(adapter.db.get).toHaveBeenCalledTimes(1);
+			expect(adapter.db.get).toHaveBeenCalledWith(5);
+		});
 	});
 
 	it("call findByIds", () => {
-		return adapter.findByIds(["2", "3", "4"])
-			.then(res => {
-				expect(res).toBeInstanceOf(Array);
-				expect(res).toHaveLength(3);
-			})
-			.catch(protectReject);
+		adapter.db.fetch.mockClear();
+		adapter.find = jest.fn(() => Promise.resolve([]));
+		return adapter.findByIds([5]).catch(protectReject).then(() => {
+			expect(adapter.db.fetch).toHaveBeenCalledTimes(1);
+			expect(adapter.db.fetch).toHaveBeenCalledWith({"keys": [5]});
+		});
+	});
+
+	it("call count", () => {
+		adapter.find = jest.fn(() => Promise.resolve([{}]));
+		const params = {};
+		return adapter.count(params).catch(protectReject).then(() => {
+			expect(adapter.find).toHaveBeenCalledTimes(1);
+			expect(adapter.find).toHaveBeenCalledWith({});
+		});
+	});
+
+	it("call insert", () => {
+		adapter.db.insert.mockClear();
+		const entity = {};
+		return adapter.insert(entity).catch(protectReject).then(() => {
+			expect(adapter.db.insert).toHaveBeenCalledTimes(1);
+			expect(adapter.db.insert).toHaveBeenCalledWith(entity);
+		});
+	});
+
+	it("call insertMany", () => {
+		adapter.db.bulk.mockClear();
+		const entities = [{name: "John"}, {name: "Jane"}];
+		return adapter.insertMany(entities).catch(protectReject).then(() => {
+			expect(adapter.db.bulk).toHaveBeenCalledTimes(1);
+			expect(adapter.db.bulk).toHaveBeenCalledWith({docs: entities});
+		});
+	});
+
+	it("call updateMany", () => {
+		adapter.db.bulk.mockClear();
+		adapter.find = jest.fn(() => Promise.resolve([]));
+		const where = {};
+		const update = {};
+		return adapter.updateMany(where, update).catch(protectReject).then(() => {
+			expect(adapter.db.bulk).toHaveBeenCalledTimes(1);
+			expect(adapter.db.bulk).toHaveBeenCalledWith({docs: []});
+		});
+	});
+
+	it("call updateById", () => {
+		adapter.db.insert.mockClear();
+		adapter.findById = jest.fn(() => Promise.resolve({}));
+		const toUpdate = {title: "Test"};
+		return adapter.updateById(5, toUpdate).catch(protectReject).then(() => {
+			expect(adapter.findById).toHaveBeenCalledTimes(2);
+			expect(adapter.findById).toHaveBeenCalledWith(5);
+			expect(adapter.db.insert).toHaveBeenCalledTimes(1);
+			expect(adapter.db.insert).toHaveBeenCalledWith(toUpdate);
+		});
+	});
+
+	it("call removeById", () => {
+		adapter.db.destroy.mockClear();
+		adapter.findById = jest.fn(() => Promise.resolve({_id: 5, _rev: "123"}));
+		return adapter.removeById(5).catch(protectReject).then(() => {
+			expect(adapter.findById).toHaveBeenCalledTimes(1);
+			expect(adapter.findById).toHaveBeenCalledWith(5);
+			expect(adapter.db.destroy).toHaveBeenCalledTimes(1);
+			expect(adapter.db.destroy).toHaveBeenCalledWith(5, "123");
+		});
 	});
 
 	it("call removeMany", () => {
-		let selector = {b: 20};
-		return adapter.removeMany(selector)
-			.then(res => {
-				expect(res).toBeGreaterThanOrEqual(3);
-			})
-			.catch(protectReject);
+		adapter.find.mockClear();
+		adapter.db.bulk.mockClear();
+		adapter.findById = jest.fn(() => Promise.resolve([]));
+		return adapter.removeMany({}).catch(protectReject).then(() => {
+			expect(adapter.find).toHaveBeenCalledTimes(1);
+			expect(adapter.find).toHaveBeenCalledWith({selector: {}});
+			expect(adapter.db.bulk).toHaveBeenCalledTimes(1);
+			expect(adapter.db.bulk).toHaveBeenCalledWith({docs: []});
+		});
 	});
 
 	it("call clear", () => {
-		return adapter.clear()
-			.then(res => {
-				expect(res).toBeGreaterThanOrEqual(2);
-			})
-			.catch(protectReject);
+		adapter.removeMany = jest.fn(() => Promise.resolve([]));
+		return adapter.clear().catch(protectReject).then(() => {
+			expect(adapter.removeMany).toHaveBeenCalledTimes(1);
+			expect(adapter.removeMany).toHaveBeenCalledWith({});
+		});
 	});
 
 	it("call beforeSaveTransformID", () => {
@@ -222,11 +252,9 @@ describe("Test CouchDbNanoAdapter", () => {
 	});
 
 	it("call disconnect", () => {
-		return adapter.disconnect()
-			.then(() => {
-				expect(adapter.collection).toBe(null);
-			})
-			.catch(protectReject);
+		return adapter.disconnect().catch(protectReject).then(() => {
+			expect(adapter.db).toBe(null);
+		});
 	});
 });
 

@@ -1,3 +1,6 @@
+# WebStorm settings
+.idea
+
 # Logs
 logs
 *.log
