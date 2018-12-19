@@ -2,7 +2,7 @@
 
 # moleculer-db-adapter-couchdb-nano [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-couchdb-nano.svg)](https://www.npmjs.com/package/moleculer-db-adapter-couchdb-nano)
 
-CouchDB Nano adapter for Moleculer DB service.
+CouchDB [Nano](https://github.com/apache/couchdb-nano) adapter for Moleculer DB service.
 
 ## Features
 - Schemaless adapter
