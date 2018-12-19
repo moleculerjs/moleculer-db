@@ -14,6 +14,7 @@
 | Name | Version | Description |
 | ---- | ------- | ----------- |
 | [moleculer-db](/packages/moleculer-db#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db.svg)](https://www.npmjs.com/package/moleculer-db) | Moleculer service to store entities in database |
+| [moleculer-db-adapter-couchdb-nano](/packages/moleculer-db-adapter-couchdb-nano#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-couchdb-nano.svg)](https://www.npmjs.com/package/moleculer-db-adapter-couchdb-nano) | CouchDB Nano adapter for Moleculer DB service. |
 | [moleculer-db-adapter-mongo](/packages/moleculer-db-adapter-mongo#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongo.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongo) | MongoDB native adapter for Moleculer DB service. |
 | [moleculer-db-adapter-mongoose](/packages/moleculer-db-adapter-mongoose#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongoose.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongoose) | Mongoose adapter for Moleculer DB service |
 | [moleculer-db-adapter-sequelize](/packages/moleculer-db-adapter-sequelize#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-sequelize.svg)](https://www.npmjs.com/package/moleculer-db-adapter-sequelize) | SQL adapter (Postgres, MySQL, SQLite & MSSQL) for Moleculer DB service |
