@@ -1,6 +1,6 @@
 /*
  * moleculer-db-adapter-couchdb-nano
- * Copyright (c) 2018 Mr. Kutin (https://github.com/mrkutin/moleculer-db-adapter-couchdb-nano)
+ * Copyright (c) 2018 Mr. Kutin (https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db-adapter-couchdb-nano#readme)
  * MIT Licensed
  */
 
@@ -8,20 +8,21 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
+const Nano = require("nano");
 
 class CouchDbNanoAdapter {
 
 	/**
 	 * Creates an instance of CouchDbNano.
-	 * @param {String} uri
+	 * @param {String} url
 	 * @param {Object?} opts
 	 *
 	 * @memberof CouchDbNano
 	 */
-	constructor(uri, opts) {
-		this.uri = uri;
+	constructor(url, opts) {
+		this.url = url;
 		this.opts = opts;
-		this.collection = null;
+		this.db = null;
 	}
 
 	/**
@@ -35,9 +36,10 @@ class CouchDbNanoAdapter {
 	init(broker, service) {
 		this.broker = broker;
 		this.service = service;
-
-		if (!this.service.schema.collection) {
-			throw new Error("Missing `collection` definition in schema of service!");
+		this.schema = service.schema.schema;
+		this.modelName = (service.schema && service.schema.model && service.schema.model.name) || (service.schema && service.schema.modelName) || service.schema.name;
+		if (!this.modelName) {
+			throw new Error("Missing `modelName` or `name` definition in schema of service!");
 		}
 	}
 
@@ -49,19 +51,18 @@ class CouchDbNanoAdapter {
 	 * @memberof CouchDbNano
 	 */
 	connect() {
-		const opts = Object.assign({}, this.opts, {url: this.uri ? this.uri.replace("couchdb://", "http://") : "" || "http://localhost:5984"});
-		const nano = require("nano")(opts);
-		const dbName = `${this.service.schema.collection}`;
-
+		const opts = Object.assign({}, this.opts, {url: this.url ? this.url.replace("couchdb://", "http://") : "" || "http://localhost:5984"});
+		const nano = Nano(opts);
+		this.db = nano.db;
 		return Promise.resolve(
-			nano.db.get(dbName)
+			this.db.get(this.modelName)
 				.catch(e => {
 					if (e.statusCode === 404) {
-						return nano.db.create(dbName);
+						return this.db.create(this.modelName);
 					}
 					throw(e);
 				})
-				.then(() => this.collection = nano.db.use(dbName))
+				.then(() => this.db = this.db.use(this.modelName))
 		);
 	}
 
@@ -73,7 +74,7 @@ class CouchDbNanoAdapter {
 	 * @memberof CouchDbNano
 	 */
 	disconnect() {
-		this.collection = null;
+		this.db = null;
 		return Promise.resolve();
 	}
 
@@ -87,7 +88,7 @@ class CouchDbNanoAdapter {
 	 */
 	insert(entity) {
 		return Promise.resolve(
-			this.collection.insert(entity).then(result => this.findById(result.id))
+			this.db.insert(entity).then(result => this.findById(result.id))
 		);
 	}
 
@@ -100,7 +101,7 @@ class CouchDbNanoAdapter {
 	 * @memberof CouchDbNano
 	 */
 	findById(_id) {
-		return Promise.resolve(this.collection.get(_id));
+		return Promise.resolve(this.db.get(_id));
 	}
 
 	/**
@@ -115,7 +116,7 @@ class CouchDbNanoAdapter {
 		return Promise.resolve(
 			this.findById(_id)
 				.then(doc => {
-					return this.collection.destroy(doc._id, doc._rev);
+					return this.db.destroy(doc._id, doc._rev);
 				})
 				.then(res => {
 					res._id = res.id;
@@ -166,18 +167,19 @@ class CouchDbNanoAdapter {
 				selector[key] = {$eq: value};
 			}
 		});
-		return Promise.resolve(this.collection.find({selector, limit, skip, sort, fields}).then(result => result.docs));
+		return Promise.resolve(this.db.find({selector, limit, skip, sort, fields}).then(result => result.docs));
 	}
 
 	/**
 	 * Find an entity by selector
 	 *
-	 * @param {Object} selector
+	 * @param {Object} params
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
-	findOne(selector) {
-		return this.find({selector: selector, limit: 1}).then(docs => docs.length ? docs[0] : null);
+	findOne(params) {
+		const findParams = Object.assign({}, params.selector || params, {limit: 1});
+		return this.find(findParams).then(docs => docs.length ? docs[0] : null);
 	}
 
 	/**
@@ -190,7 +192,7 @@ class CouchDbNanoAdapter {
 	 */
 	findByIds(idList) {
 		return Promise.resolve(
-			this.collection.fetch({keys: idList})
+			this.db.fetch({keys: idList})
 				.then(res => res.rows.map(el => el.doc))
 		);
 	}
@@ -205,7 +207,7 @@ class CouchDbNanoAdapter {
 	 */
 	insertMany(entities) {
 		return Promise.resolve(
-			this.collection.bulk({docs: entities})
+			this.db.bulk({docs: entities})
 				.then(result => result.map(el => el.id))
 				.then(ids => this.findByIds(ids))
 		);
@@ -223,7 +225,7 @@ class CouchDbNanoAdapter {
 	updateMany(selector, update) {
 		return this.find({selector})
 			.then(docs => docs.map(doc => Object.assign({}, doc, update.$set ? update.$set : update)))
-			.then(docs => this.collection.bulk({docs}))
+			.then(docs => this.db.bulk({docs}))
 			.then(result => result.length);
 	}
 
@@ -238,7 +240,7 @@ class CouchDbNanoAdapter {
 	removeMany(selector) {
 		return this.find({selector})
 			.then(docs => docs.map(doc => Object.assign({}, doc, {_deleted: true})))
-			.then(docs => this.collection.bulk({docs}))
+			.then(docs => this.db.bulk({docs}))
 			.then(result => result.length);
 	}
 
@@ -272,7 +274,7 @@ class CouchDbNanoAdapter {
 	updateById(_id, update) {
 		return this.findById(_id)
 			.then(doc => Object.assign({}, doc, update.$set ? update.$set : update))
-			.then(mergedDoc => this.collection.insert(mergedDoc))
+			.then(mergedDoc => this.db.insert(mergedDoc))
 			.then(result => this.findById(result.id));
 	}
 
@@ -295,8 +297,7 @@ class CouchDbNanoAdapter {
 	 * @memberof CouchDbNano
 	 */
 	entityToObject(entity) {
-		let json = _.cloneDeep(entity);
-		return json;
+		return _.cloneDeep(entity);
 	}
 
 	/**

@@ -1,13 +1,13 @@
 "use strict";
 
-let {ServiceBroker} = require("moleculer");
-let StoreService = require("../../../moleculer-db/index");
-let ModuleChecker = require("../../../moleculer-db/test/checker");
-let CouchAdapter = require("../../index");
-let Promise = require("bluebird");
+const {ServiceBroker} = require("moleculer");
+const StoreService = require("../../../moleculer-db/index");
+const ModuleChecker = require("../../../moleculer-db/test/checker");
+const CouchAdapter = require("../../index");
+const Promise = require("bluebird");
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -17,7 +17,6 @@ let adapter;
 broker.createService(StoreService, {
 	name: "posts",
 	adapter: new CouchAdapter("couchdb://127.0.0.1:5984"),
-	collection: "posts",
 	settings: {},
 
 	afterConnected() {
@@ -25,7 +24,7 @@ broker.createService(StoreService, {
 		adapter = this.adapter;
 		return this.adapter.clear()
 			.then(() => {
-				this.adapter.collection.createIndex({
+				this.adapter.db.createIndex({
 					index: {fields: ["votes", "title"]},
 					name: "votes-title"
 				});
