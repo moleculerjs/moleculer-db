@@ -72,6 +72,17 @@ broker.start()
 .then(() => broker.call("posts.find").then(console.log));
 ```
 
+### Raw queries
+You can reach the `sequelize` instance via `this.adapter.db`. To call [Raw queries](http://docs.sequelizejs.com/manual/raw-queries.html):
+
+```js
+    actions: {
+        findHello2() {
+            return this.adapter.db.query("SELECT * FROM posts WHERE title = 'Hello 2' LIMIT 1").then(([res, metadata]) => res);
+        }
+    }
+```
+
 ## Options
 Every constructor arguments are passed to the `Sequelize` constructor. Read more about [Sequelize connection](http://docs.sequelizejs.com/manual/installation/getting-started.html).
 
