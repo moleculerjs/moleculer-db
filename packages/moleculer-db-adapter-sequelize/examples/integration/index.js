@@ -76,6 +76,10 @@ broker.createService(StoreService, {
 				.then(post => post.decrement({ votes: 1 }))
 				.then(() => this.model.findById(ctx.params.id))
 				.then(doc => this.transformDocuments(ctx, ctx.params, doc));
+		},
+
+		findRaw() {
+			return this.adapter.db.query("SELECT * FROM posts WHERE title = 'Hello 2' LIMIT 1").then(([res]) => res);
 		}
 	},
 
@@ -85,7 +89,7 @@ broker.createService(StoreService, {
 	}
 });
 
-const checker = new ModuleChecker(11);
+const checker = new ModuleChecker(12);
 
 // Start checks
 function start() {
@@ -143,6 +147,12 @@ checker.add("--- UPDATE ---", () => broker.call("posts.update", {
 }), doc => {
 	console.log(doc);
 	return doc.id && doc.title === "Hello 2" && doc.content === "Post content 2" && doc.votes === 3 && doc.status === true && doc.updatedAt;
+});
+
+// Find a post by RAW query
+checker.add("--- FIND RAW ---", () => broker.call("posts.findRaw"), res => {
+	console.log(res);
+	return res.length == 1 && res[0].id == id;
 });
 
 // Get a post
