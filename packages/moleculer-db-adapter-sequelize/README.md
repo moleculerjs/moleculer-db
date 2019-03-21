@@ -78,7 +78,8 @@ You can reach the `sequelize` instance via `this.adapter.db`. To call [Raw queri
 ```js
     actions: {
         findHello2() {
-            return this.adapter.db.query("SELECT * FROM posts WHERE title = 'Hello 2' LIMIT 1").then(([res, metadata]) => res);
+            return this.adapter.db.query("SELECT * FROM posts WHERE title = 'Hello 2' LIMIT 1")
+                .then(([res, metadata]) => res);
         }
     }
 ```
