@@ -266,7 +266,7 @@ module.exports = {
 									if (this.settings.idField === "_id") return entities;
 
 									return entities.map(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField));
-									
+
 								})
 								.then(entities => this.adapter.insertMany(entities));
 						} else if (params.entity) {
@@ -544,7 +544,7 @@ module.exports = {
 		clearCache() {
 			this.broker.broadcast(`cache.clean.${this.name}`);
 			if (this.broker.cacher)
-				this.broker.cacher.clean(`${this.name}.*`);
+				return this.broker.cacher.clean(`${this.name}.*`);
 			return Promise.resolve();
 		},
 
@@ -562,7 +562,7 @@ module.exports = {
 					isDoc = true;
 					docs = [docs];
 				}
-				else 
+				else
 					return Promise.resolve(docs);
 			}
 
