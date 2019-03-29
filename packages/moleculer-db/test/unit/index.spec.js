@@ -423,7 +423,7 @@ describe("Test DbService methods", () => {
 
 	it("should call broker.broadcast to clear the cache", () => {
 		broker.broadcast = jest.fn();
-		broker.cacher.clean = jest.fn();
+		broker.cacher.clean = jest.fn(() => Promise.resolve());
 
 		return service.clearCache().then(() => {
 			expect(broker.broadcast).toHaveBeenCalledTimes(1);
