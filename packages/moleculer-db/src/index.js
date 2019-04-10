@@ -542,9 +542,9 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		clearCache() {
-			this.broker.broadcast(`cache.clean.${this.name}`);
+			this.broker.broadcast(`cache.clean.${this.fullName}`);
 			if (this.broker.cacher)
-				return this.broker.cacher.clean(`${this.name}.*`);
+				return this.broker.cacher.clean(`${this.fullName}.*`);
 			return Promise.resolve();
 		},
 
