@@ -410,6 +410,7 @@ describe("Test DbService methods", () => {
 	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
 	const service = broker.createService(DbService, {
 		name: "store",
+		version: 1,
 		adapter,
 		afterConnected
 	});
@@ -427,10 +428,10 @@ describe("Test DbService methods", () => {
 
 		return service.clearCache().then(() => {
 			expect(broker.broadcast).toHaveBeenCalledTimes(1);
-			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean.store");
+			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean." + service.fullName);
 
 			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
-			expect(broker.cacher.clean).toHaveBeenCalledWith("store.*");
+			expect(broker.cacher.clean).toHaveBeenCalledWith(service.fullName + ".*");
 		}).catch(protectReject);
 	});
 
