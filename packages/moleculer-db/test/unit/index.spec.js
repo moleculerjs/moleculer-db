@@ -428,10 +428,10 @@ describe("Test DbService methods", () => {
 
 		return service.clearCache().then(() => {
 			expect(broker.broadcast).toHaveBeenCalledTimes(1);
-			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean." + service.fullName);
+			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean.v1.store");
 
 			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
-			expect(broker.cacher.clean).toHaveBeenCalledWith(service.fullName + ".*");
+			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.*");
 		}).catch(protectReject);
 	});
 
