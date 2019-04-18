@@ -998,6 +998,28 @@ describe("Test populateDocs method", () => {
 		}).catch(protectReject);
 	});
 
+it("should call 'populateDocs' with single doc & only author population", () => {
+		const ctx = { params: {} };
+		ctx.call = jest.fn(() => Promise.resolve({
+			"3": {
+				"name": "Walter"
+			},
+			"5": {
+				"name": "John"
+			},
+			"8": {
+				"name": "Jane"
+			}
+		}));
+		const doc = { author: 8 };
+
+		return service.populateDocs(ctx, doc, ["author", "voters"]).then(res => {
+
+			expect(res).toEqual({ author: { name: "Jane" } });
+
+		}).catch(protectReject);
+	});
+
 	it("should return docs if no populate list", () => {
 		const docs = [];
 		const ctx = { params: {} };
