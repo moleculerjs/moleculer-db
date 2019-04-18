@@ -676,7 +676,7 @@ module.exports = {
 			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
 				return Promise.resolve(docs);
 
-			if (docs == null || !_.isObject(docs) || !Array.isArray(docs))
+			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
 				return Promise.resolve(docs);
 
 			let promises = [];
