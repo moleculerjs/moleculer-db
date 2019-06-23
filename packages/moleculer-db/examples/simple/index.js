@@ -75,7 +75,7 @@ checker.add("COUNT", () => broker.call("posts.count"), res => {
 checker.add("--- CREATE ---", () => broker.call("posts.create", { title: "Hello", content: "Post content", votes: 2, createdAt: date, status: true }), doc => {
 	id = doc._id;
 	console.log("Saved: ", doc);
-	return doc._id && doc.title === "Hello" && doc.content === "Post content" && doc.votes === 2 && doc.createdAt === date;
+	return doc._id && doc.title === "Hello" && doc.content === "Post content" && doc.votes === 2 && doc.createdAt.getTime() === date.getTime();
 });
 
 // Find posts
