@@ -96,7 +96,8 @@ module.exports = {
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
-				return this._find(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._find(ctx, params);
 			}
 		},
 
@@ -125,7 +126,8 @@ module.exports = {
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
-				return this._count(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._count(ctx, params);
 			}
 		},
 
@@ -170,7 +172,8 @@ module.exports = {
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
-				return this._list(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._list(ctx, params);
 			}
 		},
 
@@ -183,7 +186,8 @@ module.exports = {
 		 */
 		create: {
 			handler(ctx) {
-				return this._create(ctx);
+				let params = ctx.params;
+				return this._create(ctx, params);
 			}
 		},
 
@@ -203,7 +207,8 @@ module.exports = {
 				entities: { type: "array", optional: true }
 			},
 			handler(ctx) {
-				return this._insert(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._insert(ctx, params);
 			}
 		},
 
@@ -243,7 +248,8 @@ module.exports = {
 				mapping: { type: "boolean", optional: true }
 			},
 			handler(ctx) {
-				return this._get(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._get(ctx, params);
 
 			}
 		},
@@ -260,7 +266,8 @@ module.exports = {
 		 */
 		update: {
 			handler(ctx) {
-				return this._update(ctx);
+				let params = ctx.params;
+				return this._update(ctx, params);
 			}
 		},
 
@@ -279,7 +286,8 @@ module.exports = {
 				id: { type: "any" }
 			},
 			handler(ctx) {
-				return this._remove(ctx);
+				let params = this.sanitizeParams(ctx, ctx.params);
+				return this._remove(ctx, params);
 			}
 		}
 	},
@@ -658,8 +666,7 @@ module.exports = {
 		 *
 		 * @returns {Array<Object>} List of found entities.
 		 */
-		_find(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_find(ctx, params) {
 			return this.adapter.find(params)
 				.then(docs => this.transformDocuments(ctx, params, docs));
 		},
@@ -676,8 +683,7 @@ module.exports = {
 		 *
 		 * @returns {Number} Count of found entities.
 		 */
-		_count(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_count(ctx, params) {
 			// Remove pagination params
 			if (params && params.limit)
 				params.limit = null;
@@ -703,8 +709,7 @@ module.exports = {
 		 *
 		 * @returns {Object} List of found entities and count.
 		 */
-		_list(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_list(ctx, params) {
 			let countParams = Object.assign({}, params);
 			// Remove pagination params
 			if (countParams && countParams.limit)
@@ -742,8 +747,8 @@ module.exports = {
 		 *
 		 * @returns {Object} Saved entity.
 		 */
-		_create(ctx) {
-			let entity = ctx.params;
+		_create(ctx, params) {
+			let entity = params;
 			return this.validateEntity(entity)
 				// Apply idField
 				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
@@ -762,8 +767,7 @@ module.exports = {
 		 *
 		 * @returns {Object|Array.<Object>} Saved entity(ies).
 		 */
-		_insert(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_insert(ctx, params) {
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
@@ -803,8 +807,7 @@ module.exports = {
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
-		_get(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_get(ctx, params) {
 			let id = params.id;
 			let origDoc;
 			return this.getById(id, true)
@@ -837,21 +840,21 @@ module.exports = {
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
-		_update(ctx) {
+		_update(ctx, params) {
 			let id;
 			let sets = {};
 			// Convert fields from params to "$set" update object
-			Object.keys(ctx.params).forEach(prop => {
+			Object.keys(params).forEach(prop => {
 				if (prop == "id" || prop == this.settings.idField)
-					id = this.decodeID(ctx.params[prop]);
+					id = this.decodeID(params[prop]);
 				else
-					sets[prop] = ctx.params[prop];
+					sets[prop] = params[prop];
 			});
 			return this.adapter.updateById(id, { "$set": sets })
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, ctx.params, doc)
+					return this.transformDocuments(ctx, params, doc)
 						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
 				});
 		},
@@ -866,8 +869,7 @@ module.exports = {
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
-		_remove(ctx) {
-			let params = this.sanitizeParams(ctx, ctx.params);
+		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
 			return this.adapter.removeById(id)
 				.then(doc => {
