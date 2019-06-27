@@ -45,6 +45,10 @@ describe("Test DbService actions", () => {
 	service.sanitizeParams = jest.fn((ctx, p) => p);
 	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(docs));
 
+	service._find = jest.fn((ctx, p) => ctx);
+	service._count = jest.fn((ctx, p) => ctx);
+	service._list = jest.fn((ctx, p) => ctx);
+
 	it("should set default settings", () => {
 		expect(service.adapter).toEqual(adapter);
 		expect(service.settings).toEqual({
@@ -71,102 +75,87 @@ describe("Test DbService actions", () => {
 		}).catch(protectReject);
 	});
 
-	it("should call the 'find' method", () => {
+	it("should call the '_find' method", () => {
 		service.transformDocuments.mockClear();
 		service.sanitizeParams.mockClear();
+		service._find.mockClear();
 		const p = {};
 
-		return broker.call("store.find", p).then(() => {
+		return broker.call("store.find", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, p);
 
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith(p);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-
-		}).catch(protectReject);
+			expect(service._find).toHaveBeenCalledTimes(1);
+			expect(service._find).toHaveBeenCalledWith(ctx, p);
+		});
 	});
 
-	it("should call the 'find' method with params", () => {
+	it("should call the '_find' method with params", () => {
 		service.transformDocuments.mockClear();
-		adapter.find.mockClear();
+		service._find.mockClear();
 		service.sanitizeParams.mockClear();
 		const p = {
 			limit: 5,
 			offset: "3"
 		};
 
-		return broker.call("store.find", p).then(() => {
+		return broker.call("store.find", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), {
+			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, {
 				limit: 5,
 				offset: "3"
 			});
 
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith({
+			expect(service._find).toHaveBeenCalledTimes(1);
+			expect(service._find).toHaveBeenCalledWith(ctx, {
 				limit: 5,
 				offset: "3"
 			});
 
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), {
-				limit: 5,
-				offset: "3"
-			}, docs);
-
-		}).catch(protectReject);
+		});
 	});
 
 	it("should call the 'list' method", () => {
 		service.sanitizeParams.mockClear();
 		service.transformDocuments.mockClear();
-		adapter.find.mockClear();
-		adapter.count.mockClear();
+		service._list.mockClear();
 		const p = {};
 
-		return broker.call("store.list", p).then(() => {
+		return broker.call("store.list", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, p);
 
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith(p);
-			expect(adapter.count).toHaveBeenCalledWith(p);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-		}).catch(protectReject);
+			expect(service._list).toHaveBeenCalledTimes(1);
+			expect(service._list).toHaveBeenCalledWith(ctx, p);
+		});
 	});
 
 	it("should call the 'count' method", () => {
 		service.sanitizeParams.mockClear();
-		adapter.count.mockClear();
+		service._count.mockClear();
 		const p = {};
 
-		return broker.call("store.count", p).then(() => {
+		return broker.call("store.count", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, p);
 
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledWith(p);
-		}).catch(protectReject);
+			expect(service._count).toHaveBeenCalledTimes(1);
+			expect(service._count).toHaveBeenCalledWith(ctx, p);
+		});
 	});
 
 	it("should call the 'count' method with pagination params", () => {
 		service.sanitizeParams.mockClear();
-		adapter.count.mockClear();
+		service._count.mockClear();
 		const p = { limit: 5, offset: 10 };
 
-		return broker.call("store.count", p).then(() => {
+		return broker.call("store.count", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, p);
 
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledWith({ limit: null, offset: null});
-		}).catch(protectReject);
+			expect(service._count).toHaveBeenCalledTimes(1);
+			expect(service._count).toHaveBeenCalledWith(ctx, { limit: 5, offset: 10 });
+		});
 	});
 
 	it("should call the 'insert' method", () => {
@@ -415,6 +404,8 @@ describe("Test DbService methods", () => {
 		afterConnected
 	});
 
+	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(docs));
+
 	it("should call 'afterConnected' of schema", () => {
 		return broker.start().delay(100).then(() => {
 			expect(afterConnected).toHaveBeenCalledTimes(1);
@@ -492,6 +483,97 @@ describe("Test DbService methods", () => {
 			expect(adapter.disconnect).toHaveBeenCalledTimes(1);
 		}).catch(protectReject);
 	});
+
+	describe("Test `_find` method", () => {
+
+		it("should call adapter.find & transformDocuments", () => {
+			adapter.find.mockClear();
+			service.transformDocuments.mockClear();
+
+			let ctx = { id: "ctx" };
+			let p = { a: 5 };
+
+			return service._find(ctx, p).catch(protectReject).then(res => {
+				expect(res).toBe(docs);
+
+				expect(adapter.find).toHaveBeenCalledTimes(1);
+				expect(adapter.find).toHaveBeenCalledWith(p);
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+				expect(service.transformDocuments).toHaveBeenCalledWith(ctx, p, docs);
+			});
+		});
+	});
+
+	describe("Test `_count` method", () => {
+
+		it("should call adapter.count without params", () => {
+			adapter.count.mockClear();
+			service.transformDocuments.mockClear();
+
+			let ctx = { id: "ctx" };
+			let p = { a: 5 };
+
+			return service._count(ctx, p).catch(protectReject).then(res => {
+				expect(res).toBe(3);
+
+				expect(adapter.count).toHaveBeenCalledTimes(1);
+				expect(adapter.count).toHaveBeenCalledWith({ a: 5 });
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(0);
+			});
+		});
+
+		it("should call adapter.count with limit & offset", () => {
+			adapter.count.mockClear();
+			service.transformDocuments.mockClear();
+
+			let ctx = { id: "ctx" };
+			let p = { limit: 5, offset: 10 };
+
+			return service._count(ctx, p).catch(protectReject).then(res => {
+				expect(res).toBe(3);
+
+				expect(adapter.count).toHaveBeenCalledTimes(1);
+				expect(adapter.count).toHaveBeenCalledWith({ limit: null, offset: null });
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(0);
+			});
+		});
+	});
+
+	describe("Test `_list` method", () => {
+
+		it("should call adapter.find, count & transformDocuments", () => {
+			adapter.find.mockClear();
+			adapter.count.mockClear();
+			service.transformDocuments.mockClear();
+
+			let ctx = { id: "ctx" };
+			let p = { page: 2, pageSize: 10, limit: 5, offset: 15 };
+
+			return service._list(ctx, p).catch(protectReject).then(res => {
+				expect(res).toEqual({
+					page: 2,
+					pageSize: 10,
+					rows: docs,
+					total: 3,
+					totalPages: 1
+				});
+
+				expect(adapter.find).toHaveBeenCalledTimes(1);
+				expect(adapter.find).toHaveBeenCalledWith({ page: 2, pageSize: 10, limit: 5, offset: 15 });
+
+				expect(adapter.count).toHaveBeenCalledTimes(1);
+				expect(adapter.count).toHaveBeenCalledWith({ page: 2, pageSize: 10, limit: null, offset: null });
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+				expect(service.transformDocuments).toHaveBeenCalledWith(ctx, p, docs);
+			});
+		});
+
+	});
+
 });
 
 
@@ -998,7 +1080,7 @@ describe("Test populateDocs method", () => {
 		}).catch(protectReject);
 	});
 
-it("should call 'populateDocs' with single doc & only author population", () => {
+	it("should call 'populateDocs' with single doc & only author population", () => {
 		const ctx = { params: {} };
 		ctx.call = jest.fn(() => Promise.resolve({
 			"3": {
