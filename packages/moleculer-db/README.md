@@ -85,6 +85,8 @@ broker.start()
 
 <!-- AUTO-CONTENT-END:SETTINGS -->
 
+>**Note**: `idField` does not work with Sequelize adapter as you can freely set your own ID while creating the model.
+
 <!-- AUTO-CONTENT-TEMPLATE:SETTINGS
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
@@ -167,7 +169,7 @@ Create a new entity.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to save. |
 
 ### Results
 **Type:** `Object`
@@ -216,7 +218,7 @@ Update an entity by ID.> After update, clear the cache & call lifecycle events.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to update. |
 
 ### Results
 **Type:** `Object`
@@ -408,7 +410,7 @@ Create a new entity.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to save. |
 
 ### Results
 **Type:** `Object`
@@ -457,7 +459,7 @@ Update an entity by ID.> After update, clear the cache & call lifecycle events.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to update. |
 
 ### Results
 **Type:** `Object`
