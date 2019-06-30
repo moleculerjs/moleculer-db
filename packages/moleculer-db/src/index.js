@@ -181,6 +181,8 @@ module.exports = {
 		 * Create a new entity.
 		 *
 		 * @actions
+		 * 
+		 * @param {Object?} params - Entity to save.
 		 *
 		 * @returns {Object} Saved entity.
 		 */
@@ -259,6 +261,8 @@ module.exports = {
 		 * > After update, clear the cache & call lifecycle events.
 		 *
 		 * @actions
+		 * 
+		 * @param {Object?} params - Entity to update.
 		 *
 		 * @returns {Object} Updated entity.
 		 *
@@ -745,6 +749,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
+		 * @param {Object?} params - Entity to save.
+		 *
 		 * @returns {Object} Saved entity.
 		 */
 		_create(ctx, params) {
@@ -836,6 +842,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
+		 * @param {Object?} params - Entity to update.
+		 * 
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found

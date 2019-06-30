@@ -73,8 +73,7 @@ broker.start()
 
 # Settings
 
-<!-- AUTO-CONTENT-START:SETTINGS -->
-| Property | Type | Default | Description |
+<!-- AUTO-CONTENT-START:SETTINGS -->| Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `idField` | `String` | **required** | Name of ID field. |
 | `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
@@ -84,9 +83,9 @@ broker.start()
 | `maxLimit` | `Number` | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit) |
 | `entityValidator` | `Object`, `function` | `null` | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. |
 
->**Note**: `idField` does not work with Sequelize adapter as you can freely set your own ID while creating the model.
-
 <!-- AUTO-CONTENT-END:SETTINGS -->
+
+>**Note**: `idField` does not work with Sequelize adapter as you can freely set your own ID while creating the model.
 
 <!-- AUTO-CONTENT-TEMPLATE:SETTINGS
 | Property | Type | Default | Description |
@@ -102,8 +101,7 @@ broker.start()
 
 # Actions
 
-<!-- AUTO-CONTENT-START:ACTIONS -->
-## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+<!-- AUTO-CONTENT-START:ACTIONS -->## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
 
 Find entities by query.
 
@@ -171,7 +169,7 @@ Create a new entity.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to save. |
 
 ### Results
 **Type:** `Object`
@@ -215,13 +213,12 @@ Found entity(ies).
 
 ## `update` 
 
-Update an entity by ID.
-> After update, clear the cache & call lifecycle events.
+Update an entity by ID.> After update, clear the cache & call lifecycle events.
 
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-*No input parameters.*
+| `params` | `Object` | - | Entity to update. |
 
 ### Results
 **Type:** `Object`
@@ -284,8 +281,7 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->
-## `getById` 
+<!-- AUTO-CONTENT-START:METHODS -->## `getById` 
 
 Get entity(ies) by ID(s).
 
@@ -344,6 +340,146 @@ Decode ID of entity.
 **Type:** `any`
 
 
+
+
+## `_find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+
+Find entities by query.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `populate` | `Array.<String>` | - | Populated fields. |
+| `fields` | `Array.<String>` | - | Fields filter. |
+| `limit` | `Number` | **required** | Max count of rows. |
+| `offset` | `Number` | **required** | Count of skipped rows. |
+| `sort` | `String` | **required** | Sorted fields. |
+| `search` | `String` | **required** | Search text. |
+| `searchFields` | `String` | **required** | Fields for searching. |
+| `query` | `Object` | **required** | Query object. Passes to adapter. |
+
+### Results
+**Type:** `Array.<Object>`
+
+List of found entities.
+
+
+## `_count` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+
+Get count of entities by query.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `search` | `String` | **required** | Search text. |
+| `searchFields` | `String` | **required** | Fields list for searching. |
+| `query` | `Object` | **required** | Query object. Passes to adapter. |
+
+### Results
+**Type:** `Number`
+
+Count of found entities.
+
+
+## `_list` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+
+List entities by filters and pagination results.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `populate` | `Array.<String>` | - | Populated fields. |
+| `fields` | `Array.<String>` | - | Fields filter. |
+| `page` | `Number` | **required** | Page number. |
+| `pageSize` | `Number` | **required** | Size of a page. |
+| `sort` | `String` | **required** | Sorted fields. |
+| `search` | `String` | **required** | Search text. |
+| `searchFields` | `String` | **required** | Fields for searching. |
+| `query` | `Object` | **required** | Query object. Passes to adapter. |
+
+### Results
+**Type:** `Object`
+
+List of found entities and count.
+
+
+## `_create` 
+
+Create a new entity.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `params` | `Object` | - | Entity to save. |
+
+### Results
+**Type:** `Object`
+
+Saved entity.
+
+
+## `_insert` 
+
+Create many new entities.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `entity` | `Object` | - | Entity to save. |
+| `entities` | `Array.<Object>` | - | Entities to save. |
+
+### Results
+**Type:** `Object`, `Array.<Object>`
+
+Saved entity(ies).
+
+
+## `_get` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+
+Get entity by ID.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `id` | `any`, `Array.<any>` | **required** | ID(s) of entity. |
+| `populate` | `Array.<String>` | - | Field list for populate. |
+| `fields` | `Array.<String>` | - | Fields filter. |
+| `mapping` | `Boolean` | - | Convert the returned `Array` to `Object` where the key is the value of `id`. |
+
+### Results
+**Type:** `Object`, `Array.<Object>`
+
+Found entity(ies).
+
+
+## `_update` 
+
+Update an entity by ID.> After update, clear the cache & call lifecycle events.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `params` | `Object` | - | Entity to update. |
+
+### Results
+**Type:** `Object`
+
+Updated entity.
+
+
+## `_remove` 
+
+Remove an entity by ID.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `id` | `any` | **required** | ID of entity. |
+
+### Results
+**Type:** `Number`
+
+Count of removed entities.
 
 
 <!-- AUTO-CONTENT-END:METHODS -->
