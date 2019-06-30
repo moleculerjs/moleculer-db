@@ -71,177 +71,6 @@ describe("Test DbService actions", () => {
 		}).catch(protectReject);
 	});
 
-	it("should call the 'find' method", () => {
-		service.transformDocuments.mockClear();
-		service.sanitizeParams.mockClear();
-		const p = {};
-
-		return broker.call("store.find", p).then(() => {
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
-
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith(p);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-
-		}).catch(protectReject);
-	});
-
-	it("should call the 'find' method with params", () => {
-		service.transformDocuments.mockClear();
-		adapter.find.mockClear();
-		service.sanitizeParams.mockClear();
-		const p = {
-			limit: 5,
-			offset: "3"
-		};
-
-		return broker.call("store.find", p).then(() => {
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), {
-				limit: 5,
-				offset: "3"
-			});
-
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith({
-				limit: 5,
-				offset: "3"
-			});
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), {
-				limit: 5,
-				offset: "3"
-			}, docs);
-
-		}).catch(protectReject);
-	});
-
-	it("should call the 'list' method", () => {
-		service.sanitizeParams.mockClear();
-		service.transformDocuments.mockClear();
-		adapter.find.mockClear();
-		adapter.count.mockClear();
-		const p = {};
-
-		return broker.call("store.list", p).then(() => {
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
-
-			expect(adapter.find).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.find).toHaveBeenCalledWith(p);
-			expect(adapter.count).toHaveBeenCalledWith(p);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-		}).catch(protectReject);
-	});
-
-	it("should call the 'count' method", () => {
-		service.sanitizeParams.mockClear();
-		adapter.count.mockClear();
-		const p = {};
-
-		return broker.call("store.count", p).then(() => {
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
-
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledWith(p);
-		}).catch(protectReject);
-	});
-
-	it("should call the 'count' method with pagination params", () => {
-		service.sanitizeParams.mockClear();
-		adapter.count.mockClear();
-		const p = { limit: 5, offset: 10 };
-
-		return broker.call("store.count", p).then(() => {
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
-
-			expect(adapter.count).toHaveBeenCalledTimes(1);
-			expect(adapter.count).toHaveBeenCalledWith({ limit: null, offset: null});
-		}).catch(protectReject);
-	});
-
-	it("should call the 'insert' method", () => {
-		service.sanitizeParams.mockClear();
-		service.transformDocuments.mockClear();
-		service.entityChanged = jest.fn(() => Promise.resolve());
-		service.validateEntity = jest.fn(entity => Promise.resolve(entity));
-		adapter.insert.mockClear();
-		const p = {};
-
-		return broker.call("store.create", p).then(() => {
-			expect(service.validateEntity).toHaveBeenCalledTimes(1);
-			expect(service.validateEntity).toHaveBeenCalledWith(p);
-
-			expect(adapter.insert).toHaveBeenCalledTimes(1);
-			expect(adapter.insert).toHaveBeenCalledWith(p);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), {}, doc);
-
-			expect(service.entityChanged).toHaveBeenCalledTimes(1);
-			expect(service.entityChanged).toHaveBeenCalledWith("created", doc, jasmine.any(Context));
-		}).catch(protectReject);
-	});
-
-	it("should call the 'insert' method #2", () => {
-		service.sanitizeParams.mockClear();
-		service.transformDocuments.mockClear();
-		service.entityChanged = jest.fn(() => Promise.resolve());
-		service.validateEntity = jest.fn(entity => Promise.resolve(entity));
-		adapter.insert.mockClear();
-		const p = {
-			entity: {}
-		};
-
-		return broker.call("store.insert", p).then(() => {
-			expect(service.validateEntity).toHaveBeenCalledTimes(1);
-			expect(service.validateEntity).toHaveBeenCalledWith(p.entity);
-
-			expect(adapter.insert).toHaveBeenCalledTimes(1);
-			expect(adapter.insert).toHaveBeenCalledWith(p.entity);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, doc);
-
-			expect(service.entityChanged).toHaveBeenCalledTimes(1);
-			expect(service.entityChanged).toHaveBeenCalledWith("created", doc, jasmine.any(Context));
-		}).catch(protectReject);
-	});
-
-	it("should call the 'insertMany' method", () => {
-		service.sanitizeParams.mockClear();
-		service.transformDocuments.mockClear();
-		service.entityChanged = jest.fn(() => Promise.resolve());
-		service.validateEntity = jest.fn(entity => Promise.resolve(entity));
-		adapter.insert.mockClear();
-		const p = {
-			entities: []
-		};
-
-		return broker.call("store.insert", p).then(() => {
-			expect(service.validateEntity).toHaveBeenCalledTimes(1);
-			expect(service.validateEntity).toHaveBeenCalledWith(p.entities);
-
-			expect(adapter.insertMany).toHaveBeenCalledTimes(1);
-			expect(adapter.insertMany).toHaveBeenCalledWith(p.entities);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-
-			expect(service.entityChanged).toHaveBeenCalledTimes(1);
-			expect(service.entityChanged).toHaveBeenCalledWith("created", docs, jasmine.any(Context));
-		}).catch(protectReject);
-	});
-
 	it("should call the 'getById' method", () => {
 		service.sanitizeParams.mockClear();
 		service.transformDocuments.mockClear();
@@ -293,60 +122,6 @@ describe("Test DbService actions", () => {
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
-
-		}).catch(protectReject);
-	});
-
-	it("should call the 'update' method", () => {
-		service.sanitizeParams.mockClear();
-		service.decodeID = jest.fn(id => id);
-		service.transformDocuments.mockClear();
-		service.entityChanged.mockClear();
-		adapter.updateById.mockClear();
-		const p = {
-			_id: 123,
-			name: "John",
-			age: 45
-		};
-
-		return broker.call("store.update", p).then(() => {
-			expect(service.decodeID).toHaveBeenCalledTimes(1);
-			expect(service.decodeID).toHaveBeenCalledWith(123);
-
-			expect(adapter.updateById).toHaveBeenCalledTimes(1);
-			expect(adapter.updateById).toHaveBeenCalledWith(123, { "$set": { name: "John", age: 45 }});
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, doc);
-
-			expect(service.entityChanged).toHaveBeenCalledTimes(1);
-			expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, jasmine.any(Context));
-		}).catch(protectReject);
-	});
-
-	it("should call the 'remove' method", () => {
-		service.sanitizeParams.mockClear();
-		service.decodeID = jest.fn(id => id);
-		service.transformDocuments.mockClear();
-		service.entityChanged.mockClear();
-		adapter.removeById.mockClear();
-		const p = { id: 3 };
-
-		return broker.call("store.remove", p).then(() => {
-			expect(service.decodeID).toHaveBeenCalledTimes(1);
-			expect(service.decodeID).toHaveBeenCalledWith(3);
-
-			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
-
-			expect(adapter.removeById).toHaveBeenCalledTimes(1);
-			expect(adapter.removeById).toHaveBeenCalledWith(3);
-
-			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, 3);
-
-			expect(service.entityChanged).toHaveBeenCalledTimes(1);
-			expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, jasmine.any(Context));
 
 		}).catch(protectReject);
 	});
@@ -414,6 +189,8 @@ describe("Test DbService methods", () => {
 		adapter,
 		afterConnected
 	});
+
+	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(docs));
 
 	it("should call 'afterConnected' of schema", () => {
 		return broker.start().delay(100).then(() => {
@@ -998,7 +775,7 @@ describe("Test populateDocs method", () => {
 		}).catch(protectReject);
 	});
 
-it("should call 'populateDocs' with single doc & only author population", () => {
+	it("should call 'populateDocs' with single doc & only author population", () => {
 		const ctx = { params: {} };
 		ctx.call = jest.fn(() => Promise.resolve({
 			"3": {
