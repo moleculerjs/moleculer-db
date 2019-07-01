@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.0"></a>
+# 0.8.0 (2019-07-01)
+
+## Changes
+- add new CRUD (`_find`, `_count`, `_insert`, `_create`, `_get`,  `_update`, `_remove`, ) methods by [@rzvdaniel](https://github.com/rzvdaniel)
+
+--------------------------------------------------
 <a name="0.7.5"></a>
 # 0.7.5 (2018-07-13)
 
@@ -9,7 +16,7 @@
 # 0.7.0 (2017-11-13)
 
 ## Breaking changes
-- `transformDocuments` and `entityChanged` calls have been moved from methods to actions. 
+- `transformDocuments` and `entityChanged` calls have been moved from methods to actions.
 - `this.find(ctx, params)` method has been removed. Use `this.adapter.find(params)` instead.
 - `this.count(ctx, params)` method has been removed. Use `this.adapter.count(params)` instead.
 - `this.create(ctx, params)` method has been removed. Use `this.adapter.insert(params.entity)` instead.
@@ -145,7 +152,7 @@ broker.createService({
 
 	entityRemoved(json, ctx) {
 		this.logger.info("Entity removed", json);
-	},    
+	},
 });
 ```
 
@@ -190,7 +197,7 @@ broker.call("users.get", { id: 5, fields: ["name", "address", "bio.height", "bio
             return this.adapter.find({}).then(docs => {
                 // You can access the Mongoose virtual methods & getters of `docs` here
             });
-        }        
+        }
     ```
 
 --------------------------------------------------
@@ -214,20 +221,20 @@ There is a new `list` action with pagination support.
 ```js
 broker.call("posts.list", { page: 2, pageSize: 10});
 ```
-The result is similar as 
+The result is similar as
 ```js
-{ 
-    rows: [ 
+{
+    rows: [
         { title: 'Post #26' },
         { title: 'Post #27' },
         { title: 'Post #25' },
         { title: 'Post #21' },
-        { title: 'Post #28' } 
+        { title: 'Post #28' }
     ],
     total: 28,
     page: 2,
     pageSize: 10,
-    totalPages: 3 
+    totalPages: 3
 }
 ```
 
