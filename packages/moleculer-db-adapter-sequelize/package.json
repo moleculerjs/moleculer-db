@@ -10,7 +10,9 @@
     "lint": "eslint --ext=.js src test",
     "deps": "npm-check -u",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
-    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "keywords": [
     "microservice",
@@ -56,6 +58,8 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "sequelize": "5.8.11"
-  }
+    "sequelize": "5.8.11",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
