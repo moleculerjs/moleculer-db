@@ -10,7 +10,9 @@
     "lint": "eslint --ext=.js src test",
     "deps": "npm-check -u",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
-    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "keywords": [
     "microservice",
@@ -53,6 +55,8 @@
   "dependencies": {
     "bluebird": "3.5.2",
     "lodash": "4.17.11",
-    "nedb": "1.8.0"
-  }
+    "nedb": "1.8.0",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
