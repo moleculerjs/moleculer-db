@@ -1,0 +1,22 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.5
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-450202:
+    - moleculer-cli > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > async > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > inquirer > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > moleculer > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > moleculer-repl > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > handlebars > async > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > moleculer-repl > table > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
+    - moleculer-cli > moleculer-repl > vorpal > lodash:
+        patched: '2019-07-04T01:45:57.520Z'
