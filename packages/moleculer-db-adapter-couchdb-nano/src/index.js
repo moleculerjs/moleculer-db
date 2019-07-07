@@ -8,6 +8,7 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
+const { ServiceSchemaError } = require("moleculer").Errors;
 const Nano = require("nano");
 
 class CouchDbNanoAdapter {
@@ -39,7 +40,7 @@ class CouchDbNanoAdapter {
 		this.schema = service.schema.schema;
 		this.modelName = (service.schema && service.schema.model && service.schema.model.name) || (service.schema && service.schema.modelName) || service.schema.name;
 		if (!this.modelName) {
-			throw new Error("Missing `modelName` or `name` definition in schema of service!");
+			throw new ServiceSchemaError("Missing `modelName` or `name` definition in schema of service!");
 		}
 	}
 
@@ -54,16 +55,17 @@ class CouchDbNanoAdapter {
 		const opts = Object.assign({}, this.opts, {url: this.url ? this.url.replace("couchdb://", "http://") : "" || "http://localhost:5984"});
 		const nano = Nano(opts);
 		this.db = nano.db;
-		return Promise.resolve(
-			this.db.get(this.modelName)
-				.catch(e => {
-					if (e.statusCode === 404) {
-						return this.db.create(this.modelName);
-					}
-					throw(e);
-				})
-				.then(() => this.db = this.db.use(this.modelName))
-		);
+		return this.db.get(this.modelName)
+			.catch(e => {
+				if (e.statusCode === 404) {
+					return this.db.create(this.modelName);
+				}
+				throw(e);
+			})
+			.then(() => {
+				this.db = this.db.use(this.modelName);
+				this.service.logger.info("CouchDB adapter has connected successfully.");
+			});
 	}
 
 	/**
@@ -163,7 +165,7 @@ class CouchDbNanoAdapter {
 		}
 
 		Object.keys(selector).forEach(key => {
-			if (selector.hasOwnProperty(key) && typeof selector[key] !== "object") {
+			if (Object.prototype.hasOwnProperty.call(selector, key) && typeof selector[key] !== "object") {
 				selector[key] = {$eq: selector[key]};
 			}
 		});

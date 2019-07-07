@@ -15,7 +15,7 @@ const broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new CouchAdapter("couchdb://127.0.0.1:5984", {useNewUrlParser: true}),
+	adapter: new CouchAdapter("couchdb://127.0.0.1:5984"),
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]
 	},

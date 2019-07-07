@@ -37,7 +37,7 @@ const checker = new ModuleChecker(21);
 
 // Start checks
 function start() {
-	return Promise.resolve()
+	Promise.resolve()
 		.delay(500)
 		.then(() => checker.execute())
 		.catch(console.error)
