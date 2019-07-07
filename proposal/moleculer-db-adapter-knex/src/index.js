@@ -1,6 +1,6 @@
 /*
  * moleculer-db-adapter-knex
- * Copyright (c) 2017 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
+ * Copyright (c) 2019 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
  * MIT Licensed
  */
 
@@ -14,9 +14,9 @@ class KnexDbAdapter {
 
 	/**
 	 * Creates an instance of KnexDbAdapter.
-	 * @param {any} opts 
+	 * @param {any} opts
 	 * @param {any} opts2
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	constructor(opts, opts2) {
@@ -26,10 +26,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Initialize adapter
-	 * 
-	 * @param {ServiceBroker} broker 
-	 * @param {Service} service 
-	 * 
+	 *
+	 * @param {ServiceBroker} broker
+	 * @param {Service} service
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	init(broker, service) {
@@ -45,9 +45,9 @@ class KnexDbAdapter {
 
 	/**
 	 * Connect to database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	connect() {
@@ -78,21 +78,21 @@ class KnexDbAdapter {
 		return MongoClient.connect(uri, opts).then(db => {
 			this.db = db;
 			this.table = db.table(this.service.schema.table);
- 
-			
+
+
 			this.db.on("disconnected", function mongoDisconnected() {
 				this.service.logger.warn("Disconnected from MongoDB.");
 			}.bind(this));
-			
+
 		});
 		*/
 	}
 
 	/**
 	 * Disconnect from database
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	disconnect() {
@@ -104,7 +104,7 @@ class KnexDbAdapter {
 
 	/**
 	 * Find all entities by filters.
-	 * 
+	 *
 	 * Available filter props:
 	 * 	- limit
 	 *  - offset
@@ -112,10 +112,10 @@ class KnexDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} filters 
+	 *
+	 * @param {Object} filters
 	 * @returns {Promise<Array>}
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	find(filters) {
@@ -124,10 +124,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Find an entities by ID.
-	 * 
-	 * @param {String} _id 
+	 *
+	 * @param {String} _id
 	 * @returns {Promise<Object>} Return with the found document.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	findById(_id) {
@@ -136,10 +136,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Find any entities by IDs.
-	 * 
-	 * @param {Array} idList 
+	 *
+	 * @param {Array} idList
 	 * @returns {Promise<Array>} Return with the found documents in an Array.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	findByIds(idList) {
@@ -152,15 +152,15 @@ class KnexDbAdapter {
 
 	/**
 	 * Get count of filtered entites.
-	 * 
+	 *
 	 * Available query props:
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 * 
-	 * @param {Object} [filters={}] 
+	 *
+	 * @param {Object} [filters={}]
 	 * @returns {Promise<Number>} Return with the count of documents.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	count(filters = {}) {
@@ -170,10 +170,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Insert an entity.
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Promise<Object>} Return with the inserted document.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	insert(entity) {
@@ -182,10 +182,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Insert many entities
-	 * 
-	 * @param {Array} entities 
+	 *
+	 * @param {Array} entities
 	 * @returns {Promise<Array<Object>>} Return with the inserted documents in an Array.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	insertMany(entities) {
@@ -194,11 +194,11 @@ class KnexDbAdapter {
 
 	/**
 	 * Update many entities by `query` and `update`
-	 * 
-	 * @param {Object} query 
-	 * @param {Object} update 
+	 *
+	 * @param {Object} query
+	 * @param {Object} update
 	 * @returns {Promise<Number>} Return with the count of modified documents.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	updateMany(query, update) {
@@ -207,11 +207,11 @@ class KnexDbAdapter {
 
 	/**
 	 * Update an entity by ID and `update`
-	 * 
+	 *
 	 * @param {String} _id - ObjectID as hexadecimal string.
-	 * @param {Object} update 
+	 * @param {Object} update
 	 * @returns {Promise<Object>} Return with the updated document.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	updateById(_id, update) {
@@ -220,10 +220,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Remove entities which are matched by `query`
-	 * 
-	 * @param {Object} query 
+	 *
+	 * @param {Object} query
 	 * @returns {Promise<Number>} Return with the count of deleted documents.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	removeMany(query) {
@@ -232,10 +232,10 @@ class KnexDbAdapter {
 
 	/**
 	 * Remove an entity by ID
-	 * 
+	 *
 	 * @param {String} _id - ObjectID as hexadecimal string.
 	 * @returns {Promise<Object>} Return with the removed document.
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	removeById(_id) {
@@ -244,9 +244,9 @@ class KnexDbAdapter {
 
 	/**
 	 * Clear all entities from table
-	 * 
+	 *
 	 * @returns {Promise}
-	 * 
+	 *
 	 * @memberof KnexDbAdapter
 	 */
 	clear() {
@@ -255,8 +255,8 @@ class KnexDbAdapter {
 
 	/**
 	 * Convert DB entity to JSON object. It converts the `_id` to hexadecimal `String`.
-	 * 
-	 * @param {Object} entity 
+	 *
+	 * @param {Object} entity
 	 * @returns {Object}
 	 * @memberof KnexDbAdapter
 	 */
@@ -267,15 +267,15 @@ class KnexDbAdapter {
 
 	/**
 	 * Create a filtered cursor.
-	 * 
-	 * Available filters in `params`: 
+	 *
+	 * Available filters in `params`:
 	 *  - search
 	 * 	- sort
 	 * 	- limit
 	 * 	- offset
 	 *  - query
-	 * 
- 	 * @param {Object} params 
+	 *
+ 	 * @param {Object} params
  	 * @param {Boolean} isCounting
 	 * @returns {MongoCursor}
 	 */
@@ -322,9 +322,9 @@ class KnexDbAdapter {
 
 	/**
 	 * Convert the `sort` param to a `sort` object to Mongo queries.
-	 * 
+	 *
 	 * @param {Cursor} q
-	 * @param {String|Array<String>|Object} paramSort 
+	 * @param {String|Array<String>|Object} paramSort
 	 * @returns {Object} Return with a sort object like `{ "votes": 1, "title": -1 }`
 	 * @memberof KnexDbAdapter
 	 */

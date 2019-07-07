@@ -1,6 +1,6 @@
 /*
  * moleculer-db-adapter-mongoose
- * Copyright (c) 2017 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
+ * Copyright (c) 2019 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
  * MIT Licensed
  */
 
@@ -335,8 +335,8 @@ class MongooseDbAdapter {
 
 	/**
 	* Transforms 'idField' into MongoDB's '_id'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MongoDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -353,8 +353,8 @@ class MongooseDbAdapter {
 
 	/**
 	* Transforms MongoDB's '_id' into user defined 'idField'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MongoDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -362,7 +362,7 @@ class MongooseDbAdapter {
 		if (idField !== "_id") {
 			entity[idField] = this.objectIDToString(entity["_id"]);
 			delete entity._id;
-		} 
+		}
 		return entity;
 	}
 

@@ -1,6 +1,6 @@
 /*
  * moleculer-db
- * Copyright (c) 2017 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
+ * Copyright (c) 2019 MoleculerJS (https://github.com/moleculerjs/moleculer-db)
  * MIT Licensed
  */
 
@@ -325,8 +325,8 @@ class MemoryDbAdapter {
 
 	/**
 	* Transforms 'idField' into NeDB's '_id'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MemoryDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -343,8 +343,8 @@ class MemoryDbAdapter {
 
 	/**
 	* Transforms NeDB's '_id' into user defined 'idField'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MemoryDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -352,7 +352,7 @@ class MemoryDbAdapter {
 		if (idField !== "_id") {
 			entity[idField] = entity["_id"];
 			delete entity._id;
-		} 
+		}
 		return entity;
 	}
 }
