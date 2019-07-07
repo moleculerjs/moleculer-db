@@ -4,7 +4,6 @@ const { ServiceBroker } = require("moleculer");
 const StoreService = require("../../../moleculer-db/index");
 const MongooseAdapter = require("../../index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
-const Promise = require("bluebird");
 const Post = require("../models/posts");
 const User = require("../models/users");
 
@@ -20,8 +19,8 @@ let users = [];
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
-	dependencies: ["users"],
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	//dependencies: ["users"],
 	model: Post,
 	settings: {
 		fields: ["_id", "title", "content", "votes", "author"],
@@ -37,7 +36,6 @@ broker.createService(StoreService, {
 	},
 
 	afterConnected() {
-		this.logger.info("Connected successfully");
 		return this.adapter.clear().delay(3000).then(() => {
 			if (users.length == 0) return;
 
@@ -56,14 +54,13 @@ broker.createService(StoreService, {
 // Load my service
 broker.createService(StoreService, {
 	name: "users",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
 	model: User,
 	settings: {
 		fields: ["_id", "username", "fullName", "email"]
 	},
 
 	afterConnected() {
-		this.logger.info("Connected successfully");
 		return this.adapter.clear().then(() => {
 			this.logger.info("Seed Users collection...");
 			return this.adapter.insertMany([

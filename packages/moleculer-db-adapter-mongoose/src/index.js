@@ -8,7 +8,12 @@
 
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
+const { ServiceSchemaError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
+
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 
 class MongooseDbAdapter {
 
@@ -41,7 +46,7 @@ class MongooseDbAdapter {
 			this.model = this.service.schema.model;
 		} else if (this.service.schema.schema) {
 			if (!this.service.schema.modelName) {
-				throw new Error("`modelName` is required when `schema` is given in schema of service!");
+				throw new ServiceSchemaError("`modelName` is required when `schema` is given in schema of service!");
 			}
 			this.schema = this.service.schema.schema;
 			this.modelName = this.service.schema.modelName;
@@ -49,7 +54,7 @@ class MongooseDbAdapter {
 
 		if (!this.model && !this.schema) {
 			/* istanbul ignore next */
-			throw new Error("Missing `model` or `schema` definition in schema of service!");
+			throw new ServiceSchemaError("Missing `model` or `schema` definition in schema of service!");
 		}
 	}
 
@@ -65,24 +70,33 @@ class MongooseDbAdapter {
 
 		if (this.model) {
 			/* istanbul ignore next */
-			if (mongoose.connection.readyState != 0) {
+			if (mongoose.connection.readyState == 1) {
 				this.db = mongoose.connection;
 				return Promise.resolve();
+			} else if (mongoose.connection.readyState == 2) {
+				conn = mongoose.connection;
+			} else {
+				conn = mongoose.connect(this.uri, this.opts);
 			}
-
-			conn = mongoose.connect(this.uri, this.opts);
 		} else if (this.schema) {
 			conn = mongoose.createConnection(this.uri, this.opts);
 			this.model = conn.model(this.modelName, this.schema);
 		}
 
 		return conn.then(result => {
-			this.db = result.connection || result.db;
+			this.conn = conn;
 
-			this.db.on("disconnected", function mongoDisconnected() {
-				/* istanbul ignore next */
-				this.service.logger.warn("Disconnected from MongoDB.");
-			}.bind(this));
+			if (result.connection)
+				this.db = result.connection.db;
+			else
+				this.db = result.db;
+
+			this.service.logger.info("MongoDB adapter has connected successfully.");
+
+			/* istanbul ignore next */
+			this.db.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.db.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
 	}
 
@@ -94,10 +108,13 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	disconnect() {
-		if (this.db) {
-			this.db.close();
-		}
-		return Promise.resolve();
+		return new Promise(resolve => {
+			if (this.db && this.db.close) {
+				this.db.close(resolve);
+			} else {
+				mongoose.connection.close(resolve);
+			}
+		});
 	}
 
 	/**

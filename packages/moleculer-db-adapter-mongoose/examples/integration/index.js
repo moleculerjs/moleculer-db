@@ -4,7 +4,6 @@ const { ServiceBroker } = require("moleculer");
 const StoreService = require("../../../moleculer-db/index");
 const MongooseAdapter = require("../../index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
-const Promise = require("bluebird");
 const Post = require("../models/posts");
 
 // Create broker
@@ -16,7 +15,7 @@ const broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
+	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
 	model: Post,
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]
@@ -35,7 +34,6 @@ broker.createService(StoreService, {
 	},
 
 	afterConnected() {
-		this.logger.info("Connected successfully");
 		return this.adapter.clear();
 	}
 });

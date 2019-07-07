@@ -45,9 +45,9 @@ const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
 
 const fakeSchema = {};
 
-let fakeConn = {
+let fakeDb = {
 	on: jest.fn(),
-	close: jest.fn(),
+	close: jest.fn(fn => fn()),
 	model: jest.fn(() => fakeModel)
 };
 
@@ -127,24 +127,26 @@ describe("Test MongooseStoreAdapter", () => {
 
 	describe("Test connect", () => {
 		it("call connect with uri", () => {
-			fakeConn.on.mockClear();
+			fakeDb.on.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
+			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
 			adapter.opts = undefined;
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
 				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://localhost", undefined);
 
-				expect(adapter.db).toBe(fakeConn);
-				expect(adapter.db.on).toHaveBeenCalledTimes(1);
+				expect(adapter.db).toBe(fakeDb);
+				expect(adapter.db.on).toHaveBeenCalledTimes(3);
 				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", jasmine.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
 			});
 		});
 
 		it("call connect with uri & opts", () => {
-			fakeConn.on.mockClear();
+			fakeDb.on.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: fakeConn }));
+			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
 			adapter.opts = {
 				user: "admin",
 				pass: "123456"
@@ -157,15 +159,15 @@ describe("Test MongooseStoreAdapter", () => {
 		});
 
 		it("call disconnect", () => {
-			fakeConn.close.mockClear();
+			fakeDb.close.mockClear();
 
 			return adapter.disconnect().catch(protectReject).then(() => {
-				expect(fakeConn.close).toHaveBeenCalledTimes(1);
+				expect(fakeDb.close).toHaveBeenCalledTimes(1);
 			});
 		});
 
 		it("call connect with schema and modelName", () => {
-			fakeConn.on.mockClear();
+			fakeDb.on.mockClear();
 			const service = broker.createService({
 				name: "store",
 				schema: fakeSchema,
@@ -176,7 +178,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 			const makeModel = jest.fn(() => fakeModel);
 			mongoose.createConnection = jest.fn(() => {
-				const conn = Promise.resolve({ connection: fakeConn });
+				const conn = Promise.resolve({ connection: { db: fakeDb } });
 				conn.model = makeModel;
 				return conn;
 			});
@@ -450,7 +452,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 	it("should transform _id into idField", () => {
 		adapter.objectIDToString = jest.fn(entry => entry);
-		
+
 		let entry = {
 			_id: "123456789",
 			title: "My first post"
