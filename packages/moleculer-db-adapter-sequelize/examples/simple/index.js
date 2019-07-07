@@ -4,7 +4,6 @@ const { ServiceBroker } = require("moleculer");
 const StoreService = require("../../../moleculer-db/index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
 const SequelizeAdapter = require("../../index");
-const Promise = require("bluebird");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
@@ -20,7 +19,7 @@ let adapter;
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new SequelizeAdapter("sqlite://:memory:", { operatorsAliases: false }),
+	adapter: new SequelizeAdapter("sqlite://:memory:"),
 	model: {
 		name: "post",
 		define: {
@@ -38,7 +37,6 @@ broker.createService(StoreService, {
 
 	afterConnected() {
 		adapter = this.adapter;
-		this.logger.info("Connected successfully");
 		return this.adapter.clear();
 	}
 });

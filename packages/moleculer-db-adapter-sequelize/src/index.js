@@ -7,6 +7,7 @@
 "use strict";
 
 const _ 		= require("lodash");
+const { ServiceSchemaError } = require("moleculer").Errors;
 const Promise	= require("bluebird");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -21,7 +22,6 @@ class SequelizeDbAdapter {
 	 */
 	constructor(...opts) {
 		this.opts = opts;
-		//mongoose.Promise = Promise;
 	}
 
 	/**
@@ -38,7 +38,7 @@ class SequelizeDbAdapter {
 
 		if (!this.service.schema.model) {
 			/* istanbul ignore next */
-			throw new Error("Missing `model` definition in schema of service!");
+			throw new ServiceSchemaError("Missing `model` definition in schema of service!");
 		}
 	}
 
@@ -56,7 +56,7 @@ class SequelizeDbAdapter {
 
 			let modelDefinitionOrInstance = this.service.schema.model;
 			let modelReadyPromise;
-			let isModelInstance = modelDefinitionOrInstance && modelDefinitionOrInstance.hasOwnProperty("attributes");
+			let isModelInstance = modelDefinitionOrInstance && Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes");
 			if (isModelInstance){
 				this.model = modelDefinitionOrInstance;
 				modelReadyPromise = Promise.resolve();
@@ -65,7 +65,10 @@ class SequelizeDbAdapter {
 				modelReadyPromise  = this.model.sync();
 			}
 			this.service.model = this.model;
-			return modelReadyPromise ;
+
+			return modelReadyPromise.then(() => {
+				this.service.logger.info("Sequelize adapter has connected successfully.");
+			});
 		});
 	}
 
@@ -78,8 +81,9 @@ class SequelizeDbAdapter {
 	 */
 	disconnect() {
 		if (this.db) {
-			this.db.close();
+			return this.db.close();
 		}
+		/* istanbul ignore next */
 		return Promise.resolve();
 	}
 
@@ -182,7 +186,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	insertMany(entities) {
-		return Promise.all(entities.map(e => this.model.create(e)));
+		return this.model.bulkCreate(entities);
 	}
 
 	/**

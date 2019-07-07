@@ -11,6 +11,7 @@ const model = {
 	findOne: jest.fn(() => Promise.resolve()),
 	findByPk: jest.fn(() => Promise.resolve()),
 	create: jest.fn(() => Promise.resolve()),
+	bulkCreate: jest.fn(() => Promise.resolve()),
 	update: jest.fn(() => Promise.resolve([1, 2])),
 	destroy: jest.fn(() => Promise.resolve()),
 };
@@ -18,7 +19,7 @@ const model = {
 const db = {
 	authenticate: jest.fn(() => Promise.resolve()),
 	define: jest.fn(() => model),
-	close: jest.fn(),
+	close: jest.fn(() => Promise.resolve()),
 };
 
 let Sequelize = require("sequelize");
@@ -297,9 +298,8 @@ describe("Test SequelizeAdapter", () => {
 			let entities = [{name: "John"}, {name: "Jane"}];
 
 			return adapter.insertMany(entities).catch(protectReject).then(() => {
-				expect(adapter.model.create).toHaveBeenCalledTimes(2);
-				expect(adapter.model.create).toHaveBeenCalledWith(entities[0]);
-				expect(adapter.model.create).toHaveBeenCalledWith(entities[1]);
+				expect(adapter.model.bulkCreate).toHaveBeenCalledTimes(1);
+				expect(adapter.model.bulkCreate).toHaveBeenCalledWith(entities);
 			});
 		});
 

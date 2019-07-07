@@ -9,7 +9,7 @@ SQL adapter (Postgres, MySQL, SQLite & MSSQL) for Moleculer DB service with [Seq
 # Install
 
 ```bash
-$ npm install moleculer-db-adapter-sequelize --save
+$ npm install moleculer-db-adapter-sequelize sequelize --save
 ```
 
 You have to install additional packages for your database server:
@@ -19,6 +19,9 @@ $ npm install sqlite3 --save
 
 # For MySQL
 $ npm install mysql2 --save
+
+# For MariaDB
+$ npm install mariadb --save
 
 # For PostgreSQL
 $ npm install pg pg-hstore --save
@@ -96,7 +99,7 @@ new SqlAdapter("postgres://user:pass@example.com:5432/dbname");
 ```js
 new SqlAdapter('database', 'username', 'password', {
     host: 'localhost',
-    dialect: 'mysql'|'sqlite'|'postgres'|'mssql',
+    dialect: /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
 
     pool: {
         max: 5,

@@ -4,7 +4,6 @@ const { ServiceBroker } = require("moleculer");
 const StoreService = require("../../../moleculer-db/index");
 const SequelizeAdapter = require("../../index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
-const Promise = require("bluebird");
 const Sequelize = require("sequelize");
 
 // Create broker
@@ -41,7 +40,7 @@ const broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new SequelizeAdapter("sqlite://:memory:", { operatorsAliases: false }),
+	adapter: new SequelizeAdapter("sqlite://:memory:"),
 	//adapter: new SequelizeAdapter({ dialect: "sqlite", storage: "d:\\moleculer-test.db"}),
 	//adapter: new SequelizeAdapter("mssql://sa:<password>@localhost/moleculer-test"),
 	//adapter: new SequelizeAdapter("mysql://root:mysql@192.168.51.29/moleculer_test"),
@@ -65,16 +64,16 @@ broker.createService(StoreService, {
 
 	actions: {
 		vote(ctx) {
-			return this.model.findById(ctx.params.id)
+			return this.adapter.findById(ctx.params.id)
 				.then(post => post.increment({ votes: 1 }))
-				.then(() => this.model.findById(ctx.params.id))
+				.then(() => this.adapter.findById(ctx.params.id))
 				.then(doc => this.transformDocuments(ctx, ctx.params, doc));
 		},
 
 		unvote(ctx) {
-			return this.model.findById(ctx.params.id)
+			return this.adapter.findById(ctx.params.id)
 				.then(post => post.decrement({ votes: 1 }))
-				.then(() => this.model.findById(ctx.params.id))
+				.then(() => this.adapter.findById(ctx.params.id))
 				.then(doc => this.transformDocuments(ctx, ctx.params, doc));
 		},
 

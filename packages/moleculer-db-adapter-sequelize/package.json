@@ -26,7 +26,8 @@
   "author": "MoleculerJS",
   "license": "MIT",
   "peerDependencies": {
-    "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0"
+    "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0",
+    "sequelize": "^5.9.4"
   },
   "devDependencies": {
     "benchmarkify": "2.1.1",
@@ -42,6 +43,7 @@
     "npm-check": "5.9.0",
     "pg": "7.11.0",
     "pg-hstore": "2.3.3",
+    "sequelize": "5.9.4",
     "sqlite3": "4.0.9",
     "tedious": "6.2.0"
   },
@@ -54,8 +56,5 @@
   },
   "engines": {
     "node": ">= 8.x.x"
-  },
-  "dependencies": {
-    "sequelize": "5.9.4"
   }
 }
