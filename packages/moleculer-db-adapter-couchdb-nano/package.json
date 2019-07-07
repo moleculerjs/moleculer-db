@@ -28,15 +28,15 @@
     "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0"
   },
   "devDependencies": {
-    "benchmarkify": "2.1.0",
-    "coveralls": "3.0.2",
-    "eslint": "5.7.0",
-    "jest": "23.6.0",
-    "jest-cli": "23.6.0",
-    "lolex": "3.0.0",
-    "moleculer": "0.13.3",
+    "benchmarkify": "2.1.1",
+    "coveralls": "3.0.4",
+    "eslint": "6.0.1",
+    "jest": "24.8.0",
+    "jest-cli": "24.8.0",
+    "lolex": "4.1.0",
+    "moleculer": "0.13.9",
     "moleculer-docgen": "0.2.1",
-    "nodemon": "1.18.7",
+    "nodemon": "1.19.1",
     "npm-check": "5.9.0"
   },
   "jest": {
@@ -50,6 +50,6 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
-    "nano": "^7.1.1"
+    "nano": "8.1.0"
   }
 }

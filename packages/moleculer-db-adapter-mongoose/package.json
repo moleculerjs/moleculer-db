@@ -28,16 +28,16 @@
     "mongoose": "^5.0.12"
   },
   "devDependencies": {
-    "benchmarkify": "2.1.0",
-    "coveralls": "3.0.2",
-    "eslint": "5.7.0",
+    "benchmarkify": "2.1.1",
+    "coveralls": "3.0.4",
+    "eslint": "6.0.1",
     "fakerator": "0.3.0",
-    "jest": "23.6.0",
-    "jest-cli": "23.6.0",
-    "lolex": "3.0.0",
-    "moleculer": "0.13.3",
-    "mongoose": "5.3.6",
-    "nodemon": "1.18.4",
+    "jest": "24.8.0",
+    "jest-cli": "24.8.0",
+    "lolex": "4.1.0",
+    "moleculer": "0.13.9",
+    "mongoose": "5.6.3",
+    "nodemon": "1.19.1",
     "npm-check": "5.9.0"
   },
   "jest": {
@@ -51,7 +51,7 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
-    "bluebird": "3.5.2",
+    "bluebird": "3.5.5",
     "lodash": "4.17.11"
   }
 }

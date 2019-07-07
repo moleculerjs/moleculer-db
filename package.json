@@ -12,6 +12,7 @@
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "init": "cd packages && moleculer init addon",
     "deps": "lerna exec --concurrency 1 npm run deps",
+    "audit": "lerna exec --concurrency 1 npm audit fix",
     "release": "lerna publish",
     "readme": "node readme-generator.js"
   },
