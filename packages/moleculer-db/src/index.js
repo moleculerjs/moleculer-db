@@ -162,6 +162,7 @@ module.exports = {
 			cache: {
 				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
 			},
+			rest: "GET /",
 			params: {
 				populate: [
 					{ type: "string", optional: true },
@@ -197,6 +198,7 @@ module.exports = {
 		 * @returns {Object} Saved entity.
 		 */
 		create: {
+			rest: "POST /",
 			handler(ctx) {
 				let params = ctx.params;
 				return this._create(ctx, params);
@@ -243,6 +245,7 @@ module.exports = {
 			cache: {
 				keys: ["id", "populate", "fields", "mapping"]
 			},
+			rest: "GET /:id",
 			params: {
 				id: [
 					{ type: "string" },
@@ -279,6 +282,7 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		update: {
+			rest: "PUT /:id",
 			handler(ctx) {
 				let params = ctx.params;
 				return this._update(ctx, params);
@@ -296,6 +300,7 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		remove: {
+			rest: "DELETE /:id",
 			params: {
 				id: { type: "any" }
 			},
