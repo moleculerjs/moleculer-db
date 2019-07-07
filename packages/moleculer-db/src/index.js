@@ -11,6 +11,7 @@ const Promise = require("bluebird");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
+const pkg = require("../package.json");
 
 /**
  * Service mixin to access database entities
@@ -21,6 +22,15 @@ const MemoryAdapter = require("./memory-adapter");
 module.exports = {
 	// Must overwrite it
 	name: "",
+
+	// Service's metadata
+	metadata: {
+		$category: "database",
+		$official: true,
+		$name: pkg.name,
+		$version: pkg.version,
+		$repo: pkg.repository ? pkg.repository.url : null,
+	},
 
 	// Store adapter (NeDB adapter is the default)
 	adapter: null,
@@ -181,7 +191,7 @@ module.exports = {
 		 * Create a new entity.
 		 *
 		 * @actions
-		 * 
+		 *
 		 * @param {Object?} params - Entity to save.
 		 *
 		 * @returns {Object} Saved entity.
@@ -261,7 +271,7 @@ module.exports = {
 		 * > After update, clear the cache & call lifecycle events.
 		 *
 		 * @actions
-		 * 
+		 *
 		 * @param {Object?} params - Entity to update.
 		 *
 		 * @returns {Object} Updated entity.
@@ -658,7 +668,7 @@ module.exports = {
 		 *
 		 * @methods
 		 * @cached
-		 * 
+		 *
 		 * @param {Array<String>?} populate - Populated fields.
 		 * @param {Array<String>?} fields - Fields filter.
 		 * @param {Number} limit - Max count of rows.
@@ -674,7 +684,7 @@ module.exports = {
 			return this.adapter.find(params)
 				.then(docs => this.transformDocuments(ctx, params, docs));
 		},
-		
+
 		/**
 		 * Get count of entities by query.
 		 *
@@ -695,13 +705,13 @@ module.exports = {
 				params.offset = null;
 			return this.adapter.count(params);
 		},
-		
+
 		/**
 		 * List entities by filters and pagination results.
 		 *
 		 * @methods
 		 * @cached
-		 * 
+		 *
 		 * @param {Array<String>?} populate - Populated fields.
 		 * @param {Array<String>?} fields - Fields filter.
 		 * @param {Number} page - Page number.
@@ -743,7 +753,7 @@ module.exports = {
 					});
 			});
 		},
-		
+
 		/**
 		 * Create a new entity.
 		 *
@@ -803,7 +813,7 @@ module.exports = {
 		 *
 		 * @methods
 		 * @cached
-		 * 
+		 *
 		 * @param {any|Array<any>} id - ID(s) of entity.
 		 * @param {Array<String>?} populate - Field list for populate.
 		 * @param {Array<String>?} fields - Fields filter.
@@ -843,7 +853,7 @@ module.exports = {
 		 * @methods
 		 *
 		 * @param {Object?} params - Entity to update.
-		 * 
+		 *
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
@@ -886,7 +896,7 @@ module.exports = {
 					return this.transformDocuments(ctx, params, doc)
 						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
 				});
-		}	
+		}
 	},
 
 	/**
