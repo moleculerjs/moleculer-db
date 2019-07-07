@@ -34,7 +34,6 @@ broker.createService(StoreService, {
 	},
 
 	afterConnected() {
-		this.logger.info("Connected successfully");
 		return this.adapter.clear().then(() => {
 			this.adapter.collection.createIndex( { title: "text", content: "text" } );
 		}).then(() => start());

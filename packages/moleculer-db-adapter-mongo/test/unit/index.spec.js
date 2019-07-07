@@ -6,7 +6,6 @@ jest.mock("mongodb");
 
 const MongoDbAdapter = require("../../src");
 const mongodb = require("mongodb");
-const MongoClient = mongodb.MongoClient;
 
 function protectReject(err) {
 	if (err && err.stack) {
@@ -38,12 +37,19 @@ const fakeCollection = {
 	findOneAndDelete: jest.fn(() => Promise.resolve({ value: doc })),
 };
 
-
-let fakeConn = {
+let fakeDb = {
 	on: jest.fn(),
-	close: jest.fn(),
 	collection: jest.fn(() => fakeCollection)
 };
+
+let fakeConn = {
+	connect: jest.fn(() => Promise.resolve()),
+	db: jest.fn(() => fakeDb),
+	close: jest.fn(),
+};
+
+mongodb.MongoClient.mockImplementation(() => fakeConn);
+const MongoClient = mongodb.MongoClient;
 
 describe("Test MongoDbAdapter", () => {
 	const broker = new ServiceBroker({ logger: false });
@@ -54,12 +60,13 @@ describe("Test MongoDbAdapter", () => {
 
 	const uri = "mongodb://localhost";
 	const opts = {};
-	const adapter = new MongoDbAdapter(uri, opts);
+	const adapter = new MongoDbAdapter(uri, opts, "db-name");
 
 	it("should be created", () => {
 		expect(adapter).toBeDefined();
 		expect(adapter.uri).toBe(uri);
 		expect(adapter.opts).toBe(opts);
+		expect(adapter.dbName).toBe("db-name");
 		expect(adapter.init).toBeInstanceOf(Function);
 		expect(adapter.connect).toBeInstanceOf(Function);
 		expect(adapter.disconnect).toBeInstanceOf(Function);
@@ -95,40 +102,69 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call connect with uri", () => {
-		fakeConn.on.mockClear();
-		fakeConn.collection.mockClear();
+		fakeDb.on.mockClear();
+		fakeDb.collection.mockClear();
 
-		MongoClient.connect = jest.fn(() => Promise.resolve(fakeConn));
 		adapter.opts = undefined;
+		adapter.dbName = undefined;
 		return adapter.connect().catch(protectReject).then(() => {
-			expect(MongoClient.connect).toHaveBeenCalledTimes(1);
-			expect(MongoClient.connect).toHaveBeenCalledWith("mongodb://localhost", undefined);
+			expect(MongoClient).toHaveBeenCalledTimes(1);
+			expect(MongoClient).toHaveBeenCalledWith("mongodb://localhost", undefined);
 
-			expect(adapter.db).toBe(fakeConn);
-			expect(adapter.db.on).toHaveBeenCalledTimes(1);
-			expect(adapter.db.on).toHaveBeenCalledWith("disconnected", jasmine.any(Function));
+			expect(adapter.client).toBe(fakeConn);
+			expect(adapter.client.connect).toHaveBeenCalledTimes(1);
+			expect(adapter.client.connect).toHaveBeenCalledWith();
+
+			expect(adapter.client.db).toHaveBeenCalledTimes(1);
+			expect(adapter.client.db).toHaveBeenCalledWith(undefined);
+
+			expect(adapter.db).toBe(fakeDb);
+			expect(adapter.db.on).toHaveBeenCalledTimes(3);
+			expect(adapter.db.on).toHaveBeenCalledWith("close", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
+			expect(adapter.collection).toBe(fakeCollection);
 		});
 	});
 
 	it("call connect with uri & opts", () => {
-		fakeConn.on.mockClear();
-		fakeConn.collection.mockClear();
+		MongoClient.mockClear();
+		fakeConn.connect.mockClear();
+		fakeConn.db.mockClear();
 
-		MongoClient.connect = jest.fn(() => Promise.resolve(fakeConn));
+		fakeDb.on.mockClear();
+		fakeDb.collection.mockClear();
+
 		adapter.opts = {
 			user: "admin",
 			pass: "123456"
 		};
+		adapter.dbName = "demo-db";
 
 		return adapter.connect().catch(protectReject).then(() => {
-			expect(MongoClient.connect).toHaveBeenCalledTimes(1);
-			expect(MongoClient.connect).toHaveBeenCalledWith(adapter.uri, Object.assign(adapter.opts, { promiseLibrary: jasmine.any(Function) }));
+			expect(MongoClient).toHaveBeenCalledTimes(1);
+			expect(MongoClient).toHaveBeenCalledWith(adapter.uri, adapter.opts);
+
+			expect(adapter.client).toBe(fakeConn);
+			expect(adapter.client.connect).toHaveBeenCalledTimes(1);
+			expect(adapter.client.connect).toHaveBeenCalledWith();
+
+			expect(adapter.client.db).toHaveBeenCalledTimes(1);
+			expect(adapter.client.db).toHaveBeenCalledWith("demo-db");
+
+			expect(adapter.db).toBe(fakeDb);
+			expect(adapter.db.on).toHaveBeenCalledTimes(3);
+			expect(adapter.db.on).toHaveBeenCalledWith("close", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
+			expect(adapter.collection).toBe(fakeCollection);
+
 		});
 	});
 
@@ -434,7 +470,7 @@ describe("Test MongoDbAdapter", () => {
 
 	it("should transform _id into idField", () => {
 		adapter.objectIDToString = jest.fn(entry => entry);
-		
+
 		let entry = {
 			_id: "123456789",
 			title: "My first post"

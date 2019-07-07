@@ -16,12 +16,11 @@ let adapter;
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
+	adapter: new MongoAdapter("mongodb://localhost", { useNewUrlParser: true }, "moleculer-db-demo"),
 	collection: "posts",
 	settings: {},
 
 	afterConnected() {
-		this.logger.info("Connected successfully");
 		adapter = this.adapter;
 		return this.adapter.clear().then(() => {
 			this.adapter.collection.createIndex( { title: "text", content: "text" } );

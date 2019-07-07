@@ -8,6 +8,7 @@
 
 const _ 			= require("lodash");
 const Promise		= require("bluebird");
+const { ServiceSchemaError } = require("moleculer").Errors;
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
 const ObjectID 		= mongodb.ObjectID;
@@ -18,12 +19,14 @@ class MongoDbAdapter {
 	 * Creates an instance of MongoDbAdapter.
 	 * @param {String} uri
 	 * @param {Object?} opts
+	 * @param {String?} dbName
 	 *
 	 * @memberof MongoDbAdapter
 	 */
-	constructor(uri, opts) {
+	constructor(uri, opts, dbName) {
 		this.uri = uri,
 		this.opts = opts;
+		this.dbName = dbName;
 	}
 
 	/**
@@ -40,7 +43,7 @@ class MongoDbAdapter {
 
 		if (!this.service.schema.collection) {
 			/* istanbul ignore next */
-			throw new Error("Missing `collection` definition in schema of service!");
+			throw new ServiceSchemaError("Missing `collection` definition in schema of service!");
 		}
 	}
 
@@ -52,19 +55,17 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	connect() {
-		let database;
-
-		return MongoClient.connect(this.uri, this.opts).then(client => {
-			this.client = client;
-			const db = client.db ? client.db(database) : client;
-			this.db = db;
+		this.client = new MongoClient(this.uri, this.opts);
+		return this.client.connect().then(() => {
+			this.db = this.client.db(this.dbName);
 			this.collection = this.db.collection(this.service.schema.collection);
 
-			/* istanbul ignore next */
-			this.db.on("disconnected", function mongoDisconnected() {
-				this.service.logger.warn("Disconnected from MongoDB.");
-			}.bind(this));
+			this.service.logger.info("MongoDB adapter has connected successfully.");
 
+			/* istanbul ignore next */
+			this.db.on("close", () => this.service.logger.warn("MongoDB adapter has disconnected."));
+			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.db.on("reconnect", () => this.service.logger.info("MongoDB adapter has reconnected."));
 		});
 	}
 
@@ -380,8 +381,8 @@ class MongoDbAdapter {
 
 	/**
 	* Transforms 'idField' into MongoDB's '_id'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MongoDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -398,8 +399,8 @@ class MongoDbAdapter {
 
 	/**
 	* Transforms MongoDB's '_id' into user defined 'idField'
-	* @param {Object} entity 
-	* @param {String} idField 
+	* @param {Object} entity
+	* @param {String} idField
 	* @memberof MongoDbAdapter
 	* @returns {Object} Modified entity
 	*/
@@ -407,7 +408,7 @@ class MongoDbAdapter {
 		if (idField !== "_id") {
 			entity[idField] = this.objectIDToString(entity["_id"]);
 			delete entity._id;
-		} 
+		}
 		return entity;
 	}
 }
