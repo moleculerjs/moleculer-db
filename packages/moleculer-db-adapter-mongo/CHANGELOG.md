@@ -1,3 +1,10 @@
+<a name="0.4.3"></a>
+# 0.4.3 (2019-07-07)
+
+## Changes
+- Add `dbName` parameter to constructor. Example: `adapter: new MongoAdapter("mongodb://localhost", { useNewUrlParser: true }, "moleculer-db-demo")`
+
+--------------------------------------------------
 <a name="0.4.0"></a>
 # 0.4.0 (2018-04-08)
 
