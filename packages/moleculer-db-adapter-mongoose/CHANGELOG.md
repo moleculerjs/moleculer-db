@@ -1,3 +1,9 @@
+<a name="0.8.0"></a>
+# 0.8.0 (2019-07-07)
+
+## Changes
+Mongoose connection logic has been changed. No need to update existing codes.
+
 <a name="0.7.0"></a>
 # 0.7.0 (2018-04-08)
 
