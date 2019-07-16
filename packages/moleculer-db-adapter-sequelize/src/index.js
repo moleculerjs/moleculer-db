@@ -50,7 +50,10 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	connect() {
-		this.db = new Sequelize(...this.opts);
+		if (this.opts instanceof Sequelize)
+			this.db = this.opts;
+		else
+			this.db = new Sequelize(...this.opts);
 
 		return this.db.authenticate().then(() => {
 
@@ -213,7 +216,7 @@ class SequelizeDbAdapter {
 	 */
 	updateById(_id, update) {
 		return this.findById(_id).then(entity => {
-			return entity.update(update["$set"]);
+			return entity && entity.update(update["$set"]);
 		});
 	}
 
@@ -239,7 +242,7 @@ class SequelizeDbAdapter {
 	 */
 	removeById(_id) {
 		return this.findById(_id).then(entity => {
-			return entity.destroy().then(() => entity);
+			return entity && entity.destroy().then(() => entity);
 		});
 	}
 
