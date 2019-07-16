@@ -616,7 +616,7 @@ module.exports = {
 				};
 
 				if (rule.handler) {
-					promises.push(rule.handler.call(this, idList, arr, rule, ctx));
+					promises.push(rule.handler.call(this, idList, arr, rule, ctx).then(resultTransform));
 				} else if (idList.length > 0) {
 					// Call the target action & collect the promises
 					const params = Object.assign({

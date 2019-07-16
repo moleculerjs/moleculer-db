@@ -73,7 +73,8 @@ broker.start()
 
 # Settings
 
-<!-- AUTO-CONTENT-START:SETTINGS -->| Property | Type | Default | Description |
+<!-- AUTO-CONTENT-START:SETTINGS -->
+| Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `idField` | `String` | **required** | Name of ID field. |
 | `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
@@ -101,7 +102,8 @@ broker.start()
 
 # Actions
 
-<!-- AUTO-CONTENT-START:ACTIONS -->## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+<!-- AUTO-CONTENT-START:ACTIONS -->
+## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
 
 Find entities by query.
 
@@ -213,7 +215,8 @@ Found entity(ies).
 
 ## `update` 
 
-Update an entity by ID.> After update, clear the cache & call lifecycle events.
+Update an entity by ID.
+> After update, clear the cache & call lifecycle events.
 
 ### Parameters
 | Property | Type | Default | Description |
@@ -281,7 +284,8 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->## `getById` 
+<!-- AUTO-CONTENT-START:METHODS -->
+## `getById` 
 
 Get entity(ies) by ID(s).
 
@@ -454,7 +458,8 @@ Found entity(ies).
 
 ## `_update` 
 
-Update an entity by ID.> After update, clear the cache & call lifecycle events.
+Update an entity by ID.
+> After update, clear the cache & call lifecycle events.
 
 ### Parameters
 | Property | Type | Default | Description |
@@ -544,7 +549,16 @@ broker.createService({
 
             // Custom populator handler function
             "rate"(ids, rule, ctx) {
-                return Promise.resolve(...);
+                return new Promise((resolve, reject) => {
+
+                    var results = {
+                            "some ObjectId": { "some object" },
+                            "other ObjectId": { "other object" }
+                        };
+                    
+                    resolve(results);
+                    
+                });
             }
         }
     }
