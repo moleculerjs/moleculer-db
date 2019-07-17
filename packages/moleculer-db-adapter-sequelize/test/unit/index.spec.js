@@ -423,5 +423,33 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
+	describe("options as sequelize instance", () => {
+		const opts = new Sequelize({
+			dialect: "sqlite"
+		});
+		const adapter = new SequelizeAdapter(opts);
+
+		const broker = new ServiceBroker({logger: false});
+		const service = broker.createService({
+			name: "store",
+			model: initiatedModel
+		});
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
+		it("do not call define if initiated model passed", () => {
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(Sequelize).toHaveBeenCalledTimes(1);
+				expect(Sequelize).toHaveBeenCalledWith(opts);
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(0);
+				expect(adapter.model).toBe(initiatedModel);
+				expect(adapter.service.model).toBe(initiatedModel);
+			});
+		});
+	});
+
 });
 
