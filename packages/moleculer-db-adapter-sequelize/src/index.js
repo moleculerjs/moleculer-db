@@ -50,8 +50,10 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	connect() {
-		if (this.opts instanceof Sequelize)
-			this.db = this.opts;
+		const sequelizeInstance = this.opts[0];
+
+		if (sequelizeInstance && sequelizeInstance instanceof Sequelize)
+			this.db = sequelizeInstance;
 		else
 			this.db = new Sequelize(...this.opts);
 
