@@ -166,6 +166,31 @@ describe("Test MongooseStoreAdapter", () => {
 			});
 		});
 
+		it("call stringToObjectID", () => {
+			mongoose.Types.ObjectId.isValid = jest.fn(() => true);
+			mongoose.Schema.Types.ObjectId = jest.fn();
+
+			adapter.stringToObjectID({});
+			expect(mongoose.Schema.Types.ObjectId).toHaveBeenCalledTimes(0);
+
+			adapter.stringToObjectID("123");
+			expect(mongoose.Schema.Types.ObjectId).toHaveBeenCalledTimes(1);
+			expect(mongoose.Schema.Types.ObjectId).toHaveBeenCalledWith("123");
+		});
+
+		it("call objectIDToString with not ObjectID", () => {
+			expect(adapter.objectIDToString("123")).toBe("123");
+		});
+
+		it("call objectIDToString with ObjectID", () => {
+			let id = {
+				toString: jest.fn()
+			};
+
+			adapter.objectIDToString(id);
+			expect(id.toString).toHaveBeenCalledTimes(1);
+		});
+
 		it("call connect with schema and modelName", () => {
 			fakeDb.on.mockClear();
 			const service = broker.createService({
