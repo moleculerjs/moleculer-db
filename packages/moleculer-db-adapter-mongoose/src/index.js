@@ -383,6 +383,29 @@ class MongooseDbAdapter {
 		return entity;
 	}
 
+	/**
+	* Convert hex string to ObjectID
+	* @param {String} id
+	* @returns ObjectID}
+	* @memberof MongooseDbAdapter
+	*/
+	stringToObjectID (id) {
+		if (typeof id == "string" && mongoose.Types.ObjectId.isValid(id))
+			return new mongoose.Schema.Types.ObjectId(id);
+		return id;
+	}
+
+	/**
+	* Convert ObjectID to hex string
+	* @param {ObjectID} id
+	* @returns {String}
+	* @memberof MongooseDbAdapter
+	*/
+	objectIDToString (id) {
+		if(id && id.toString)
+			return id.toString();
+		return id;
+	}
 }
 
 module.exports = MongooseDbAdapter;
