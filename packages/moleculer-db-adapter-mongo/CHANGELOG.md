@@ -1,3 +1,10 @@
+<a name="0.4.4"></a>
+# 0.4.4 (2019-08-14)
+
+## Changes
+- Fix issue in full-text searching [#122](https://github.com/moleculerjs/moleculer-db/issues/122)
+
+--------------------------------------------------
 <a name="0.4.3"></a>
 # 0.4.3 (2019-07-07)
 
