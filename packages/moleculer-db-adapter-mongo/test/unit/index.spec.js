@@ -296,7 +296,7 @@ describe("Test MongoDbAdapter", () => {
 		it("call with full-text search", () => {
 			adapter.collection.find.mockClear();
 			let q = adapter.createCursor({ search: "walter" });
-			expect(adapter.collection.find).toHaveBeenCalledTimes(2);
+			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.find).toHaveBeenCalledWith({
 				"$text": { "$search": "walter" }
 			});
@@ -307,6 +307,15 @@ describe("Test MongoDbAdapter", () => {
 
 			expect(q.sort).toHaveBeenCalledTimes(1);
 			expect(q.sort).toHaveBeenCalledWith({"_score": {"$meta": "textScore"}});
+		});
+
+		it("call with full-text search & counting", () => {
+			adapter.collection.countDocuments.mockClear();
+			let q = adapter.createCursor({ search: "walter" }, true);
+			expect(adapter.collection.countDocuments).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.countDocuments).toHaveBeenCalledWith({
+				"$text": { "$search": "walter" }
+			});
 		});
 
 	});
