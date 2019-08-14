@@ -25,4 +25,9 @@ const UserSchema = new Schema({
 	timestamps: true
 });
 
+// Add full-text search index
+UserSchema.index({
+	"fullName": "text"
+});
+
 module.exports =mongoose.model("User", UserSchema);

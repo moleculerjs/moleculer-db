@@ -11,8 +11,8 @@
 			"program": "${workspaceRoot}/dev",
 			"cwd": "${workspaceRoot}",
 			"args": [
-				"moleculer-db-adapter-sequelize",
-				"simple"
+				"moleculer-db-adapter-mongo",
+				"issue"
 			]
 		},
 		{

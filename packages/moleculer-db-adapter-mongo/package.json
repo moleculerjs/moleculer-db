@@ -49,6 +49,7 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
+    "fakerator": "0.3.0",
     "mongodb": "^3.2.7"
   }
 }

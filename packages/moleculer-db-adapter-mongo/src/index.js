@@ -276,27 +276,31 @@ class MongoDbAdapter {
 	 * @returns {MongoCursor}
 	 */
 	createCursor(params, isCounting) {
+		const fn = isCounting ? this.collection.countDocuments : this.collection.find;
+		let q;
 		if (params) {
-			let q;
-			if (isCounting)
-				q = this.collection.countDocuments(params.query);
-			else
-				q = this.collection.find(params.query);
 			// Full-text search
 			// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
 			if (_.isString(params.search) && params.search !== "") {
-				q = this.collection.find(Object.assign(params.query || {}, {
+				q = fn.call(this.collection, Object.assign(params.query || {}, {
 					$text: {
 						$search: params.search
 					}
 				}));
-				q.project({ _score: { $meta: "textScore" } });
-				q.sort({
-					_score: {
-						$meta: "textScore"
-					}
-				});
+
+				if (q.project && !isCounting)
+					q.project({ _score: { $meta: "textScore" } });
+
+				if (q.sort && !isCounting) {
+					q.sort({
+						_score: {
+							$meta: "textScore"
+						}
+					});
+				}
 			} else {
+				q = fn.call(this.collection, params.query);
+
 				// Sort
 				if (params.sort && q.sort) {
 					let sort = this.transformSort(params.sort);
@@ -317,10 +321,7 @@ class MongoDbAdapter {
 		}
 
 		// If not params
-		if (isCounting)
-			return this.collection.countDocuments({});
-		else
-			return this.collection.find({});
+		return fn.call(this.collection, {});
 	}
 
 	/**
