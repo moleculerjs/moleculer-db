@@ -1,4 +1,4 @@
-![Moleculer logo](http://moleculer.services/images/banner.png)
+![Moleculer logo](https://moleculer.services/images/banner.png)
 
 [![Build Status](https://travis-ci.org/moleculerjs/moleculer-db.svg?branch=master)](https://travis-ci.org/moleculerjs/moleculer-db)
 [![Coverage Status](https://coveralls.io/repos/github/moleculerjs/moleculer-db/badge.svg?branch=master)](https://coveralls.io/github/moleculerjs/moleculer-db?branch=master)
