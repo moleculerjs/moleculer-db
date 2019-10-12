@@ -108,13 +108,13 @@ Find entities by query.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `populate` | `Array.<String>` | - | Populated fields. |
-| `fields` | `Array.<String>` | - | Fields filter. |
+| `populate` | `String`, `Array.<String>` | **required** | Populated fields. |
+| `fields` | `String`, `Array.<String>` | **required** | Fields filter. |
 | `limit` | `Number` | - | Max count of rows. |
 | `offset` | `Number` | - | Count of skipped rows. |
 | `sort` | `String` | - | Sorted fields. |
 | `search` | `String` | - | Search text. |
-| `searchFields` | `String` | - | Fields for searching. |
+| `searchFields` | `String`, `Array.<String>` | **required** | Fields for searching. |
 | `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
@@ -131,7 +131,7 @@ Get count of entities by query.
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `search` | `String` | - | Search text. |
-| `searchFields` | `String` | - | Fields list for searching. |
+| `searchFields` | `String`, `Array.<String>` | **required** | Fields list for searching. |
 | `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
@@ -147,19 +147,19 @@ List entities by filters and pagination results.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `populate` | `Array.<String>` | - | Populated fields. |
-| `fields` | `Array.<String>` | - | Fields filter. |
+| `populate` | `String`, `Array.<String>` | **required** | Populated fields. |
+| `fields` | `String`, `Array.<String>` | **required** | Fields filter. |
 | `page` | `Number` | - | Page number. |
 | `pageSize` | `Number` | - | Size of a page. |
 | `sort` | `String` | - | Sorted fields. |
 | `search` | `String` | - | Search text. |
-| `searchFields` | `String` | - | Fields for searching. |
+| `searchFields` | `String`, `Array.<String>` | **required** | Fields for searching. |
 | `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
-**Type:** `Array.<Object>`
+**Type:** `Object`
 
-List of found entities and count.
+List of found entities and count with pagination info.
 
 
 ## `create` 
@@ -201,8 +201,8 @@ Get entity by ID.
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `id` | `any`, `Array.<any>` | **required** | ID(s) of entity. |
-| `populate` | `Array.<String>` | - | Field list for populate. |
-| `fields` | `Array.<String>` | - | Fields filter. |
+| `populate` | `String`, `Array.<String>` | **required** | Field list for populate. |
+| `fields` | `String`, `Array.<String>` | **required** | Fields filter. |
 | `mapping` | `Boolean` | - | Convert the returned `Array` to `Object` where the key is the value of `id`. |
 
 ### Results
@@ -219,7 +219,7 @@ Update an entity by ID.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `params` | `Object` | **required** | Entity to update. |
+| `id` | `any` | **required** | ID of entity. |
 
 ### Results
 **Type:** `Object`
@@ -282,20 +282,53 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->## `getById` 
+<!-- AUTO-CONTENT-START:METHODS -->## `sanitizeParams` 
+
+Sanitize context parameters at `find` action.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `ctx` | `Context` | **required** |  |
+| `params` | `Object` | **required** |  |
+
+### Results
+**Type:** `Object`
+
+
+
+
+## `getById` 
 
 Get entity(ies) by ID(s).
 
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `id` | `String`, `Number`, `Array` | **required** | ID or IDs. |
-| `decoding` | `Boolean` | **required** | Need to decode IDs. |
+| `id` | `any`, `Array.<any>` | **required** | ID or IDs. |
+| `decoding` | `Boolean` | - | Need to decode IDs. |
 
 ### Results
 **Type:** `Object`, `Array.<Object>`
 
 Found entity(ies).
+
+
+## `entityChanged` 
+
+Clear the cache & call entity lifecycle events
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `type` | `String` | **required** |  |
+| `json` | `Object`, `Array.<Object>`, `Number` | **required** |  |
+| `ctx` | `Context` | **required** |  |
+
+### Results
+**Type:** `Promise`
+
+
 
 
 ## `clearCache` 
@@ -306,6 +339,38 @@ Clear cached entities
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 *No input parameters.*
+
+### Results
+**Type:** `Promise`
+
+
+
+
+## `transformDocuments` 
+
+Transform the fetched documents
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `ctx` | `Context` | **required** |  |
+| `params` | `Object` | **required** |  |
+| `docs` | `Array`, `Object` | **required** |  |
+
+### Results
+**Type:** `Array`, `Object`
+
+
+
+
+## `validateEntity` 
+
+Validate an entity by validator.
+
+### Parameters
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `entity` | `Object` | **required** |  |
 
 ### Results
 **Type:** `Promise`
@@ -350,14 +415,8 @@ Find entities by query.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `populate` | `Array.<String>` | - | Populated fields. |
-| `fields` | `Array.<String>` | - | Fields filter. |
-| `limit` | `Number` | - | Max count of rows. |
-| `offset` | `Number` | - | Count of skipped rows. |
-| `sort` | `String` | - | Sorted fields. |
-| `search` | `String` | - | Search text. |
-| `searchFields` | `String` | - | Fields for searching. |
-| `query` | `Object` | - | Query object. Passes to adapter. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Array.<Object>`
@@ -372,9 +431,8 @@ Get count of entities by query.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `search` | `String` | - | Search text. |
-| `searchFields` | `String` | - | Fields list for searching. |
-| `query` | `Object` | - | Query object. Passes to adapter. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Number`
@@ -389,14 +447,8 @@ List entities by filters and pagination results.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `populate` | `Array.<String>` | - | Populated fields. |
-| `fields` | `Array.<String>` | - | Fields filter. |
-| `page` | `Number` | **required** | Page number. |
-| `pageSize` | `Number` | **required** | Size of a page. |
-| `sort` | `String` | **required** | Sorted fields. |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Object`
@@ -411,7 +463,8 @@ Create a new entity.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `params` | `Object` | - | Entity to save. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Object`
@@ -426,8 +479,8 @@ Create many new entities.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `entity` | `Object` | - | Entity to save. |
-| `entities` | `Array.<Object>` | - | Entities to save. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Object`, `Array.<Object>`
@@ -435,17 +488,15 @@ Create many new entities.
 Saved entity(ies).
 
 
-## `_get` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+## `_get` 
 
 Get entity by ID.
 
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `id` | `any`, `Array.<any>` | **required** | ID(s) of entity. |
-| `populate` | `Array.<String>` | - | Field list for populate. |
-| `fields` | `Array.<String>` | - | Fields filter. |
-| `mapping` | `Boolean` | - | Convert the returned `Array` to `Object` where the key is the value of `id`. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Object`, `Array.<Object>`
@@ -461,7 +512,8 @@ Update an entity by ID.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `params` | `Object` | - | Entity to update. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
 ### Results
 **Type:** `Object`
@@ -476,12 +528,9 @@ Remove an entity by ID.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `id` | `any` | **required** | ID of entity. |
+| `ctx` | `Context` | **required** | Context instance. |
+| `params` | `Object` | - | Parameters. |
 
-### Results
-**Type:** `Number`
-
-Count of removed entities.
 
 
 <!-- AUTO-CONTENT-END:METHODS -->

@@ -26,10 +26,13 @@ module.exports = {
 	// Service's metadata
 	metadata: {
 		$category: "database",
+		$description: "Official Data Access service",
 		$official: true,
-		$name: pkg.name,
-		$version: pkg.version,
-		$repo: pkg.repository ? pkg.repository.url : null,
+		$package: {
+			name: pkg.name,
+			version: pkg.version,
+			repo: pkg.repository ? pkg.repository.url : null
+		}
 	},
 
 	// Store adapter (NeDB adapter is the default)
@@ -71,14 +74,14 @@ module.exports = {
 		 * @actions
 		 * @cached
 		 *
-		 * @param {Array<String>?} populate - Populated fields.
-		 * @param {Array<String>?} fields - Fields filter.
-		 * @param {Number} limit - Max count of rows.
-		 * @param {Number} offset - Count of skipped rows.
-		 * @param {String} sort - Sorted fields.
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {String|Array<String>} populate - Populated fields.
+		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {Number?} limit - Max count of rows.
+		 * @param {Number?} offset - Count of skipped rows.
+		 * @param {String?} sort - Sorted fields.
+		 * @param {String?} search - Search text.
+		 * @param {String|Array<String>} searchFields - Fields for searching.
+		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
 		 * @returns {Array<Object>} List of found entities.
 		 */
@@ -117,9 +120,9 @@ module.exports = {
 		 * @actions
 		 * @cached
 		 *
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields list for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {String?} search - Search text.
+		 * @param {String|Array<String>} searchFields - Fields list for searching.
+		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
 		 * @returns {Number} Count of found entities.
 		 */
@@ -147,16 +150,16 @@ module.exports = {
 		 * @actions
 		 * @cached
 		 *
-		 * @param {Array<String>?} populate - Populated fields.
-		 * @param {Array<String>?} fields - Fields filter.
-		 * @param {Number} page - Page number.
-		 * @param {Number} pageSize - Size of a page.
-		 * @param {String} sort - Sorted fields.
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {String|Array<String>} populate - Populated fields.
+		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {Number?} page - Page number.
+		 * @param {Number?} pageSize - Size of a page.
+		 * @param {String?} sort - Sorted fields.
+		 * @param {String?} search - Search text.
+		 * @param {String|Array<String>} searchFields - Fields for searching.
+		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
-		 * @returns {Object} List of found entities and count.
+		 * @returns {Object} List of found entities and count with pagination info.
 		 */
 		list: {
 			cache: {
@@ -193,7 +196,7 @@ module.exports = {
 		 *
 		 * @actions
 		 *
-		 * @param {Object?} params - Entity to save.
+		 * @param {Object} params - Entity to save.
 		 *
 		 * @returns {Object} Saved entity.
 		 */
@@ -211,9 +214,9 @@ module.exports = {
 		 * @actions
 		 *
 		 * @param {Object?} entity - Entity to save.
-		 * @param {Array.<Object>?} entities - Entities to save.
+		 * @param {Array<Object>?} entities - Entities to save.
 		 *
-		 * @returns {Object|Array.<Object>} Saved entity(ies).
+		 * @returns {Object|Array<Object>} Saved entity(ies).
 		 */
 		insert: {
 			params: {
@@ -233,8 +236,8 @@ module.exports = {
 		 * @cached
 		 *
 		 * @param {any|Array<any>} id - ID(s) of entity.
-		 * @param {Array<String>?} populate - Field list for populate.
-		 * @param {Array<String>?} fields - Fields filter.
+		 * @param {String|Array<String>} populate - Field list for populate.
+		 * @param {String|Array<String>} fields - Fields filter.
 		 * @param {Boolean?} mapping - Convert the returned `Array` to `Object` where the key is the value of `id`.
 		 *
 		 * @returns {Object|Array<Object>} Found entity(ies).
@@ -275,8 +278,7 @@ module.exports = {
 		 *
 		 * @actions
 		 *
-		 * @param {Object?} params - Entity to update.
-		 *
+		 * @param {any} id - ID of entity.
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
@@ -344,9 +346,11 @@ module.exports = {
 		/**
 		 * Sanitize context parameters at `find` action.
 		 *
+		 * @methods
+		 *
 		 * @param {Context} ctx
-		 * @param {any} origParams
-		 * @returns {Promise}
+		 * @param {Object} params
+		 * @returns {Object}
 		 */
 		sanitizeParams(ctx, params) {
 			let p = Object.assign({}, params);
@@ -401,8 +405,8 @@ module.exports = {
 		 * Get entity(ies) by ID(s).
 		 *
 		 * @methods
-		 * @param {String|Number|Array} id - ID or IDs.
-		 * @param {Boolean} decoding - Need to decode IDs.
+		 * @param {any|Array<any>} id - ID or IDs.
+		 * @param {Boolean?} decoding - Need to decode IDs.
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
 		getById(id, decoding) {
@@ -419,8 +423,9 @@ module.exports = {
 		/**
 		 * Clear the cache & call entity lifecycle events
 		 *
+		 * @methods
 		 * @param {String} type
-		 * @param {Object|Array|Number} json
+		 * @param {Object|Array<Object>|Number} json
 		 * @param {Context} ctx
 		 * @returns {Promise}
 		 */
@@ -448,9 +453,10 @@ module.exports = {
 
 		/**
 		 * Transform the fetched documents
-		 *
-		 * @param {Array|Object} 	docs
-		 * @param {Object} 			Params
+		 * @methods
+		 * @param {Context} ctx
+		 * @param {Object} 	params
+		 * @param {Array|Object} docs
 		 * @returns {Array|Object}
 		 */
 		transformDocuments(ctx, params, docs) {
@@ -504,7 +510,7 @@ module.exports = {
 		 * Filter fields in the entity object
 		 *
 		 * @param {Object} 	doc
-		 * @param {Array} 	fields	Filter properties of model.
+		 * @param {Array<String>} 	fields	Filter properties of model.
 		 * @returns	{Object}
 		 */
 		filterFields(doc, fields) {
@@ -567,7 +573,7 @@ module.exports = {
 		 *
 		 * @param {Context} 		ctx
 		 * @param {Array|Object} 	docs
-		 * @param {Array}			populateFields
+		 * @param {Array?}			populateFields
 		 * @returns	{Promise}
 		 */
 		populateDocs(ctx, docs, populateFields) {
@@ -634,8 +640,8 @@ module.exports = {
 
 		/**
 		 * Validate an entity by validator.
-		 *
-		 * @param {any} entity
+		 * @methods
+		 * @param {Object} entity
 		 * @returns {Promise}
 		 */
 		validateEntity(entity) {
@@ -672,16 +678,9 @@ module.exports = {
 		 * Find entities by query.
 		 *
 		 * @methods
-		 * @cached
 		 *
-		 * @param {Array<String>?} populate - Populated fields.
-		 * @param {Array<String>?} fields - Fields filter.
-		 * @param {Number} limit - Max count of rows.
-		 * @param {Number} offset - Count of skipped rows.
-		 * @param {String} sort - Sorted fields.
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Array<Object>} List of found entities.
 		 */
@@ -694,11 +693,9 @@ module.exports = {
 		 * Get count of entities by query.
 		 *
 		 * @methods
-		 * @cached
 		 *
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields list for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Number} Count of found entities.
 		 */
@@ -715,16 +712,9 @@ module.exports = {
 		 * List entities by filters and pagination results.
 		 *
 		 * @methods
-		 * @cached
 		 *
-		 * @param {Array<String>?} populate - Populated fields.
-		 * @param {Array<String>?} fields - Fields filter.
-		 * @param {Number} page - Page number.
-		 * @param {Number} pageSize - Size of a page.
-		 * @param {String} sort - Sorted fields.
-		 * @param {String} search - Search text.
-		 * @param {String} searchFields - Fields for searching.
-		 * @param {Object} query - Query object. Passes to adapter.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Object} List of found entities and count.
 		 */
@@ -764,7 +754,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
-		 * @param {Object?} params - Entity to save.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Object} Saved entity.
 		 */
@@ -783,8 +774,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
-		 * @param {Object?} entity - Entity to save.
-		 * @param {Array.<Object>?} entities - Entities to save.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Object|Array.<Object>} Saved entity(ies).
 		 */
@@ -817,12 +808,9 @@ module.exports = {
 		 * Get entity by ID.
 		 *
 		 * @methods
-		 * @cached
 		 *
-		 * @param {any|Array<any>} id - ID(s) of entity.
-		 * @param {Array<String>?} populate - Field list for populate.
-		 * @param {Array<String>?} fields - Fields filter.
-		 * @param {Boolean?} mapping - Convert the returned `Array` to `Object` where the key is the value of `id`.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 *
@@ -857,8 +845,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
-		 * @param {Object?} params - Entity to update.
-		 *
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
@@ -887,8 +875,8 @@ module.exports = {
 		 *
 		 * @methods
 		 *
-		 * @param {any} id - ID of entity.
-		 * @returns {Number} Count of removed entities.
+		 * @param {Context} ctx - Context instance.
+		 * @param {Object?} params - Parameters.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
