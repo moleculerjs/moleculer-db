@@ -27,15 +27,15 @@
     "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0"
   },
   "devDependencies": {
-    "benchmarkify": "^2.1.1",
-    "coveralls": "^3.0.5",
-    "eslint": "^6.0.1",
-    "jest": "^24.8.0",
-    "jest-cli": "^24.8.0",
-    "lolex": "^4.1.0",
-    "moleculer": "^0.13.9",
-    "moleculer-docgen": "^0.2.1",
-    "nodemon": "^1.19.1",
+    "benchmarkify": "^2.1.2",
+    "coveralls": "^3.0.7",
+    "eslint": "^6.5.1",
+    "jest": "^24.9.0",
+    "jest-cli": "^24.9.0",
+    "lolex": "^5.0.1",
+    "moleculer": "^0.13.11",
+    "moleculer-docgen": "^0.2.2",
+    "nodemon": "^1.19.3",
     "npm-check": "^5.9.0"
   },
   "jest": {
@@ -50,6 +50,6 @@
   },
   "dependencies": {
     "fakerator": "0.3.0",
-    "mongodb": "^3.2.7"
+    "mongodb": "^3.3.2"
   }
 }
