@@ -8,7 +8,7 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
-const chalk = require("chalk");
+const kleur = require("kleur");
 
 class ModuleChecker {
 
@@ -35,7 +35,7 @@ class ModuleChecker {
 
 	printTitle(text) {
 		console.log();
-		console.log(chalk.yellow.bold(`--- ${text} ---`));
+		console.log(kleur.yellow().bold(`--- ${text} ---`));
 	}
 
 	checkValid(cond) {
@@ -45,16 +45,16 @@ class ModuleChecker {
 
 		if (res) {
 			this.ok++;
-			console.log(chalk.bgGreen.yellow.bold("--- OK ---"));
+			console.log(kleur.bgGreen().yellow().bold("--- OK ---"));
 		} else {
 			this.fail++;
-			console.log(chalk.bgRed.yellow.bold("!!! FAIL !!!"));
+			console.log(kleur.bgRed().yellow().bold("!!! FAIL !!!"));
 		}
 	}
 
 	printTotal() {
 		console.log();
-		console.log(chalk.bgGreen.yellow.bold(`--- OK: ${this.ok} of ${this.okCount} ---`), this.fail > 0 ? " | " + chalk.bgRed.yellow.bold(`!!! FAIL: ${this.fail} !!!`) : "");
+		console.log(kleur.bgGreen().yellow().bold(`--- OK: ${this.ok} of ${this.okCount} ---`), this.fail > 0 ? " | " + kleur.bgRed().yellow().bold(`!!! FAIL: ${this.fail} !!!`) : "");
 		console.log();
 	}
 }

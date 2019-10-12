@@ -1,13 +1,13 @@
 "use strict";
 
-let chalk = require("chalk");
-let { ServiceBroker } = require("moleculer");
-let DbService = require("../../index");
-let ModuleChecker = require("../../test/checker");
-let Promise = require("bluebird");
+const kleur = require("kleur");
+const { ServiceBroker } = require("moleculer");
+const DbService = require("../../index");
+const ModuleChecker = require("../../test/checker");
+const Promise = require("bluebird");
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -30,20 +30,20 @@ broker.createService(DbService, {
 	},
 
 	afterConnected() {
-		this.logger.info(chalk.green.bold("Connected successfully"));
+		this.logger.info(kleur.green().bold("Connected successfully"));
 		this.adapter.clear();
 	},
 
 	entityCreated(json) {
-		this.logger.info(chalk.cyan.bold("Entity lifecycle event: CREATED")/*, json*/);
+		this.logger.info(kleur.cyan().bold("Entity lifecycle event: CREATED")/*, json*/);
 	},
 
 	entityUpdated(json) {
-		this.logger.info(chalk.cyan.bold("Entity lifecycle event: UPDATED")/*, json*/);
+		this.logger.info(kleur.cyan().bold("Entity lifecycle event: UPDATED")/*, json*/);
 	},
 
 	entityRemoved(json) {
-		this.logger.info(chalk.cyan.bold("Entity lifecycle event: REMOVED")/*, json*/);
+		this.logger.info(kleur.cyan().bold("Entity lifecycle event: REMOVED")/*, json*/);
 	}
 });
 

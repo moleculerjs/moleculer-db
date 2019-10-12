@@ -73,8 +73,7 @@ broker.start()
 
 # Settings
 
-<!-- AUTO-CONTENT-START:SETTINGS -->
-| Property | Type | Default | Description |
+<!-- AUTO-CONTENT-START:SETTINGS -->| Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `idField` | `String` | **required** | Name of ID field. |
 | `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
@@ -102,8 +101,7 @@ broker.start()
 
 # Actions
 
-<!-- AUTO-CONTENT-START:ACTIONS -->
-## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+<!-- AUTO-CONTENT-START:ACTIONS -->## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
 
 Find entities by query.
 
@@ -112,12 +110,12 @@ Find entities by query.
 | -------- | ---- | ------- | ----------- |
 | `populate` | `Array.<String>` | - | Populated fields. |
 | `fields` | `Array.<String>` | - | Fields filter. |
-| `limit` | `Number` | **required** | Max count of rows. |
-| `offset` | `Number` | **required** | Count of skipped rows. |
-| `sort` | `String` | **required** | Sorted fields. |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `limit` | `Number` | - | Max count of rows. |
+| `offset` | `Number` | - | Count of skipped rows. |
+| `sort` | `String` | - | Sorted fields. |
+| `search` | `String` | - | Search text. |
+| `searchFields` | `String` | - | Fields for searching. |
+| `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
 **Type:** `Array.<Object>`
@@ -132,9 +130,9 @@ Get count of entities by query.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields list for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `search` | `String` | - | Search text. |
+| `searchFields` | `String` | - | Fields list for searching. |
+| `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
 **Type:** `Number`
@@ -151,15 +149,15 @@ List entities by filters and pagination results.
 | -------- | ---- | ------- | ----------- |
 | `populate` | `Array.<String>` | - | Populated fields. |
 | `fields` | `Array.<String>` | - | Fields filter. |
-| `page` | `Number` | **required** | Page number. |
-| `pageSize` | `Number` | **required** | Size of a page. |
-| `sort` | `String` | **required** | Sorted fields. |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `page` | `Number` | - | Page number. |
+| `pageSize` | `Number` | - | Size of a page. |
+| `sort` | `String` | - | Sorted fields. |
+| `search` | `String` | - | Search text. |
+| `searchFields` | `String` | - | Fields for searching. |
+| `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
-**Type:** `Object`
+**Type:** `Array.<Object>`
 
 List of found entities and count.
 
@@ -171,7 +169,7 @@ Create a new entity.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `params` | `Object` | - | Entity to save. |
+| `params` | `Object` | **required** | Entity to save. |
 
 ### Results
 **Type:** `Object`
@@ -221,7 +219,7 @@ Update an entity by ID.
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `params` | `Object` | - | Entity to update. |
+| `params` | `Object` | **required** | Entity to update. |
 
 ### Results
 **Type:** `Object`
@@ -284,8 +282,7 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->
-## `getById` 
+<!-- AUTO-CONTENT-START:METHODS -->## `getById` 
 
 Get entity(ies) by ID(s).
 
@@ -346,7 +343,7 @@ Decode ID of entity.
 
 
 
-## `_find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+## `_find` 
 
 Find entities by query.
 
@@ -355,12 +352,12 @@ Find entities by query.
 | -------- | ---- | ------- | ----------- |
 | `populate` | `Array.<String>` | - | Populated fields. |
 | `fields` | `Array.<String>` | - | Fields filter. |
-| `limit` | `Number` | **required** | Max count of rows. |
-| `offset` | `Number` | **required** | Count of skipped rows. |
-| `sort` | `String` | **required** | Sorted fields. |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `limit` | `Number` | - | Max count of rows. |
+| `offset` | `Number` | - | Count of skipped rows. |
+| `sort` | `String` | - | Sorted fields. |
+| `search` | `String` | - | Search text. |
+| `searchFields` | `String` | - | Fields for searching. |
+| `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
 **Type:** `Array.<Object>`
@@ -368,16 +365,16 @@ Find entities by query.
 List of found entities.
 
 
-## `_count` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+## `_count` 
 
 Get count of entities by query.
 
 ### Parameters
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `search` | `String` | **required** | Search text. |
-| `searchFields` | `String` | **required** | Fields list for searching. |
-| `query` | `Object` | **required** | Query object. Passes to adapter. |
+| `search` | `String` | - | Search text. |
+| `searchFields` | `String` | - | Fields list for searching. |
+| `query` | `Object` | - | Query object. Passes to adapter. |
 
 ### Results
 **Type:** `Number`
@@ -385,7 +382,7 @@ Get count of entities by query.
 Count of found entities.
 
 
-## `_list` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+## `_list` 
 
 List entities by filters and pagination results.
 

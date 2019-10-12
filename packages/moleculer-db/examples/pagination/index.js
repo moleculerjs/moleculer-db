@@ -1,7 +1,7 @@
 "use strict";
 
 let _ = require("lodash");
-let chalk = require("chalk");
+let kleur = require("kleur");
 let { ServiceBroker } = require("moleculer");
 let DbService = require("../../index");
 let ModuleChecker = require("../../test/checker");
@@ -32,7 +32,7 @@ broker.createService(DbService, {
 	},
 
 	afterConnected() {
-		this.logger.info(chalk.green.bold("Connected successfully"));
+		this.logger.info(kleur.green().bold("Connected successfully"));
 		return this.seedDB();
 	}
 });
