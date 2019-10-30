@@ -58,7 +58,8 @@ class SequelizeDbAdapter {
 			this.db = new Sequelize(...this.opts);
 
 		return this.db.authenticate().then(() => {
-
+			
+			this.db.sync({alter:true});
 			let modelDefinitionOrInstance = this.service.schema.model;
 			let modelReadyPromise;
 			let isModelInstance = modelDefinitionOrInstance && Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes");
