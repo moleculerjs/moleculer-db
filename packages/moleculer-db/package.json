@@ -3,6 +3,7 @@
   "version": "0.8.2",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
+  "types": "./moleculer-db.d.ts",
   "scripts": {
     "dev": "nodemon examples/index.js",
     "ci": "jest --watch",
