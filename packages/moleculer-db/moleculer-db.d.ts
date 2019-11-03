@@ -145,10 +145,10 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    updateMany<T, R = T, Q extends QueryOptions<T> = any>(
+    updateMany<T, Q extends QueryOptions<T> = any>(
       query: Q,
       update: T
-    ): Promise<R[]>;
+    ): Promise<number>;
 
     /**
      * Update an entity by ID
@@ -167,7 +167,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    removeMany<Q extends QueryOptions<R>, R = any>(query: Q): Promise<R[]>;
+    removeMany<Q extends QueryOptions<R>, R = any>(query: Q): Promise<number>;
 
     /**
      * Remove an entity by ID
