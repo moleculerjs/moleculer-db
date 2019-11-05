@@ -10,7 +10,8 @@ const _ 		= require("lodash");
 const { ServiceSchemaError } = require("moleculer").Errors;
 const Promise	= require("bluebird");
 const Sequelize = require("sequelize");
-const Op = Sequelize.Op;
+
+const { Model, Op } = Sequelize;
 
 class SequelizeDbAdapter {
 
@@ -58,14 +59,15 @@ class SequelizeDbAdapter {
 			this.db = new Sequelize(...this.opts);
 
 		return this.db.authenticate().then(() => {
-
 			let modelDefinitionOrInstance = this.service.schema.model;
 			let modelReadyPromise;
-			let isModelInstance = modelDefinitionOrInstance && Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes");
-			if (isModelInstance){
+			let isModelInstance = modelDefinitionOrInstance
+				&& (Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes")
+					|| modelDefinitionOrInstance.prototype instanceof Model);
+			if (isModelInstance) {
 				this.model = modelDefinitionOrInstance;
 				modelReadyPromise = Promise.resolve();
-			}else {
+			} else {
 				this.model = this.db.define(modelDefinitionOrInstance.name, modelDefinitionOrInstance.define, modelDefinitionOrInstance.options);
 				modelReadyPromise  = this.model.sync();
 			}
@@ -284,54 +286,54 @@ class SequelizeDbAdapter {
 	 * @returns {Promise}
 	 */
 	createCursor(params, isCounting) {
-		if (params) {
-			const q = {
-				where: params.query || {}
-			};
-
-			// Text search
-			if (_.isString(params.search) && params.search !== "") {
-				let fields = [];
-				if (params.searchFields) {
-					fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
-				}
-
-				q.where = {
-					[Op.or]: fields.map(f => {
-						return {
-							[f]: {
-								[Op.like]: "%" + params.search + "%"
-							}
-						};
-					})
-				};
-			}
-
-			// Sort
-			if (params.sort) {
-				let sort = this.transformSort(params.sort);
-				if (sort)
-					q.order = sort;
-			}
-
-			// Offset
-			if (_.isNumber(params.offset) && params.offset > 0)
-				q.offset = params.offset;
-
-			// Limit
-			if (_.isNumber(params.limit) && params.limit > 0)
-				q.limit = params.limit;
-
+		if (!params) {
 			if (isCounting)
-				return this.model.count(q);
-			else
-				return this.model.findAll(q);
+				return this.model.count();
+
+			return this.model.findAll();
 		}
 
+		const q = {
+			where: params.query || {}
+		};
+
+		// Text search
+		if (_.isString(params.search) && params.search !== "") {
+			let fields = [];
+			if (params.searchFields) {
+				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
+			}
+
+			q.where = {
+				[Op.or]: fields.map(f => {
+					return {
+						[f]: {
+							[Op.like]: "%" + params.search + "%"
+						}
+					};
+				})
+			};
+		}
+
+		// Sort
+		if (params.sort) {
+			let sort = this.transformSort(params.sort);
+			if (sort)
+				q.order = sort;
+		}
+
+		// Offset
+		if (_.isNumber(params.offset) && params.offset > 0)
+			q.offset = params.offset;
+
+		// Limit
+		if (_.isNumber(params.limit) && params.limit > 0)
+			q.limit = params.limit;
+
 		if (isCounting)
-			return this.model.count();
-		else
-			return this.model.findAll();
+			return this.model.count(q);
+
+		return this.model.findAll(q);
 	}
 
 	/**
@@ -372,7 +374,7 @@ class SequelizeDbAdapter {
 	* @memberof SequelizeDbAdapter
 	* @returns {Object} Entity
 	*/
-	beforeSaveTransformID (entity, idField) {
+	beforeSaveTransformID(entity, idField) {
 		return entity;
 	}
 
@@ -383,7 +385,7 @@ class SequelizeDbAdapter {
 	* @memberof SequelizeDbAdapter
 	* @returns {Object} Entity
 	*/
-	afterRetrieveTransformID (entity, idField) {
+	afterRetrieveTransformID(entity, idField) {
 		return entity;
 	}
 
