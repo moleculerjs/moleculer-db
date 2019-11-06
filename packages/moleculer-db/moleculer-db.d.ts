@@ -1,6 +1,42 @@
-import { Context, ServiceBroker, Service } from "moleculer";
-
 declare module "moleculer-db" {
+  import { Context, ServiceBroker, Service } from "moleculer";
+
+  export interface DbServiceSettings {
+    idField: string;
+    fields?: Array<string>;
+    populates?: Array<any>;
+    pageSize?: number;
+    maxPageSize?: number;
+    maxLimit?: number;
+    entityValidator?: any;
+  }
+
+  export class DbService<T,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+ 
+  }
+
+  export interface QueryOptions<T> {
+    [name: string]: any;
+  }
+  export interface CursorOptions<T> extends FilterOptions<T> {
+    sort?: string | string[];
+    fields?: string | string[];
+  }
+
+  export interface FilterOptions<T> {
+    limit?: string | number;
+    offset?: string | number;
+    searchFields?: string | string[];
+    search?: string;
+    query?: QueryOptions<T>;
+  }
+
+  export interface CountOptions<T> {
+    searchFields?: string | string[];
+    search?: string;
+    query?: QueryOptions<T>;
+  }
+
   export interface DbAdapter {
     /**
      * Initialize adapter
@@ -40,13 +76,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    find<R>(filters: {
-      limit?: string | number;
-      offset?: string | number;
-      searchFields?: string | string[];
-      search?: string;
-      query?: any;
-    }): Promise<R[]>;
+    find<R>(filters: FilterOptions<R>): Promise<R[]>;
 
     /**
      * Find an entity by query
@@ -55,16 +85,16 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    findOne<R>(query: any): Promise<R>;
+    findOne<R, Q extends QueryOptions<R> = any>(query: Q): Promise<R>;
 
     /**
      * Find an entity by ID
      *
-     * @param {any} _id
+     * @param {any} id
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    findById<R>(_id): Promise<R>;
+    findById<R>(id: any): Promise<R>;
 
     /**
      * Find all entites by IDs
@@ -87,11 +117,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    count(filters?: {
-      searchFields?: string | string[];
-      search?: string;
-      query?: any;
-    }): Promise<number>;
+    count<T>(filters?: CountOptions<T>): Promise<number>;
 
     /**
      * Insert an entity
@@ -100,7 +126,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof MemoryDbAdapter
      */
-    insert<T, R>(entity: T): Promise<R>;
+    insert<T, R = T>(entity: T): Promise<R>;
 
     /**
      * Insert multiple entities
@@ -109,7 +135,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof MemoryDbAdapter
      */
-    insertMany<T, R>(...entities: T[]): Promise<R[]>;
+    insertMany<T, R = T>(...entities: T[]): Promise<R[]>;
 
     /**
      * Update many entities by `query` and `update`
@@ -119,7 +145,10 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    updateMany<R, T = R>(query: any, update: T): Promise<R>;
+    updateMany<T, Q extends QueryOptions<T> = any>(
+      query: Q,
+      update: T
+    ): Promise<number>;
 
     /**
      * Update an entity by ID
@@ -129,7 +158,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    updateById<R, T = R>(id: string | number, update): Promise<R>;
+    updateById<T, R = T>(id: string | number, update: T): Promise<R>;
 
     /**
      * Remove many entities which are matched by `query`
@@ -138,7 +167,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    removeMany(query: any): Promise<any[]>;
+    removeMany<Q extends QueryOptions<R>, R = any>(query: Q): Promise<number>;
 
     /**
      * Remove an entity by ID
@@ -147,7 +176,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    removeById(id: number | string): Promise<any>;
+    removeById<R = any>(id: number | string): Promise<R>;
 
     /**
      * Clear all entities from DB
@@ -181,13 +210,7 @@ declare module "moleculer-db" {
      * @returns {Query}
      * @memberof DbAdapter
      */
-    createCursor<R>(params: {
-      limit?: string | number;
-      offset?: string | number;
-      search?: string | string[];
-      sort?: string | string[];
-      query?: any;
-    }): Promise<R>;
+    createCursor<T = any,C extends CursorOptions<T> = any,Q = any,>(params: C): Q;
 
     /**
      * Transforms 'idField' into NeDB's '_id'
@@ -196,7 +219,7 @@ declare module "moleculer-db" {
      * @memberof DbAdapter
      * @returns {Object} Modified entity
      */
-    beforeSaveTransformID<R, T = R>(entity: T, idField: string): R;
+    beforeSaveTransformID<T, R = T>(entity: T, idField: string): R;
 
     /**
      * Transforms NeDB's '_id' into user defined 'idField'
@@ -205,7 +228,7 @@ declare module "moleculer-db" {
      * @memberof DbAdapter
      * @returns {Object} Modified entity
      */
-    afterRetrieveTransformID<R, T = R>(entity: T, idField: string): R;
+    afterRetrieveTransformID<T, R = T>(entity: T, idField: string): R;
   }
   export interface DbContextParameters {
     limit?: string | number;
@@ -217,10 +240,10 @@ declare module "moleculer-db" {
     populate?: string | string[];
     searchFields?: string | string[];
   }
-  interface MoleculerDB<TAdapter> {
+  export interface MoleculerDB<TAdapter extends DbAdapter> {
     name: string;
     metadata?: {
-      $category: "database";
+      $category: string;
       $official: boolean;
       $name: string;
       $version: string;
@@ -435,5 +458,4 @@ declare module "moleculer-db" {
       created?(): Promise<void>;
     };
   }
-  export = MoleculerDB;
 }
