@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-mongoose",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Mongoose adapter for Moleculer DB service",
   "main": "index.js",
   "types": "index.d.ts",
