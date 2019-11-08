@@ -11,7 +11,7 @@ declare module "moleculer-db" {
     entityValidator?: any;
   }
 
-  export class DbService<T,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+  export default class DbService<T=any,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
  
   }
 
