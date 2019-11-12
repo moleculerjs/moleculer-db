@@ -87,29 +87,54 @@ module.exports = {
 		 */
 		find: {
 			cache: {
-				keys: ["populate", "fields", "limit", "offset", "sort", "search", "searchFields", "query"]
+				keys: [
+					"populate",
+					"fields",
+					"limit",
+					"offset",
+					"sort",
+					"search",
+					"searchFields",
+					"query"
+				]
 			},
 			params: {
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				fields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
-				limit: { type: "number", integer: true, min: 0, optional: true, convert: true },
-				offset: { type: "number", integer: true, min: 0, optional: true, convert: true },
+				limit: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true
+				},
+				offset: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true
+				},
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				query: { type: "object", optional: true }
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
+				const { query } = params;
+				if (query && typeof query === "string") {
+					params.query = JSON.parse(query);
+				}
 				return this._find(ctx, params);
 			}
 		},
@@ -134,7 +159,7 @@ module.exports = {
 				search: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				query: { type: "object", optional: true }
 			},
@@ -163,25 +188,46 @@ module.exports = {
 		 */
 		list: {
 			cache: {
-				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
+				keys: [
+					"populate",
+					"fields",
+					"page",
+					"pageSize",
+					"sort",
+					"search",
+					"searchFields",
+					"query"
+				]
 			},
 			rest: "GET /",
 			params: {
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				fields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
-				page: { type: "number", integer: true, min: 1, optional: true, convert: true },
-				pageSize: { type: "number", integer: true, min: 0, optional: true, convert: true },
+				page: {
+					type: "number",
+					integer: true,
+					min: 1,
+					optional: true,
+					convert: true
+				},
+				pageSize: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true
+				},
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				query: { type: "object", optional: true }
 			},
@@ -250,25 +296,20 @@ module.exports = {
 			},
 			rest: "GET /:id",
 			params: {
-				id: [
-					{ type: "string" },
-					{ type: "number" },
-					{ type: "array" }
-				],
+				id: [{ type: "string" }, { type: "number" }, { type: "array" }],
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				fields: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: "string" }
 				],
 				mapping: { type: "boolean", optional: true }
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				return this._get(ctx, params);
-
 			}
 		},
 
@@ -317,7 +358,6 @@ module.exports = {
 	 * Methods
 	 */
 	methods: {
-
 		/**
 		 * Connect to database.
 		 */
@@ -327,7 +367,7 @@ module.exports = {
 				if (_.isFunction(this.schema.afterConnected)) {
 					try {
 						return this.schema.afterConnected.call(this);
-					} catch(err) {
+					} catch (err) {
 						/* istanbul ignore next */
 						this.logger.error("afterConnected error!", err);
 					}
@@ -356,38 +396,37 @@ module.exports = {
 			let p = Object.assign({}, params);
 
 			// Convert from string to number
-			if (typeof(p.limit) === "string")
-				p.limit = Number(p.limit);
-			if (typeof(p.offset) === "string")
-				p.offset = Number(p.offset);
-			if (typeof(p.page) === "string")
-				p.page = Number(p.page);
-			if (typeof(p.pageSize) === "string")
-				p.pageSize = Number(p.pageSize);
+			if (typeof p.limit === "string") p.limit = Number(p.limit);
+			if (typeof p.offset === "string") p.offset = Number(p.offset);
+			if (typeof p.page === "string") p.page = Number(p.page);
+			if (typeof p.pageSize === "string") p.pageSize = Number(p.pageSize);
+			// If query comes stringified from the client, parse it to POJO
+			if (typeof p.query === "string") p.query = JSON.parse(p.query);
 
-			if (typeof(p.sort) === "string")
+			if (typeof p.sort === "string")
 				p.sort = p.sort.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.fields) === "string")
+			if (typeof p.fields === "string")
 				p.fields = p.fields.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.populate) === "string")
+			if (typeof p.populate === "string")
 				p.populate = p.populate.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.searchFields) === "string")
+			if (typeof p.searchFields === "string")
 				p.searchFields = p.searchFields.replace(/,/g, " ").split(" ");
 
 			if (ctx.action.name.endsWith(".list")) {
 				// Default `pageSize`
-				if (!p.pageSize)
-					p.pageSize = this.settings.pageSize;
+				if (!p.pageSize) p.pageSize = this.settings.pageSize;
 
 				// Default `page`
-				if (!p.page)
-					p.page = 1;
+				if (!p.page) p.page = 1;
 
 				// Limit the `pageSize`
-				if (this.settings.maxPageSize > 0 && p.pageSize > this.settings.maxPageSize)
+				if (
+					this.settings.maxPageSize > 0 &&
+					p.pageSize > this.settings.maxPageSize
+				)
 					p.pageSize = this.settings.maxPageSize;
 
 				// Calculate the limit & offset from page & pageSize
@@ -410,14 +449,17 @@ module.exports = {
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
 		getById(id, decoding) {
-			return Promise.resolve()
-				.then(() => {
-					if (_.isArray(id)) {
-						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id);
-					} else {
-						return this.adapter.findById(decoding ? this.decodeID(id) : id);
-					}
-				});
+			return Promise.resolve().then(() => {
+				if (_.isArray(id)) {
+					return this.adapter.findByIds(
+						decoding ? id.map(id => this.decodeID(id)) : id
+					);
+				} else {
+					return this.adapter.findById(
+						decoding ? this.decodeID(id) : id
+					);
+				}
+			});
 		},
 
 		/**
@@ -465,45 +507,66 @@ module.exports = {
 				if (_.isObject(docs)) {
 					isDoc = true;
 					docs = [docs];
-				}
-				else
-					return Promise.resolve(docs);
+				} else return Promise.resolve(docs);
 			}
 
-			return Promise.resolve(docs)
+			return (
+				Promise.resolve(docs)
 
-				// Convert entity to JS object
-				.then(docs => docs.map(doc => this.adapter.entityToObject(doc)))
+					// Convert entity to JS object
+					.then(docs =>
+						docs.map(doc => this.adapter.entityToObject(doc))
+					)
 
-				// Encode IDs
-				.then(docs => docs.map(doc => {
-					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
-					return doc;
-				}))
-				// Apply idField
-				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
-				// Populate
-				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
+					// Encode IDs
+					.then(docs =>
+						docs.map(doc => {
+							doc[this.settings.idField] = this.encodeID(
+								doc[this.settings.idField]
+							);
+							return doc;
+						})
+					)
+					// Apply idField
+					.then(docs =>
+						docs.map(doc =>
+							this.adapter.afterRetrieveTransformID(
+								doc,
+								this.settings.idField
+							)
+						)
+					)
+					// Populate
+					.then(json =>
+						ctx && params.populate
+							? this.populateDocs(ctx, json, params.populate)
+							: json
+					)
 
-			// TODO onTransformHook
+					// TODO onTransformHook
 
-				// Filter fields
-				.then(json => {
-					let fields = ctx && params.fields ? params.fields : this.settings.fields;
+					// Filter fields
+					.then(json => {
+						let fields =
+							ctx && params.fields
+								? params.fields
+								: this.settings.fields;
 
-					// Compatibility with < 0.4
-					/* istanbul ignore next */
-					if (_.isString(fields))
-						fields = fields.split(" ");
+						// Compatibility with < 0.4
+						/* istanbul ignore next */
+						if (_.isString(fields)) fields = fields.split(" ");
 
-					// Authorize the requested fields
-					const authFields = this.authorizeFields(fields);
+						// Authorize the requested fields
+						const authFields = this.authorizeFields(fields);
 
-					return json.map(item => this.filterFields(item, authFields));
-				})
+						return json.map(item =>
+							this.filterFields(item, authFields)
+						);
+					})
 
-				// Return
-				.then(json => isDoc ? json[0] : json);
+					// Return
+					.then(json => (isDoc ? json[0] : json))
+			);
 		},
 
 		/**
@@ -519,8 +582,7 @@ module.exports = {
 				let res = {};
 				fields.forEach(n => {
 					const v = _.get(doc, n);
-					if (v !== undefined)
-						_.set(res, n, v);
+					if (v !== undefined) _.set(res, n, v);
 				});
 				return res;
 			}
@@ -548,14 +610,20 @@ module.exports = {
 							let parts = f.split(".");
 							while (parts.length > 1) {
 								parts.pop();
-								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
+								if (
+									this.settings.fields.indexOf(
+										parts.join(".")
+									) !== -1
+								) {
 									res.push(f);
 									break;
 								}
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(prop => prop.indexOf(f + ".") !== -1);
+						let nestedFields = this.settings.fields.filter(
+							prop => prop.indexOf(f + ".") !== -1
+						);
 						if (nestedFields.length > 0) {
 							res = res.concat(nestedFields);
 						}
@@ -577,17 +645,19 @@ module.exports = {
 		 * @returns	{Promise}
 		 */
 		populateDocs(ctx, docs, populateFields) {
-			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
+			if (
+				!this.settings.populates ||
+				!Array.isArray(populateFields) ||
+				populateFields.length == 0
+			)
 				return Promise.resolve(docs);
 
-			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
+			if (docs == null || (!_.isObject(docs) && !Array.isArray(docs)))
 				return Promise.resolve(docs);
 
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, field) => {
-
-				if (populateFields.indexOf(field) === -1)
-					return; // skip
+				if (populateFields.indexOf(field) === -1) return; // skip
 
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
@@ -607,13 +677,17 @@ module.exports = {
 				let arr = Array.isArray(docs) ? docs : [docs];
 
 				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => doc[field]))));
+				let idList = _.uniq(
+					_.flattenDeep(_.compact(arr.map(doc => doc[field])))
+				);
 				// Replace the received models according to IDs in the original docs
-				const resultTransform = (populatedDocs) => {
+				const resultTransform = populatedDocs => {
 					arr.forEach(doc => {
 						let id = doc[field];
 						if (_.isArray(id)) {
-							let models = _.compact(id.map(id => populatedDocs[id]));
+							let models = _.compact(
+								id.map(id => populatedDocs[id])
+							);
 							doc[field] = models;
 						} else {
 							doc[field] = populatedDocs[id];
@@ -622,16 +696,23 @@ module.exports = {
 				};
 
 				if (rule.handler) {
-					promises.push(rule.handler.call(this, idList, arr, rule, ctx));
+					promises.push(
+						rule.handler.call(this, idList, arr, rule, ctx)
+					);
 				} else if (idList.length > 0) {
 					// Call the target action & collect the promises
-					const params = Object.assign({
-						id: idList,
-						mapping: true,
-						populate: rule.populate
-					}, rule.params || {});
+					const params = Object.assign(
+						{
+							id: idList,
+							mapping: true,
+							populate: rule.populate
+						},
+						rule.params || {}
+					);
 
-					promises.push(ctx.call(rule.action, params).then(resultTransform));
+					promises.push(
+						ctx.call(rule.action, params).then(resultTransform)
+					);
 				}
 			});
 
@@ -649,7 +730,11 @@ module.exports = {
 				return Promise.resolve(entity);
 
 			let entities = Array.isArray(entity) ? entity : [entity];
-			return Promise.all(entities.map(entity => this.settings.entityValidator.call(this, entity))).then(() => entity);
+			return Promise.all(
+				entities.map(entity =>
+					this.settings.entityValidator.call(this, entity)
+				)
+			).then(() => entity);
 		},
 
 		/**
@@ -685,7 +770,8 @@ module.exports = {
 		 * @returns {Array<Object>} List of found entities.
 		 */
 		_find(ctx, params) {
-			return this.adapter.find(params)
+			return this.adapter
+				.find(params)
 				.then(docs => this.transformDocuments(ctx, params, docs));
 		},
 
@@ -701,10 +787,8 @@ module.exports = {
 		 */
 		_count(ctx, params) {
 			// Remove pagination params
-			if (params && params.limit)
-				params.limit = null;
-			if (params && params.offset)
-				params.offset = null;
+			if (params && params.limit) params.limit = null;
+			if (params && params.offset) params.offset = null;
 			return this.adapter.count(params);
 		},
 
@@ -721,18 +805,16 @@ module.exports = {
 		_list(ctx, params) {
 			let countParams = Object.assign({}, params);
 			// Remove pagination params
-			if (countParams && countParams.limit)
-				countParams.limit = null;
-			if (countParams && countParams.offset)
-				countParams.offset = null;
+			if (countParams && countParams.limit) countParams.limit = null;
+			if (countParams && countParams.offset) countParams.offset = null;
 			return Promise.all([
 				// Get rows
 				this.adapter.find(params),
 				// Get count of all rows
 				this.adapter.count(countParams)
 			]).then(res => {
-				return this.transformDocuments(ctx, params, res[0])
-					.then(docs => {
+				return this.transformDocuments(ctx, params, res[0]).then(
+					docs => {
 						return {
 							// Rows
 							rows: docs,
@@ -743,9 +825,12 @@ module.exports = {
 							// Page size
 							pageSize: params.pageSize,
 							// Total pages
-							totalPages: Math.floor((res[1] + params.pageSize - 1) / params.pageSize)
+							totalPages: Math.floor(
+								(res[1] + params.pageSize - 1) / params.pageSize
+							)
 						};
-					});
+					}
+				);
 			});
 		},
 
@@ -761,12 +846,23 @@ module.exports = {
 		 */
 		_create(ctx, params) {
 			let entity = params;
-			return this.validateEntity(entity)
-				// Apply idField
-				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-				.then(entity => this.adapter.insert(entity))
-				.then(doc => this.transformDocuments(ctx, {}, doc))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+			return (
+				this.validateEntity(entity)
+					// Apply idField
+					.then(entity =>
+						this.adapter.beforeSaveTransformID(
+							entity,
+							this.settings.idField
+						)
+					)
+					.then(entity => this.adapter.insert(entity))
+					.then(doc => this.transformDocuments(ctx, {}, doc))
+					.then(json =>
+						this.entityChanged("created", json, ctx).then(
+							() => json
+						)
+					)
+			);
 		},
 
 		/**
@@ -783,25 +879,47 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
-						return this.validateEntity(params.entities)
-							// Apply idField
-							.then(entities => {
-								if (this.settings.idField === "_id")
-									return entities;
-								return entities.map(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField));
-							})
-							.then(entities => this.adapter.insertMany(entities));
+						return (
+							this.validateEntity(params.entities)
+								// Apply idField
+								.then(entities => {
+									if (this.settings.idField === "_id")
+										return entities;
+									return entities.map(entity =>
+										this.adapter.beforeSaveTransformID(
+											entity,
+											this.settings.idField
+										)
+									);
+								})
+								.then(entities =>
+									this.adapter.insertMany(entities)
+								)
+						);
+					} else if (params.entity) {
+						return (
+							this.validateEntity(params.entity)
+								// Apply idField
+								.then(entity =>
+									this.adapter.beforeSaveTransformID(
+										entity,
+										this.settings.idField
+									)
+								)
+								.then(entity => this.adapter.insert(entity))
+						);
 					}
-					else if (params.entity) {
-						return this.validateEntity(params.entity)
-							// Apply idField
-							.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-							.then(entity => this.adapter.insert(entity));
-					}
-					return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
+					return Promise.reject(
+						new MoleculerClientError(
+							"Invalid request! The 'params' must contain 'entity' or 'entities'!",
+							400
+						)
+					);
 				})
 				.then(docs => this.transformDocuments(ctx, params, docs))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+				.then(json =>
+					this.entityChanged("created", json, ctx).then(() => json)
+				);
 		},
 
 		/**
@@ -858,16 +976,14 @@ module.exports = {
 			Object.keys(params).forEach(prop => {
 				if (prop == "id" || prop == this.settings.idField)
 					id = this.decodeID(params[prop]);
-				else
-					sets[prop] = params[prop];
+				else sets[prop] = params[prop];
 			});
-			return this.adapter.updateById(id, { "$set": sets })
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, params, doc)
-						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
-				});
+			return this.adapter.updateById(id, { $set: sets }).then(doc => {
+				if (!doc) return Promise.reject(new EntityNotFoundError(id));
+				return this.transformDocuments(ctx, params, doc).then(json =>
+					this.entityChanged("updated", json, ctx).then(() => json)
+				);
+			});
 		},
 
 		/**
@@ -882,13 +998,13 @@ module.exports = {
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(params.id));
-					return this.transformDocuments(ctx, params, doc)
-						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
-				});
+			return this.adapter.removeById(id).then(doc => {
+				if (!doc)
+					return Promise.reject(new EntityNotFoundError(params.id));
+				return this.transformDocuments(ctx, params, doc).then(json =>
+					this.entityChanged("removed", json, ctx).then(() => json)
+				);
+			});
 		}
 	},
 
@@ -901,25 +1017,33 @@ module.exports = {
 			this.settings.fields = this.settings.fields.split(" ");
 		}
 
-		if (!this.schema.adapter)
-			this.adapter = new MemoryAdapter();
-		else
-			this.adapter = this.schema.adapter;
+		if (!this.schema.adapter) this.adapter = new MemoryAdapter();
+		else this.adapter = this.schema.adapter;
 
 		this.adapter.init(this.broker, this);
 
 		// Transform entity validation schema to checker function
-		if (this.broker.validator && _.isObject(this.settings.entityValidator) && !_.isFunction(this.settings.entityValidator)) {
-			const check = this.broker.validator.compile(this.settings.entityValidator);
+		if (
+			this.broker.validator &&
+			_.isObject(this.settings.entityValidator) &&
+			!_.isFunction(this.settings.entityValidator)
+		) {
+			const check = this.broker.validator.compile(
+				this.settings.entityValidator
+			);
 			this.settings.entityValidator = entity => {
 				const res = check(entity);
-				if (res === true)
-					return Promise.resolve();
+				if (res === true) return Promise.resolve();
 				else
-					return Promise.reject(new ValidationError("Entity validation error!", null, res));
+					return Promise.reject(
+						new ValidationError(
+							"Entity validation error!",
+							null,
+							res
+						)
+					);
 			};
 		}
-
 	},
 
 	/**
@@ -929,13 +1053,15 @@ module.exports = {
 		if (this.adapter) {
 			return new Promise(resolve => {
 				let connecting = () => {
-					this.connect().then(resolve).catch(err => {
-						this.logger.error("Connection error!", err);
-						setTimeout(() => {
-							this.logger.warn("Reconnecting...");
-							connecting();
-						}, 1000);
-					});
+					this.connect()
+						.then(resolve)
+						.catch(err => {
+							this.logger.error("Connection error!", err);
+							setTimeout(() => {
+								this.logger.warn("Reconnecting...");
+								connecting();
+							}, 1000);
+						});
 				};
 
 				connecting();
@@ -943,15 +1069,16 @@ module.exports = {
 		}
 
 		/* istanbul ignore next */
-		return Promise.reject(new Error("Please set the store adapter in schema!"));
+		return Promise.reject(
+			new Error("Please set the store adapter in schema!")
+		);
 	},
 
 	/**
 	 * Service stopped lifecycle event handler
 	 */
 	stopped() {
-		if (this.adapter)
-			return this.disconnect();
+		if (this.adapter) return this.disconnect();
 	},
 
 	// Export Memory Adapter class
