@@ -299,7 +299,7 @@ describe("Test SequelizeAdapter", () => {
 
 			return adapter.insertMany(entities).catch(protectReject).then(() => {
 				expect(adapter.model.bulkCreate).toHaveBeenCalledTimes(1);
-				expect(adapter.model.bulkCreate).toHaveBeenCalledWith(entities);
+				expect(adapter.model.bulkCreate).toHaveBeenCalledWith(entities, { returning: true });
 			});
 		});
 
