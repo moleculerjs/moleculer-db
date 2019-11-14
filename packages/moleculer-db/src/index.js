@@ -127,7 +127,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" }
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true }
+				]
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -161,7 +164,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" }
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true }
+				]
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -229,7 +235,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" }
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true }
+				]
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -400,6 +409,8 @@ module.exports = {
 			if (typeof p.offset === "string") p.offset = Number(p.offset);
 			if (typeof p.page === "string") p.page = Number(p.page);
 			if (typeof p.pageSize === "string") p.pageSize = Number(p.pageSize);
+			// If query comes stringified from the client, parse it to POJO
+			if (typeof p.query === "string") p.query = JSON.parse(p.query);
 			// If query comes stringified from the client, parse it to POJO
 			if (typeof p.query === "string") p.query = JSON.parse(p.query);
 
