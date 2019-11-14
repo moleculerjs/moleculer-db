@@ -193,7 +193,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	insertMany(entities) {
-		return this.model.bulkCreate(entities);
+		return this.model.bulkCreate(entities, { returning: true });
 	}
 
 	/**
