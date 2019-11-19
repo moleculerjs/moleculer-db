@@ -376,6 +376,11 @@ describe("Test sanitizeParams method", () => {
 		expect(res).toEqual({ searchFields: ["name", "votes", "author"] });
 	});
 
+	it("should parse query to object", () => {
+		const res = service.sanitizeParams(ctx, { query: '{"name": "moleculer" }' });
+		expect(res).toEqual({ query: { name: "moleculer"} });
+	});
+
 	it("should fill pagination fields", () => {
 		const res = service.sanitizeParams(ctxList, {});
 		expect(res).toEqual({ limit: 25, offset: 0, page: 1, pageSize: 25});
