@@ -106,7 +106,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true },
+				],
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -136,7 +139,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true },
+				],
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -183,7 +189,10 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				query: { type: "object", optional: true }
+				query: [
+					{ type: "object", optional: true },
+					{ type: "string", optional: true },
+				],
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -364,6 +373,9 @@ module.exports = {
 				p.page = Number(p.page);
 			if (typeof(p.pageSize) === "string")
 				p.pageSize = Number(p.pageSize);
+			// Convert from string to POJO
+			if (typeof(p.query) === "string")
+				p.query = JSON.parse(p.query);
 
 			if (typeof(p.sort) === "string")
 				p.sort = p.sort.replace(/,/g, " ").split(" ");
