@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-sequelize",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "SQL adapter (Postgres, MySQL, SQLite & MSSQL) for Moleculer DB service",
   "main": "index.js",
   "scripts": {
