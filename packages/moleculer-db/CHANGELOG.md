@@ -1,6 +1,6 @@
 --------------------------------------------------
-<a name="0.8.2"></a>
-# 0.8.2 (2019-11-19)
+<a name="0.8.4"></a>
+# 0.8.4 (2019-11-19)
 
 ## Changes
 - parsing `query` string property in `find` & `list` actions by [@jjgumucio](https://github.com/jjgumucio). PR [#149](https://github.com/moleculerjs/moleculer-db/pull/149)
