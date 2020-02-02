@@ -50,6 +50,7 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
+    "bluebird": "^3.7.2",
     "nano": "^8.1.0"
   }
 }
