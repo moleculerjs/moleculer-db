@@ -135,7 +135,7 @@ describe("Test DbService methods", () => {
 
 			const p = {};
 
-			return service._create(Context, p).catch(protectReject).then(res => {				
+			return service._create(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
 
 				expect(adapter.insert).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ describe("Test DbService methods", () => {
 
 				expect(service.validateEntity).toHaveBeenCalledTimes(1);
 				expect(service.validateEntity).toHaveBeenCalledWith(p);
-	
+
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, doc);
 
@@ -165,7 +165,7 @@ describe("Test DbService methods", () => {
 				entity: {}
 			};
 
-			return service._insert(Context, p).catch(protectReject).then(res => {			
+			return service._insert(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
 
 				expect(adapter.insert).toHaveBeenCalledTimes(1);
@@ -173,9 +173,9 @@ describe("Test DbService methods", () => {
 
 				expect(service.validateEntity).toHaveBeenCalledTimes(1);
 				expect(service.validateEntity).toHaveBeenCalledWith(p.entity);
-	
+
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, doc);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context);
@@ -192,7 +192,7 @@ describe("Test DbService methods", () => {
 				entities: []
 			};
 
-			return service._insert(Context, p).catch(protectReject).then(res => {			
+			return service._insert(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(docs);
 
 				expect(adapter.insertMany).toHaveBeenCalledTimes(1);
@@ -200,9 +200,9 @@ describe("Test DbService methods", () => {
 
 				expect(service.validateEntity).toHaveBeenCalledTimes(1);
 				expect(service.validateEntity).toHaveBeenCalledWith(p.entities);
-	
+
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, docs);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
@@ -224,17 +224,17 @@ describe("Test DbService methods", () => {
 				age: 45
 			};
 
-			return service._update(Context, p).catch(protectReject).then(res => {			
+			return service._update(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
 
 				expect(service.decodeID).toHaveBeenCalledTimes(1);
 				expect(service.decodeID).toHaveBeenCalledWith(123);
 
 				expect(adapter.updateById).toHaveBeenCalledTimes(1);
-				expect(adapter.updateById).toHaveBeenCalledWith(123, { "$set": { name: "John", age: 45 }});	
-	
+				expect(adapter.updateById).toHaveBeenCalledWith(123, { "$set": { name: "John", age: 45 }});
+
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, doc);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, Context);
@@ -252,17 +252,17 @@ describe("Test DbService methods", () => {
 
 			const p = { id: 3 };
 
-			return service._remove(Context, p).catch(protectReject).then(res => {			
+			return service._remove(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(3);
 
 				expect(service.decodeID).toHaveBeenCalledTimes(1);
 				expect(service.decodeID).toHaveBeenCalledWith(3);
 
 				expect(adapter.removeById).toHaveBeenCalledTimes(1);
-				expect(adapter.removeById).toHaveBeenCalledWith(3);	
-	
+				expect(adapter.removeById).toHaveBeenCalledWith(3);
+
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, 3);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, 3);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context);

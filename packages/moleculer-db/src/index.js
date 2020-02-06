@@ -812,7 +812,7 @@ module.exports = {
 					}
 					return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
 				})
-				.then(docs => this.transformDocuments(ctx, params, docs))
+				.then(docs => this.transformDocuments(ctx, {}, docs))
 				.then(json => this.entityChanged("created", json, ctx).then(() => json));
 		},
 
@@ -877,7 +877,7 @@ module.exports = {
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, params, doc)
+					return this.transformDocuments(ctx, {}, doc)
 						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
 				});
 		},
@@ -898,7 +898,7 @@ module.exports = {
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(params.id));
-					return this.transformDocuments(ctx, params, doc)
+					return this.transformDocuments(ctx, {}, doc)
 						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
 				});
 		}
