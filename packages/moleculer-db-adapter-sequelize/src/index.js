@@ -304,7 +304,7 @@ class SequelizeDbAdapter {
 				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
 			}
 
-			q.where = {
+			q.where = _.assign(q.where, {
 				[Op.or]: fields.map(f => {
 					return {
 						[f]: {
@@ -312,7 +312,7 @@ class SequelizeDbAdapter {
 						}
 					};
 				})
-			};
+			});
 		}
 
 		// Sort
