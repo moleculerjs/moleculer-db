@@ -73,7 +73,8 @@ broker.start()
 
 # Settings
 
-<!-- AUTO-CONTENT-START:SETTINGS -->| Property | Type | Default | Description |
+<!-- AUTO-CONTENT-START:SETTINGS -->
+| Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `idField` | `String` | **required** | Name of ID field. |
 | `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
@@ -101,7 +102,8 @@ broker.start()
 
 # Actions
 
-<!-- AUTO-CONTENT-START:ACTIONS -->## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
+<!-- AUTO-CONTENT-START:ACTIONS -->
+## `find` ![Cached action](https://img.shields.io/badge/cache-true-blue.svg) 
 
 Find entities by query.
 
@@ -282,7 +284,8 @@ _<sup>Since: {{this}}</sup>_
 
 # Methods
 
-<!-- AUTO-CONTENT-START:METHODS -->## `sanitizeParams` 
+<!-- AUTO-CONTENT-START:METHODS -->
+## `sanitizeParams` 
 
 Sanitize context parameters at `find` action.
 
@@ -670,7 +673,23 @@ module.exports = {
     }
 }
 ```
+# Remove default actions
 
+According to moleculer [documentation](https://moleculer.services/docs/0.14/services.html#Merge-algorithm) you can disable an action when override it with `false`
+
+```js
+const DbService = require("moleculer-db");
+
+module.exports = {
+    name: "posts",
+    mixins: [DbService],
+
+    actions: {
+        // Disable find default action
+        find: false
+    }
+}
+```
 # Test
 ```
 $ npm test
