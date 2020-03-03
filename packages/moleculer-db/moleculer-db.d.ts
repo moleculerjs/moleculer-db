@@ -1,22 +1,24 @@
 declare module "moleculer-db" {
   import { Context, ServiceBroker, Service } from "moleculer";
 
+  export interface DbServicePopulate extends Record<string,any>{
+     <R>(ids: string|number, docs: any[], rule: any, ctx: Context): Promise<R>;
+  }
   export interface DbServiceSettings {
     idField: string;
     fields?: Array<string>;
-    populates?: Array<any>;
+    populates?: Array<DbServicePopulate>;
     pageSize?: number;
     maxPageSize?: number;
     maxLimit?: number;
-    entityValidator?: any;
+    entityValidator?: <T, R>(entity: T)=> Promise<R>;
   }
-
-  export default class DbService<T=any,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+ export interface DbEntity<T extends Record<string,any> = Record<string,any>> extends Record<string,any> {}
+  export default class DbService<T,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
  
   }
 
-  export interface QueryOptions<T> {
-    [name: string]: any;
+  export interface QueryOptions<T  = any> extends Record<string,any> {
   }
   export interface CursorOptions<T> extends FilterOptions<T> {
     sort?: string | string[];
@@ -37,7 +39,7 @@ declare module "moleculer-db" {
     query?: QueryOptions<T>;
   }
 
-  export interface DbAdapter {
+  export interface DbAdapter<E extends DbEntity = DbEntity> {
     /**
      * Initialize adapter
      *
@@ -45,7 +47,7 @@ declare module "moleculer-db" {
      * @param {Service} service
      * @memberof DbAdapter
      */
-    init(broker: ServiceBroker, service: Service): DbAdapter;
+    init(broker: ServiceBroker, service: Service): this;
     /**
      * Connect to database
      *
@@ -103,7 +105,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    findByIds<R>(ids: (string | number)[]): Promise<R[]>;
+    findByIds<R>(ids: (string | number)[]): Promise<R|R[]>;
 
     /**
      * Get count of filtered entites
@@ -240,7 +242,30 @@ declare module "moleculer-db" {
     populate?: string | string[];
     searchFields?: string | string[];
   }
-  export interface MoleculerDB<TAdapter extends DbAdapter> {
+
+  export interface MoleculerDBServiceSettings {
+    /** @type {String} Name of ID field. */
+    idField?: string;
+
+    /** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
+    fields?: string[];
+
+    /** @type {Array?} Schema for population. [Read more](#populating). */
+    populates?: DbServicePopulate | DbServicePopulate[];
+
+    /** @type {Number} Default page size in `list` action. */
+    pageSize?: number;
+
+    /** @type {Number} Maximum page size in `list` action. */
+    maxPageSize?: number;
+
+    /** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
+    maxLimit?: number;
+
+    /** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
+    entityValidator?: <T, R = T>(entity: T) => Promise<R>;
+  }
+  export interface MoleculerDB<TAdapter extends DbAdapter, S extends MoleculerDBServiceSettings= MoleculerDBServiceSettings> {
     name: string;
     metadata?: {
       $category: string;
@@ -254,28 +279,7 @@ declare module "moleculer-db" {
     /**
      * Default settings
      */
-    settings?: {
-      /** @type {String} Name of ID field. */
-      idField?: string;
-
-      /** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
-      fields?: string[];
-
-      /** @type {Array?} Schema for population. [Read more](#populating). */
-      populates?: any[];
-
-      /** @type {Number} Default page size in `list` action. */
-      pageSize?: number;
-
-      /** @type {Number} Maximum page size in `list` action. */
-      maxPageSize?: number;
-
-      /** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
-      maxLimit?: number;
-
-      /** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
-      entityValidator?: object | Function;
-    };
+    settings?: S;
 
     /**
      * Actions
@@ -311,14 +315,14 @@ declare module "moleculer-db" {
             | "query";
         };
         params?: {
-          populate: string | string[];
+          populate: DbServicePopulate | DbServicePopulate[];
           fields?: string | string[];
           limit?: number;
           offset?: number;
           sort?: string;
           search?: string;
           searchFields?: string | string[];
-          query?: any;
+          query?: QueryOptions;
         };
         handler?<R>(ctx: Context): Promise<R>;
       };
