@@ -61,7 +61,12 @@ class SequelizeDbAdapter {
 		return this.db.authenticate().then(() => {
 			let modelDefinitionOrInstance = this.service.schema.model;
 
-			const noSync = this.opts[3] && this.opts[3].noSync;
+			let noSync = false;
+			if (this.opts[3]) {
+				noSync = !!this.opts[3].noSync;
+			} else if (this.opts[0].dialect === "sqlite") {
+				noSync = !!this.opts[0].noSync;
+			}
 
 			let modelReadyPromise;
 			let isModelInstance = modelDefinitionOrInstance
