@@ -451,5 +451,33 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
+	describe("noSync option set to true", () => {
+		const opts = {
+			dialect: "sqlite",
+			noSync: true
+		};
+		const adapter = new SequelizeAdapter(opts);
+
+		const broker = new ServiceBroker({ logger: false });
+		const service = broker.createService({
+			name: "store",
+			model: initiatedModel
+		});
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
+		it("do not sync the model with database", () => {
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(Sequelize).toHaveBeenCalledTimes(1);
+				expect(Sequelize).toHaveBeenCalledWith(opts);
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(0);
+				expect(adapter.model).toBe(initiatedModel);
+				expect(adapter.service.model).toBe(initiatedModel);
+			});
+		});
+	});
 });
 
