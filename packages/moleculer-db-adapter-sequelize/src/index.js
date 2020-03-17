@@ -60,6 +60,14 @@ class SequelizeDbAdapter {
 
 		return this.db.authenticate().then(() => {
 			let modelDefinitionOrInstance = this.service.schema.model;
+
+			let noSync = false;
+			if (this.opts[3]) {
+				noSync = !!this.opts[3].noSync;
+			} else if (this.opts[0].dialect === "sqlite") {
+				noSync = !!this.opts[0].noSync;
+			}
+
 			let modelReadyPromise;
 			let isModelInstance = modelDefinitionOrInstance
 				&& (Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes")
@@ -69,7 +77,7 @@ class SequelizeDbAdapter {
 				modelReadyPromise = Promise.resolve();
 			} else {
 				this.model = this.db.define(modelDefinitionOrInstance.name, modelDefinitionOrInstance.define, modelDefinitionOrInstance.options);
-				modelReadyPromise  = this.model.sync();
+				modelReadyPromise = noSync ? Promise.resolve(this.model) : this.model.sync();
 			}
 			this.service.model = this.model;
 
