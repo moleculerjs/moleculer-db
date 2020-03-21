@@ -40,7 +40,7 @@
     "moleculer-docgen": "^0.2.2",
     "mysql2": "^1.7.0",
     "nodemon": "^1.19.3",
-    "npm-check": "^5.9.0",
+    "npm-check": "^5.9.2",
     "pg": "^7.12.1",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.19.6",
