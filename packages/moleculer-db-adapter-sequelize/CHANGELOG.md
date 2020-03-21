@@ -1,3 +1,10 @@
+<a name="0.2.3"></a>
+# 0.2.3 (2020-03-21)
+
+## Changes
+- add `noSync` parameter. [#163](https://github.com/moleculerjs/moleculer-db/pull/163)
+
+--------------------------------------------------
 <a name="0.2.2"></a>
 # 0.2.2 (2020-02-02)
 
