@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-mongo",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "MongoDB native adapter for Moleculer DB service.",
   "main": "index.js",
   "scripts": {
@@ -36,7 +36,7 @@
     "moleculer": "^0.13.11",
     "moleculer-docgen": "^0.2.2",
     "nodemon": "^1.19.3",
-    "npm-check": "^5.9.0"
+    "npm-check": "^5.9.2"
   },
   "jest": {
     "testEnvironment": "node",

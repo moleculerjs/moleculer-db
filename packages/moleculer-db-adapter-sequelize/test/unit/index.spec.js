@@ -1,6 +1,6 @@
 "use strict";
 
-const {ServiceBroker} = require("moleculer");
+const { ServiceBroker } = require("moleculer");
 
 jest.mock("sequelize");
 
@@ -29,7 +29,7 @@ Sequelize.mockImplementation(() => db);
 
 const SequelizeAdapter = require("../../src");
 
-function protectReject (err) {
+function protectReject(err) {
 	if (err && err.stack) {
 		console.error(err);
 		console.error(err.stack);
@@ -63,6 +63,7 @@ describe("Test SequelizeAdapter", () => {
 		Sequelize.mockClear();
 		db.authenticate.mockClear();
 		db.define.mockClear();
+		model.sync.mockClear();
 	});
 
 	describe("model definition as description", () => {
@@ -71,7 +72,7 @@ describe("Test SequelizeAdapter", () => {
 		};
 		const adapter = new SequelizeAdapter(opts);
 
-		const broker = new ServiceBroker({logger: false});
+		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService({
 			name: "store",
 			model: fakeModel
@@ -155,23 +156,23 @@ describe("Test SequelizeAdapter", () => {
 			it("call with query", () => {
 				adapter.model.findAll.mockClear();
 				let query = {};
-				adapter.createCursor({query});
+				adapter.createCursor({ query });
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
-				expect(adapter.model.findAll).toHaveBeenCalledWith({where: query});
+				expect(adapter.model.findAll).toHaveBeenCalledWith({ where: query });
 			});
 
 			it("call with query & counting", () => {
 				adapter.model.count.mockClear();
 				let query = {};
-				adapter.createCursor({query}, true);
+				adapter.createCursor({ query }, true);
 				expect(adapter.model.count).toHaveBeenCalledTimes(1);
-				expect(adapter.model.count).toHaveBeenCalledWith({where: query});
+				expect(adapter.model.count).toHaveBeenCalledWith({ where: query });
 			});
 
 			it("call with sort string", () => {
 				adapter.model.findAll.mockClear();
 				let query = {};
-				adapter.createCursor({query, sort: "-votes title"});
+				adapter.createCursor({ query, sort: "-votes title" });
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: query,
@@ -182,7 +183,7 @@ describe("Test SequelizeAdapter", () => {
 			it("call with sort array", () => {
 				adapter.model.findAll.mockClear();
 				let query = {};
-				adapter.createCursor({query, sort: ["createdAt", "title"]});
+				adapter.createCursor({ query, sort: ["createdAt", "title"] });
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: query,
@@ -193,7 +194,7 @@ describe("Test SequelizeAdapter", () => {
 			it("call with sort object", () => {
 				adapter.model.findAll.mockClear();
 				let query = {};
-				adapter.createCursor({query, sort: {createdAt: 1, title: -1}});
+				adapter.createCursor({ query, sort: { createdAt: 1, title: -1 } });
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: query,
@@ -203,7 +204,7 @@ describe("Test SequelizeAdapter", () => {
 
 			it("call with limit & offset", () => {
 				adapter.model.findAll.mockClear();
-				adapter.createCursor({limit: 5, offset: 10});
+				adapter.createCursor({ limit: 5, offset: 10 });
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					offset: 10,
@@ -254,7 +255,7 @@ describe("Test SequelizeAdapter", () => {
 
 		it("call findOne", () => {
 			adapter.model.findOne.mockClear();
-			let age = {age: 25};
+			let age = { age: 25 };
 
 			return adapter.findOne(age).catch(protectReject).then(() => {
 				expect(adapter.model.findOne).toHaveBeenCalledTimes(1);
@@ -276,7 +277,7 @@ describe("Test SequelizeAdapter", () => {
 
 			return adapter.findByIds([5]).catch(protectReject).then(() => {
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
-				expect(adapter.model.findAll).toHaveBeenCalledWith({"where": {"id": {[Op.in]: [5]}}});
+				expect(adapter.model.findAll).toHaveBeenCalledWith({ "where": { "id": { [Op.in]: [5] } } });
 			});
 		});
 
@@ -300,7 +301,7 @@ describe("Test SequelizeAdapter", () => {
 
 		it("call inserts", () => {
 			adapter.model.create.mockClear();
-			let entities = [{name: "John"}, {name: "Jane"}];
+			let entities = [{ name: "John" }, { name: "Jane" }];
 
 			return adapter.insertMany(entities).catch(protectReject).then(() => {
 				expect(adapter.model.bulkCreate).toHaveBeenCalledTimes(1);
@@ -315,7 +316,7 @@ describe("Test SequelizeAdapter", () => {
 			return adapter.updateMany(where, update).catch(protectReject).then(res => {
 				expect(res).toBe(1);
 				expect(adapter.model.update).toHaveBeenCalledTimes(1);
-				expect(adapter.model.update).toHaveBeenCalledWith(update, {where});
+				expect(adapter.model.update).toHaveBeenCalledWith(update, { where });
 			});
 		});
 
@@ -326,7 +327,7 @@ describe("Test SequelizeAdapter", () => {
 			}));
 
 			let update = {
-				$set: {title: "Test"}
+				$set: { title: "Test" }
 			};
 			return adapter.updateById(5, update).catch(protectReject).then(() => {
 				expect(adapter.findById).toHaveBeenCalledTimes(1);
@@ -342,7 +343,7 @@ describe("Test SequelizeAdapter", () => {
 
 			return adapter.removeMany(where).catch(protectReject).then(() => {
 				expect(adapter.model.destroy).toHaveBeenCalledTimes(1);
-				expect(adapter.model.destroy).toHaveBeenCalledWith({where});
+				expect(adapter.model.destroy).toHaveBeenCalledWith({ where });
 			});
 		});
 
@@ -365,7 +366,7 @@ describe("Test SequelizeAdapter", () => {
 			adapter.model.destroy.mockClear();
 			return adapter.clear().catch(protectReject).then(() => {
 				expect(adapter.model.destroy).toHaveBeenCalledTimes(1);
-				expect(adapter.model.destroy).toHaveBeenCalledWith({where: {}});
+				expect(adapter.model.destroy).toHaveBeenCalledWith({ where: {} });
 			});
 		});
 
@@ -375,7 +376,7 @@ describe("Test SequelizeAdapter", () => {
 			};
 			adapter.entityToObject(doc);
 			expect(doc.get).toHaveBeenCalledTimes(1);
-			expect(doc.get).toHaveBeenCalledWith({plain: true});
+			expect(doc.get).toHaveBeenCalledWith({ plain: true });
 		});
 
 
@@ -406,7 +407,7 @@ describe("Test SequelizeAdapter", () => {
 		};
 		const adapter = new SequelizeAdapter(opts);
 
-		const broker = new ServiceBroker({logger: false});
+		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService({
 			name: "store",
 			model: initiatedModel
@@ -434,7 +435,7 @@ describe("Test SequelizeAdapter", () => {
 		});
 		const adapter = new SequelizeAdapter(opts);
 
-		const broker = new ServiceBroker({logger: false});
+		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService({
 			name: "store",
 			model: initiatedModel
@@ -456,5 +457,35 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
+	describe("noSync option set to true", () => {
+		const opts = {
+			dialect: "sqlite",
+			noSync: true
+		};
+		const adapter = new SequelizeAdapter(opts);
+
+		const broker = new ServiceBroker({ logger: false });
+		const service = broker.createService({
+			name: "store",
+			model: fakeModel
+		});
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
+		it("do not sync the model with database", () => {
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(Sequelize).toHaveBeenCalledTimes(1);
+				expect(Sequelize).toHaveBeenCalledWith(opts);
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+				expect(adapter.model).toBe(model);
+				expect(adapter.service.model).toBe(model);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+	});
 });
 

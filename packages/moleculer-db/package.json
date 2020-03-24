@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
@@ -39,7 +39,7 @@
     "moleculer": "^0.13.11",
     "moleculer-docgen": "^0.2.2",
     "nodemon": "^1.19.3",
-    "npm-check": "^5.9.0"
+    "npm-check": "^5.9.2"
   },
   "jest": {
     "testEnvironment": "node",
