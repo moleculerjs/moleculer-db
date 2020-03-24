@@ -214,10 +214,15 @@ describe("Test SequelizeAdapter", () => {
 
 			it("call with full-text search", () => {
 				adapter.model.findAll.mockClear();
-				adapter.createCursor({search: "walter", searchFields: ["title", "content"]});
+				adapter.createCursor({
+					query: { status: 1 },
+					search: "walter", 
+					searchFields: ["title", "content"]
+				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: {
+						status: 1,
 						[Op.or]: [
 							{
 								title: {
