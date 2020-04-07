@@ -846,6 +846,11 @@ module.exports = {
 							res[id] = doc;
 						});
 						return res;
+					} else if (_.isObject(json) && params.mapping === true) {
+						let res = {};
+						const id = origDoc[this.settings.idField];
+						res[id] = json;
+						return res;
 					}
 					return json;
 				});
