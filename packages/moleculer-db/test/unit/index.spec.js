@@ -126,6 +126,31 @@ describe("Test DbService actions", () => {
 		}).catch(protectReject);
 	});
 
+	it("should call the 'getById' method with single ID, and should convert the result to object", () => {
+		service.transformDocuments.mockClear();
+		const p = { id: 5, fields: false, mapping: true };
+
+		let docs = { _id: 5, name: "John" };
+		service.getById = jest.fn(() => Promise.resolve(docs));
+
+		return broker.call("store.get", p).then(res => {
+			console.log(res);
+			expect(res).toEqual({
+				"5": {
+					"_id": 5,
+					"name": "John"
+				}
+			});
+
+			expect(service.getById).toHaveBeenCalledTimes(1);
+			expect(service.getById).toHaveBeenCalledWith(5, true);
+
+			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+
+		}).catch(protectReject);
+	});
+
 	it("should call the 'disconnect' method", () => {
 		service.disconnect = jest.fn();
 
