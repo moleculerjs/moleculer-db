@@ -134,7 +134,6 @@ describe("Test DbService actions", () => {
 		service.getById = jest.fn(() => Promise.resolve(docs));
 
 		return broker.call("store.get", p).then(res => {
-			console.log(res);
 			expect(res).toEqual({
 				"5": {
 					"_id": 5,
