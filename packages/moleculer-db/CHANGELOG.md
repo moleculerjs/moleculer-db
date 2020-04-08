@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.6"></a>
+# 0.8.6 (2020-04-08)
+
+## Changes
+- fix mapping in `get` action with simple ID. [#176](https://github.com/moleculerjs/moleculer-db/pull/176)
+- 
+--------------------------------------------------
 <a name="0.8.5"></a>
 # 0.8.5 (2020-02-06)
 
