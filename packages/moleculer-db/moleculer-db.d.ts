@@ -12,7 +12,7 @@ declare module "moleculer-db" {
   }
 
   export default class DbService<T=any,S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
- 
+    static MemoryAdapter: { new(opts?: DataStoreOptions): DbService }
   }
 
   export interface QueryOptions<T> {
