@@ -679,6 +679,7 @@ describe("Test populateDocs method", () => {
 		adapter: mockAdapter,
 		settings: {
 			populates: {
+				"likes.users": "users.get",
 				"comments": "comments.get",
 				"author": {
 					action: "users.get",
@@ -823,6 +824,32 @@ describe("Test populateDocs method", () => {
 
 			expect(res).toEqual({ author: { name: "Jane" } });
 
+		}).catch(protectReject);
+	});
+
+	it("should call 'populateDocs' with single doc & only likes.users population", () => {
+		const ctx = { params: {} };
+		ctx.call = jest.fn(() => Promise.resolve({
+			"3": {
+				"name": "Walter"
+			},
+			"5": {
+				"name": "John"
+			},
+			"8": {
+				"name": "Jane"
+			}
+		}));
+		const doc = { id: 4, likes: { users: [8, 3], shared: 4 } };
+
+		return service.populateDocs(ctx, doc, ["likes.users"]).then(res => {
+			expect(res).toEqual({
+				id: 4,
+				likes: {
+					users: [{ name: "Jane" }, { name: "Walter" }],
+					shared: 4,
+				},
+			});
 		}).catch(protectReject);
 	});
 
