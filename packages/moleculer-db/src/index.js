@@ -619,16 +619,16 @@ module.exports = {
 				let arr = Array.isArray(docs) ? docs : [docs];
 
 				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => doc[field]))));
+				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => _.get(doc, field)))));
 				// Replace the received models according to IDs in the original docs
 				const resultTransform = (populatedDocs) => {
 					arr.forEach(doc => {
-						let id = doc[field];
+						let id = _.get(doc, field);
 						if (_.isArray(id)) {
 							let models = _.compact(id.map(id => populatedDocs[id]));
-							doc[field] = models;
+							_.set(doc, field, models);
 						} else {
-							doc[field] = populatedDocs[id];
+							_.set(doc, field, populatedDocs[id]);
 						}
 					});
 				};
