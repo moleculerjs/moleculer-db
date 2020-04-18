@@ -52,33 +52,35 @@ class SequelizeDbAdapter {
 	 */
 	connect() {
 		const sequelizeInstance = this.opts[0];
+		let noSync = false;
 
-		if (sequelizeInstance && sequelizeInstance instanceof Sequelize)
+		if (sequelizeInstance && sequelizeInstance instanceof Sequelize) {
 			this.db = sequelizeInstance;
-		else
+			if (this.opts[1] === "noSync") {
+				noSync = true;
+			}
+		}
+		else {
 			this.db = new Sequelize(...this.opts);
-
-		return this.db.authenticate().then(() => {
-			let modelDefinitionOrInstance = this.service.schema.model;
-
-			let noSync = false;
+			
 			if (this.opts[3]) {
 				noSync = !!this.opts[3].noSync;
 			} else if (this.opts[0].dialect === "sqlite") {
 				noSync = !!this.opts[0].noSync;
 			}
+		}
+		return this.db.authenticate().then(() => {
+			let modelDefinitionOrInstance = this.service.schema.model;
 
-			let modelReadyPromise;
 			let isModelInstance = modelDefinitionOrInstance
 				&& (Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes")
 					|| modelDefinitionOrInstance.prototype instanceof Model);
 			if (isModelInstance) {
 				this.model = modelDefinitionOrInstance;
-				modelReadyPromise = Promise.resolve();
 			} else {
 				this.model = this.db.define(modelDefinitionOrInstance.name, modelDefinitionOrInstance.define, modelDefinitionOrInstance.options);
-				modelReadyPromise = noSync ? Promise.resolve(this.model) : this.model.sync();
 			}
+			const modelReadyPromise = noSync ? Promise.resolve(this.model) : this.model.sync();
 			this.service.model = this.model;
 
 			return modelReadyPromise.then(() => {
