@@ -47,7 +47,8 @@ const fakeModel = {
 	}
 };
 const initiatedModel = {
-	attributes: {}
+	attributes: {}, 
+	sync: jest.fn(() => Promise.resolve()),
 };
 
 
@@ -64,6 +65,7 @@ describe("Test SequelizeAdapter", () => {
 		db.authenticate.mockClear();
 		db.define.mockClear();
 		model.sync.mockClear();
+		initiatedModel.sync.mockClear();
 	});
 
 	describe("model definition as description", () => {
@@ -448,6 +450,8 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.db.define).toHaveBeenCalledTimes(0);
 				expect(adapter.model).toBe(initiatedModel);
 				expect(adapter.service.model).toBe(initiatedModel);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
 			});
 		});
 	});
