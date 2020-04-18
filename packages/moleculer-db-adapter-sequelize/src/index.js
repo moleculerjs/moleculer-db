@@ -6,15 +6,14 @@
 
 "use strict";
 
-const _ 		= require("lodash");
+const _ = require("lodash");
 const { ServiceSchemaError } = require("moleculer").Errors;
-const Promise	= require("bluebird");
+const Promise = require("bluebird");
 const Sequelize = require("sequelize");
 
 const { Model, Op } = Sequelize;
 
 class SequelizeDbAdapter {
-
 	/**
 	 * Creates an instance of SequelizeDbAdapter.
 	 * @param {any} opts
@@ -39,7 +38,9 @@ class SequelizeDbAdapter {
 
 		if (!this.service.schema.model) {
 			/* istanbul ignore next */
-			throw new ServiceSchemaError("Missing `model` definition in schema of service!");
+			throw new ServiceSchemaError(
+				"Missing `model` definition in schema of service!"
+			);
 		}
 	}
 
@@ -55,8 +56,7 @@ class SequelizeDbAdapter {
 
 		if (sequelizeInstance && sequelizeInstance instanceof Sequelize)
 			this.db = sequelizeInstance;
-		else
-			this.db = new Sequelize(...this.opts);
+		else this.db = new Sequelize(...this.opts);
 
 		return this.db.authenticate().then(() => {
 			let modelDefinitionOrInstance = this.service.schema.model;
@@ -82,7 +82,9 @@ class SequelizeDbAdapter {
 			this.service.model = this.model;
 
 			return modelReadyPromise.then(() => {
-				this.service.logger.info("Sequelize adapter has connected successfully.");
+				this.service.logger.info(
+					"Sequelize adapter has connected successfully."
+				);
 			});
 		});
 	}
@@ -157,9 +159,9 @@ class SequelizeDbAdapter {
 		return this.model.findAll({
 			where: {
 				id: {
-					[Op.in]: idList
-				}
-			}
+					[Op.in]: idList,
+				},
+			},
 		});
 	}
 
@@ -214,7 +216,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	updateMany(where, update) {
-		return this.model.update(update, { where }).then(res => res[0]);
+		return this.model.update(update, { where }).then((res) => res[0]);
 	}
 
 	/**
@@ -227,7 +229,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	updateById(_id, update) {
-		return this.findById(_id).then(entity => {
+		return this.findById(_id).then((entity) => {
 			return entity && entity.update(update["$set"]);
 		});
 	}
@@ -253,7 +255,7 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	removeById(_id) {
-		return this.findById(_id).then(entity => {
+		return this.findById(_id).then((entity) => {
 			return entity && entity.destroy().then(() => entity);
 		});
 	}
@@ -289,45 +291,45 @@ class SequelizeDbAdapter {
 	 * 	- offset
 	 *  - query
 	 *
- 	 * @param {Object} params
- 	 * @param {Boolean} isCounting
+	 * @param {Object} params
+	 * @param {Boolean} isCounting
 	 * @returns {Promise}
 	 */
 	createCursor(params, isCounting) {
 		if (!params) {
-			if (isCounting)
-				return this.model.count();
+			if (isCounting) return this.model.count();
 
 			return this.model.findAll();
 		}
 
 		const q = {
-			where: params.query || {}
+			where: params.query || {},
 		};
 
 		// Text search
 		if (_.isString(params.search) && params.search !== "") {
 			let fields = [];
 			if (params.searchFields) {
-				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
+				fields = _.isString(params.searchFields)
+					? params.searchFields.split(" ")
+					: params.searchFields;
 			}
 
 			q.where = {
-				[Op.or]: fields.map(f => {
+				[Op.or]: fields.map((f) => {
 					return {
 						[f]: {
-							[Op.like]: "%" + params.search + "%"
-						}
+							[Op.like]: "%" + params.search + "%",
+						},
 					};
-				})
+				}),
 			};
 		}
 
 		// Sort
 		if (params.sort) {
 			let sort = this.transformSort(params.sort);
-			if (sort)
-				q.order = sort;
+			if (sort) q.order = sort;
 		}
 
 		// Offset
@@ -338,8 +340,7 @@ class SequelizeDbAdapter {
 		if (_.isNumber(params.limit) && params.limit > 0)
 			q.limit = params.limit;
 
-		if (isCounting)
-			return this.model.count(q);
+		if (isCounting) return this.model.count(q);
 
 		return this.model.findAll(q);
 	}
@@ -353,22 +354,22 @@ class SequelizeDbAdapter {
 	 */
 	transformSort(paramSort) {
 		let sort = paramSort;
-		if (_.isString(sort))
-			sort = sort.replace(/,/, " ").split(" ");
+		if (_.isString(sort)) sort = sort.replace(/,/, " ").split(" ");
 
 		if (Array.isArray(sort)) {
 			let sortObj = [];
-			sort.forEach(s => {
-				if (s.startsWith("-"))
-					sortObj.push([s.slice(1), "DESC"]);
-				else
-					sortObj.push([s, "ASC"]);
+			sort.forEach((s) => {
+				if (s.startsWith("-")) sortObj.push([s.slice(1), "DESC"]);
+				else sortObj.push([s, "ASC"]);
 			});
 			return sortObj;
 		}
 
 		if (_.isObject(sort)) {
-			return Object.keys(sort).map(name => [name, sort[name] > 0 ? "ASC" : "DESC"]);
+			return Object.keys(sort).map((name) => [
+				name,
+				sort[name] > 0 ? "ASC" : "DESC",
+			]);
 		}
 
 		/* istanbul ignore next*/
@@ -376,27 +377,26 @@ class SequelizeDbAdapter {
 	}
 
 	/**
-	* For compatibility only.
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof SequelizeDbAdapter
-	* @returns {Object} Entity
-	*/
+	 * For compatibility only.
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof SequelizeDbAdapter
+	 * @returns {Object} Entity
+	 */
 	beforeSaveTransformID(entity, idField) {
 		return entity;
 	}
 
 	/**
-	* For compatibility only.
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof SequelizeDbAdapter
-	* @returns {Object} Entity
-	*/
+	 * For compatibility only.
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof SequelizeDbAdapter
+	 * @returns {Object} Entity
+	 */
 	afterRetrieveTransformID(entity, idField) {
 		return entity;
 	}
-
 }
 
 module.exports = SequelizeDbAdapter;
