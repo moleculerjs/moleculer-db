@@ -261,8 +261,7 @@ describe("Test DbService methods", () => {
 				expect(adapter.updateById).toHaveBeenCalledTimes(1);
 				expect(adapter.updateById).toHaveBeenCalledWith(123, {
 					"$set": {
-						"colors.0.name": "red",
-						"colors.1.name": "blue",
+						"colors": [{ name:"red" }, { name:"blue" }],
 						"name.first": "John",
 						"name.last": "Doe",
 					},

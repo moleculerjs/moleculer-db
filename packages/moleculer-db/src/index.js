@@ -64,7 +64,7 @@ module.exports = {
 		/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
 		entityValidator: null,
 
-		/** @type {Boolean} Whether to use dot notation or not when updating an entity. Default: `false` */
+		/** @type {Boolean} Whether to use dot notation or not when updating an entity. Will **not** convert Array to dot notation. Default: `false` */
 		useDotNotation: false,
 	},
 
@@ -884,7 +884,7 @@ module.exports = {
 			});
 
 			if (this.settings.useDotNotation)
-				sets = flatten(sets);
+				sets = flatten(sets, { safe: true });
 
 			return this.adapter.updateById(id, { "$set": sets })
 				.then(doc => {
