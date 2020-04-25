@@ -54,6 +54,7 @@
   "dependencies": {
     "bluebird": "^3.5.5",
     "lodash": "^4.17.15",
+    "flat": "^5.0.0",
     "nedb": "^1.8.0"
   }
 }
