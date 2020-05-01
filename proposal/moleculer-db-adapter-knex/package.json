@@ -10,7 +10,9 @@
     "lint": "eslint --ext=.js src test",
     "deps": "npm-check -u",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
-    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "private": true,
   "keywords": [
@@ -51,6 +53,8 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "knex": "0.19.5"
-  }
+    "knex": "0.19.5",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
