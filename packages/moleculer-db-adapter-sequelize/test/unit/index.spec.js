@@ -482,5 +482,59 @@ describe("Test SequelizeAdapter", () => {
 			});
 		});
 	});
+
+	describe("sequelize config sync option set to false", () => {
+		const opts = {
+			dialect: "postgres",
+			sync: false
+		};
+		const adapter = new SequelizeAdapter(opts);
+
+		const broker = new ServiceBroker({ logger: false });
+		const service = broker.createService({
+			name: "store",
+			model: fakeModel
+		});
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
+		it("do not sync the model with database", () => {
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+	});
+
+	describe("sequelize config sync option set to true", () => {
+		const opts = {
+			dialect: "postgres",
+			sync: { force: true }
+		};
+		const adapter = new SequelizeAdapter(opts);
+
+		const broker = new ServiceBroker({ logger: false });
+		const service = broker.createService({
+			name: "store",
+			model: fakeModel
+		});
+		beforeEach(() => {
+			adapter.init(broker, service);
+		});
+
+		it("sync the model with database", () => {
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+			});
+		});
+	});
 });
 

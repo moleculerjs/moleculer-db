@@ -64,8 +64,12 @@ class SequelizeDbAdapter {
 			let noSync = false;
 			if (this.opts[3]) {
 				noSync = !!this.opts[3].noSync;
-			} else if (this.opts[0].dialect === "sqlite") {
+			} else if (this.opts[0] && Object.prototype.hasOwnProperty.call(this.opts[0],"noSync")) {
 				noSync = !!this.opts[0].noSync;
+			} else if (this.opts[3] && Object.prototype.hasOwnProperty.call(this.opts[3],"sync")) {
+				noSync = !this.opts[3].sync.force;
+			} else if (this.opts[0] && Object.prototype.hasOwnProperty.call(this.opts[0],"sync")) {
+				noSync = !this.opts[0].sync.force;
 			}
 
 			let modelReadyPromise;
