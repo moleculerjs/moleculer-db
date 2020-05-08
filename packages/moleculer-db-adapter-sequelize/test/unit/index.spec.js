@@ -452,23 +452,27 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
-	describe("noSync option set to true", () => {
-		const opts = {
-			dialect: "sqlite",
-			noSync: true
-		};
-		const adapter = new SequelizeAdapter(opts);
+	describe("noSync/sequelize config sync option", () => {
+		const initAndGetAdapter = (...args) => {
+			const adapter = new SequelizeAdapter(...args);
 
-		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService({
-			name: "store",
-			model: fakeModel
-		});
-		beforeEach(() => {
+			const broker = new ServiceBroker({ logger: false });
+			const service = broker.createService({
+				name: "store",
+				model: fakeModel
+			});
 			adapter.init(broker, service);
-		});
+
+			return adapter;
+		};
 
 		it("do not sync the model with database", () => {
+			const opts = {
+				dialect: "sqlite",
+				noSync: true
+			};
+			const adapter = initAndGetAdapter(opts);
+
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(Sequelize).toHaveBeenCalledTimes(1);
 				expect(Sequelize).toHaveBeenCalledWith(opts);
@@ -481,25 +485,13 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
 			});
 		});
-	});
 
-	describe("sequelize config sync option set to false", () => {
-		const opts = {
-			dialect: "postgres",
-			sync: false
-		};
-		const adapter = new SequelizeAdapter(opts);
+		it("sequelize config sync false", () => {
+			const adapter = initAndGetAdapter({
+				dialect: "postgres",
+				sync: false
+			});
 
-		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService({
-			name: "store",
-			model: fakeModel
-		});
-		beforeEach(() => {
-			adapter.init(broker, service);
-		});
-
-		it("do not sync the model with database", () => {
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(adapter.db).toBe(db);
 				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
@@ -508,31 +500,65 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
 			});
 		});
-	});
 
-	describe("sequelize config sync option set to true", () => {
-		const opts = {
-			dialect: "postgres",
-			sync: { force: true }
-		};
-		const adapter = new SequelizeAdapter(opts);
 
-		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService({
-			name: "store",
-			model: fakeModel
-		});
-		beforeEach(() => {
-			adapter.init(broker, service);
-		});
+		it("sequelize config sync true", () => {
+			const adapter = initAndGetAdapter({
+				dialect: "postgres",
+				sync: { force: true }
+			});
 
-		it("sync the model with database", () => {
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(adapter.db).toBe(db);
 				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
 				expect(adapter.db.define).toHaveBeenCalledTimes(1);
 
 				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		it("sequelize config as 4rd arg, sync true", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				sync: { force: true }
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		it("sequelize config in 4rd arg, sync false", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				sync: false
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+
+		it("noSync in 4rd arg, sync false", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				noSync: true
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
 			});
 		});
 	});
