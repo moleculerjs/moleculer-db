@@ -93,7 +93,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'getById' method with multi IDs, and should convert the result to object", () => {
 		service.transformDocuments.mockClear();
-		const p = { id: [5, 3, 8], fields: false, mapping: true };
+		const p = { id: [5, 3, 8], mapping: true };
 
 		let docs = [
 			{ _id: 5, name: "John" },
@@ -129,7 +129,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'getById' method with single ID, and should convert the result to object", () => {
 		service.transformDocuments.mockClear();
-		const p = { id: 5, fields: false, mapping: true };
+		const p = { id: 5, mapping: true };
 
 		let docs = { _id: 5, name: "John" };
 		service.getById = jest.fn(() => Promise.resolve(docs));
@@ -402,7 +402,7 @@ describe("Test sanitizeParams method", () => {
 	});
 
 	it("should parse query to object", () => {
-		const res = service.sanitizeParams(ctx, { query: '{"name": "moleculer" }' });
+		const res = service.sanitizeParams(ctx, { query: "{\"name\": \"moleculer\" }" });
 		expect(res).toEqual({ query: { name: "moleculer"} });
 	});
 

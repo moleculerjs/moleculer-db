@@ -213,9 +213,12 @@ describe("Test SequelizeAdapter", () => {
 				});
 			});
 
-			it("call with full-text search", () => {
+			it("call with full-text search without query", () => {
 				adapter.model.findAll.mockClear();
-				adapter.createCursor({ search: "walter", searchFields: ["title", "content"] });
+				adapter.createCursor({
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: {
@@ -230,6 +233,73 @@ describe("Test SequelizeAdapter", () => {
 									[Op.like]: "%walter%"
 								}
 							}
+						]
+					}
+				});
+			});
+
+			it("call with full-text search with query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: { status: 1 },
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ status: 1 },
+							{ [Op.or]: [
+								{
+									title: {
+										[Op.like]: "%walter%"
+									}
+								},
+								{
+									content: {
+										[Op.like]: "%walter%"
+									}
+								}
+							]
+							}
+						]
+					}
+				});
+			});
+
+			it("call with full-text search & advanced query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: {
+						[Op.or]: [
+							{ status: 1 },
+							{ deleted: 0 }
+						]
+					},
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ [Op.or]: [
+								{ status: 1 },
+								{ deleted: 0 },
+							] },
+							{ [Op.or]: [
+								{
+									title: {
+										[Op.like]: "%walter%"
+									}
+								},
+								{
+									content: {
+										[Op.like]: "%walter%"
+									}
+								}
+							] }
 						]
 					}
 				});
@@ -452,23 +522,27 @@ describe("Test SequelizeAdapter", () => {
 		});
 	});
 
-	describe("noSync option set to true", () => {
-		const opts = {
-			dialect: "sqlite",
-			noSync: true
-		};
-		const adapter = new SequelizeAdapter(opts);
+	describe("noSync/sequelize config sync option", () => {
+		const initAndGetAdapter = (...args) => {
+			const adapter = new SequelizeAdapter(...args);
 
-		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService({
-			name: "store",
-			model: fakeModel
-		});
-		beforeEach(() => {
+			const broker = new ServiceBroker({ logger: false });
+			const service = broker.createService({
+				name: "store",
+				model: fakeModel
+			});
 			adapter.init(broker, service);
-		});
+
+			return adapter;
+		};
 
 		it("do not sync the model with database", () => {
+			const opts = {
+				dialect: "sqlite",
+				noSync: true
+			};
+			const adapter = initAndGetAdapter(opts);
+
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(Sequelize).toHaveBeenCalledTimes(1);
 				expect(Sequelize).toHaveBeenCalledWith(opts);
@@ -477,6 +551,82 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.db.define).toHaveBeenCalledTimes(1);
 				expect(adapter.model).toBe(model);
 				expect(adapter.service.model).toBe(model);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+
+		it("sequelize config sync false", () => {
+			const adapter = initAndGetAdapter({
+				dialect: "postgres",
+				sync: false
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+
+
+		it("sequelize config sync true", () => {
+			const adapter = initAndGetAdapter({
+				dialect: "postgres",
+				sync: { force: true }
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		it("sequelize config as 4rd arg, sync true", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				sync: { force: true }
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		it("sequelize config in 4rd arg, sync false", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				sync: false
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
+
+				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
+			});
+		});
+
+		it("noSync in 4rd arg, sync false", () => {
+			const adapter = initAndGetAdapter("db", "user", "pass", {
+				dialect: "postgres",
+				noSync: true
+			});
+
+			return adapter.connect().catch(protectReject).then(() => {
+				expect(adapter.db).toBe(db);
+				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
+				expect(adapter.db.define).toHaveBeenCalledTimes(1);
 
 				expect(adapter.model.sync).toHaveBeenCalledTimes(0);
 			});
