@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.8"></a>
+# 0.8.8 (2020-06-06)
+
+## Changes
+- handling nested fields in populating. [#177](https://github.com/moleculerjs/moleculer-db/pull/177)
+- use dot notation in update action in case of `useDotNotation: true`. [#183](https://github.com/moleculerjs/moleculer-db/pull/183)
+--------------------------------------------------
 <a name="0.8.7"></a>
 # 0.8.7 (2020-04-08)
 

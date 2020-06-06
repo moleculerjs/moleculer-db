@@ -1,3 +1,10 @@
+<a name="0.2.7"></a>
+# 0.2.7 (2020-06-06)
+
+## Changes
+- consider `query` filters in case of full-text searching. [#153](https://github.com/moleculerjs/moleculer-db/pull/153)
+- use sync option from sequelize config for disable/enable sync model. [#192](https://github.com/moleculerjs/moleculer-db/pull/192)
+--------------------------------------------------
 <a name="0.2.3"></a>
 # 0.2.3 (2020-03-21)
 
