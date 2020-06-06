@@ -306,7 +306,7 @@ class SequelizeDbAdapter {
 		}
 
 		const q = {
-			where: params.query || {}
+			where: {}
 		};
 
 		// Text search
@@ -316,15 +316,24 @@ class SequelizeDbAdapter {
 				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
 			}
 
-			q.where = {
-				[Op.or]: fields.map(f => {
-					return {
-						[f]: {
-							[Op.like]: "%" + params.search + "%"
-						}
-					};
-				})
-			};
+			const searchConditions = fields.map(f => {
+				return {
+					[f]: {
+						[Op.like]: "%" + params.search + "%"
+					}
+				};
+			});
+
+			if (params.query) {
+				q.where[Op.and] = [
+					params.query,
+					{ [Op.or]: searchConditions }
+				];
+			} else {
+				q.where[Op.or] = searchConditions;
+			}
+		} else if (params.query) {
+			Object.assign(q.where, params.query);
 		}
 
 		// Sort

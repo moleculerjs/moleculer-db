@@ -213,9 +213,12 @@ describe("Test SequelizeAdapter", () => {
 				});
 			});
 
-			it("call with full-text search", () => {
+			it("call with full-text search without query", () => {
 				adapter.model.findAll.mockClear();
-				adapter.createCursor({ search: "walter", searchFields: ["title", "content"] });
+				adapter.createCursor({
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: {
@@ -230,6 +233,73 @@ describe("Test SequelizeAdapter", () => {
 									[Op.like]: "%walter%"
 								}
 							}
+						]
+					}
+				});
+			});
+
+			it("call with full-text search with query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: { status: 1 },
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ status: 1 },
+							{ [Op.or]: [
+								{
+									title: {
+										[Op.like]: "%walter%"
+									}
+								},
+								{
+									content: {
+										[Op.like]: "%walter%"
+									}
+								}
+							]
+							}
+						]
+					}
+				});
+			});
+
+			it("call with full-text search & advanced query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: {
+						[Op.or]: [
+							{ status: 1 },
+							{ deleted: 0 }
+						]
+					},
+					search: "walter",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ [Op.or]: [
+								{ status: 1 },
+								{ deleted: 0 },
+							] },
+							{ [Op.or]: [
+								{
+									title: {
+										[Op.like]: "%walter%"
+									}
+								},
+								{
+									content: {
+										[Op.like]: "%walter%"
+									}
+								}
+							] }
 						]
 					}
 				});
