@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
@@ -53,8 +53,8 @@
   },
   "dependencies": {
     "bluebird": "^3.7.2",
-    "lodash": "^4.17.15",
     "flat": "^5.0.0",
+    "lodash": "^4.17.15",
     "nedb": "^1.8.0"
   }
 }
