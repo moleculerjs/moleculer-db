@@ -54,7 +54,8 @@ describe("Test DbService actions", () => {
 			maxLimit: -1,
 			maxPageSize: 100,
 			pageSize: 10,
-			populates: null
+			populates: null,
+			useDotNotation: false
 		});
 	});
 

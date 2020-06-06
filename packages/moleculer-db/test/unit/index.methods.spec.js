@@ -240,6 +240,34 @@ describe("Test DbService methods", () => {
 				expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, Context);
 			});
 		});
+
+		it("should use dot notation if specified", () => {
+			adapter.updateById.mockClear();
+			service.transformDocuments.mockClear();
+			service.entityChanged = jest.fn(() => Promise.resolve());
+			service.decodeID = jest.fn(id => id);
+
+			service.settings.useDotNotation = true;
+
+			const p = {
+				_id: 123,
+				colors: [{ name:"red" }, { name:"blue" }],
+				name: { first: "John", last: "Doe" }
+			};
+
+			return service._update(Context, p).catch(protectReject).then(res => {
+				expect(res).toEqual(doc);
+
+				expect(adapter.updateById).toHaveBeenCalledTimes(1);
+				expect(adapter.updateById).toHaveBeenCalledWith(123, {
+					"$set": {
+						"colors": [{ name:"red" }, { name:"blue" }],
+						"name.first": "John",
+						"name.last": "Doe",
+					},
+				});
+			});
+		})
 	});
 
 	describe("Test `_remove` method", () => {

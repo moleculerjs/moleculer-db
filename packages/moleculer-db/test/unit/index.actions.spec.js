@@ -62,7 +62,8 @@ describe("Test DbService actions", () => {
 			maxLimit: -1,
 			maxPageSize: 100,
 			pageSize: 10,
-			populates: null
+			populates: null,
+			useDotNotation: false
 		});
 	});
 
@@ -181,11 +182,11 @@ describe("Test DbService actions", () => {
 		service.sanitizeParams.mockClear();
 		service._get.mockClear();
 		const p = { id: 5 };
-	
+
 		return broker.call("store.get", p).catch(protectReject).then(ctx => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
 			expect(service.sanitizeParams).toHaveBeenCalledWith(ctx, p);
-	
+
 			expect(service._get).toHaveBeenCalledTimes(1);
 			expect(service._get).toHaveBeenCalledWith(ctx, p);
 		});
