@@ -306,7 +306,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 			expect(q.find).toHaveBeenCalledTimes(1);
 			expect(q.find).toHaveBeenCalledWith({ "$or": [{ "name": /walter/i }, { "lastname": /walter/i }] });
-		})
+		});
 	});
 
 

@@ -321,7 +321,7 @@ class MongooseDbAdapter {
 								[f]: new RegExp(params.search, "i")
 							}
 						))
-					})
+					});
 				} else {
 					// Full-text search
 					// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
