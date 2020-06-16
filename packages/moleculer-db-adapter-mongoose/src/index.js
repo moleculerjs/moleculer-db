@@ -311,31 +311,43 @@ class MongooseDbAdapter {
 	createCursor(params) {
 		if (params) {
 			const q = this.model.find(params.query);
-			// Full-text search
-			// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
+
+			// Search
 			if (_.isString(params.search) && params.search !== "") {
-				q.find({
-					$text: {
-						$search: params.search
-					}
-				});
-				q._fields = {
-					_score: {
-						$meta: "textScore"
-					}
-				};
-				q.sort({
-					_score: {
-						$meta: "textScore"
-					}
-				});
-			} else {
-				// Sort
-				if (_.isString(params.sort))
-					q.sort(params.sort.replace(/,/, " "));
-				else if (Array.isArray(params.sort))
-					q.sort(params.sort.join(" "));
+				if (params.searchFields && params.searchFields.length > 0) {
+					q.find({
+						$or: params.searchFields.map(f => (
+							{
+								[f]: new RegExp(params.search, "i")
+							}
+						))
+					});
+				} else {
+					// Full-text search
+					// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
+					q.find({
+						$text: {
+							$search: params.search
+						}
+					});
+					q._fields = {
+						_score: {
+							$meta: "textScore"
+						}
+					};
+					q.sort({
+						_score: {
+							$meta: "textScore"
+						}
+					});
+				}
 			}
+
+			// Sort
+			if (_.isString(params.sort))
+				q.sort(params.sort.replace(/,/, " "));
+			else if (Array.isArray(params.sort))
+				q.sort(params.sort.join(" "));
 
 			// Offset
 			if (_.isNumber(params.offset) && params.offset > 0)

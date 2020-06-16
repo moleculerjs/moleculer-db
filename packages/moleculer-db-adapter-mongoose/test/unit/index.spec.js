@@ -297,7 +297,16 @@ describe("Test MongooseStoreAdapter", () => {
 			expect(q.sort).toHaveBeenCalledWith({"_score": {"$meta": "textScore"}});
 			expect(q._fields).toEqual({"_score": {"$meta": "textScore"}});
 		});
+		
+		it("call with searchFields", () => {
+			adapter.model.find.mockClear();
+			let q = adapter.createCursor({ search: "walter", searchFields: ["name", "lastname"] });
+			expect(adapter.model.find).toHaveBeenCalledTimes(1);
+			expect(adapter.model.find).toHaveBeenCalledWith(undefined);
 
+			expect(q.find).toHaveBeenCalledTimes(1);
+			expect(q.find).toHaveBeenCalledWith({ "$or": [{ "name": /walter/i }, { "lastname": /walter/i }] });
+		});
 	});
 
 
