@@ -1,5 +1,5 @@
-<a name="0.8.1"></a>
-# 0.8.1 (2020-06-18)
+<a name="0.8.6"></a>
+# 0.8.6 (2020-06-18)
 
 ## Changes
 Add support for searchFields parameter [#197](https://github.com/moleculerjs/moleculer-db/pull/197)
