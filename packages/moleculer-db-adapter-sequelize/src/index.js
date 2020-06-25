@@ -200,12 +200,13 @@ class SequelizeDbAdapter {
 	 * Insert many entities
 	 *
 	 * @param {Array} entities
+	 * @param {Object} opts
 	 * @returns {Promise}
 	 *
 	 * @memberof SequelizeDbAdapter
 	 */
-	insertMany(entities) {
-		return this.model.bulkCreate(entities, { returning: true });
+	insertMany(entities, opts = { returning: true }) {
+		return this.model.bulkCreate(entities, opts);
 	}
 
 	/**
