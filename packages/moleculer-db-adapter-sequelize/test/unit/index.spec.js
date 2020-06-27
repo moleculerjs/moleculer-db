@@ -373,6 +373,17 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.model.bulkCreate).toHaveBeenCalledWith(entities, { returning: true });
 			});
 		});
+		
+		it("call inserts with option param", () => {
+			adapter.model.create.mockClear();
+			let entities = [{ name: "John" }, { name: "Jane" }];
+			let opts = { ignoreDuplicates: true, returning: false }
+			
+			return adapter.insertMany(entities, opts).catch(protectReject).then(() => {
+				expect(adapter.model.bulkCreate).toHaveBeenCalledTimes(2);
+				expect(adapter.model.bulkCreate).toHaveBeenCalledWith(entities, opts);
+			});
+		});
 
 		it("call updateMany", () => {
 			let where = {};
