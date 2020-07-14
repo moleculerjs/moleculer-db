@@ -401,7 +401,7 @@ declare module "moleculer-db" {
      * @returns {any}
      * @memberof DbAdapter
      */
-    createCursor(params: any): any;
+    createCursor(params: CursorOptions): any;
 
     /**
      * Transforms 'idField' into NeDB's '_id'
