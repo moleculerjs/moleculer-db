@@ -85,7 +85,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    findOne<Q extends QueryOptions>(query: Q): Promise<object[]>;
+    findOne<Q extends QueryOptions>(query: Q): Promise<object>;
 
     /**
      * Find an entity by ID
@@ -167,7 +167,7 @@ declare module "moleculer-db" {
      * @returns {Promise}
      * @memberof DbAdapter
      */
-    removeMany<Q extends QueryOptions>(query: Q): Promise<number>;
+    removeMany(query: QueryOptions): Promise<number>;
 
     /**
      * Remove an entity by ID
@@ -207,7 +207,7 @@ declare module "moleculer-db" {
      *  - query
      *
      * @param {Object} params
-     * @returns {Query}
+     * @returns {any}
      * @memberof DbAdapter
      */
     createCursor(params: any): any;
@@ -356,7 +356,7 @@ declare module "moleculer-db" {
       getById?(
         id: string | number | string[],
         decoding?: boolean
-      ): Promise<any>;
+      ): Promise<object | object[]>;
       /**
        * Clear the cache & call entity lifecycle events
        *
@@ -383,10 +383,11 @@ declare module "moleculer-db" {
        * Transform the fetched documents
        *
        * @param {Array|Object} 	docs
-       * @param {Object} 			Params
+       * @param {Object} params
+	   * @param {Context} ctx
        * @returns {Array|Object}
        */
-      transformDocuments?(ctx: Context, params: any, docs: any): any;
+      transformDocuments?(ctx: Context, params: object, docs: any[] | object): any;
       /**
        * Filter fields in the entity object
        *
