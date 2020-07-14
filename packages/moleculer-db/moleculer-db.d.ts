@@ -1,13 +1,8 @@
 declare module "moleculer-db" {
   import { Context, ServiceBroker, Service } from "moleculer";
 
-  export interface QueryFilters {
-  limit?:number;
-  offset?:number;
+  export interface QueryFilters extends FilterOptions{
   sort?:string;
-  search?:string;
-  searchFields?:Array<string>;
-  query?:QueryOptions
   }
 
   export interface DbServiceSettings {
