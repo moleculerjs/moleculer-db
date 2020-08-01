@@ -126,7 +126,7 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	find(query) {
+	aggregate(query) {
 		return this.model.aggregate(query).exec();
 	}
 
