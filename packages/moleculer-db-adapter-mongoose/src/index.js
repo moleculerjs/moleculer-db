@@ -116,6 +116,19 @@ class MongooseDbAdapter {
 			}
 		});
 	}
+	
+	/**
+	 * Aggregate queries
+	 *
+	 *
+	 * @param {Array} query
+	 * @returns {Promise}
+	 *
+	 * @memberof MongooseDbAdapter
+	 */
+	find(query) {
+		return this.model.aggregate(query).exec();
+	}
 
 	/**
 	 * Find all entities by filters.
