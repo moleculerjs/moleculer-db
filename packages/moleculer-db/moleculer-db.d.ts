@@ -1,11 +1,11 @@
 declare module "moleculer-db" {
   import { Context, ServiceBroker, Service } from "moleculer";
 
-  export interface QueryFilters extends FilterOptions{
+  interface QueryFilters extends FilterOptions{
   sort?:string;
   }
 
-  export interface DbServiceSettings {
+  interface DbServiceSettings {
     idField: string;
     fields?: Array<string>;
     populates?: Array<any>;
@@ -15,206 +15,16 @@ declare module "moleculer-db" {
     entityValidator?: any;
   }
 
-  export interface MemoryDbAdapter {
-		/**
-		 * Initialize adapter
-		 *
-		 * @param {ServiceBroker} broker
-		 * @param {Service} service
-		 * @memberof DbAdapter
-		 */
-		init(broker: ServiceBroker, service: Service): DbAdapter;
 
-		/**
-		 * Connect to database
-		 *
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		connect() :Promise<void>
-
-		/**
-		 * Disconnect from database
-		 *
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		disconnect() :Promise<void>
-
-		/**
-		 * Find all entities by filters.
-		 *
-		 * Available filter props:
-		 * 	- limit
-		 *  - offset
-		 *  - sort
-		 *  - search
-		 *  - searchFields
-		 *  - query
-		 *
-		 * @param {Object} filters
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		find(filters:QueryFilters):Promise<any>
-		/**
-		 * Find an entity by query
-		 *
-		 * @param {Object} query
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		findOne(query:QueryOptions):Promise<object>
-		/**
-		 * Find an entity by ID
-		 *
-		 * @param {any} _id
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		findById(_id: number | string):Promise<object>
-		/**
-		 * Find all entites by IDs
-		 *
-		 * @param {Array<Number>} ids
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		findByIds(ids:number[]):Promise<object[]>
-		/**
-		 * Get count of filtered entites
-		 *
-		 * Available filter props:
-		 *  - search
-		 *  - searchFields
-		 *  - query
-		 *
-		 * @param {Object} [filters={}]
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		count(filters:object):Promise<number>
-		/**
-		 * Insert an entity
-		 *
-		 * @param {Object} entity
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		insert(entity:object):Promise<object>
-
-		/**
-		 * Insert multiple entities
-		 *
-		 * @param {Array<Object>} entities
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		insertMany(entities:object[]):Promise<object[]>
-
-		/**
-		 * Update many entities by `query` and `update`
-		 *
-		 * @param {Object} query
-		 * @param {Object} update
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		updateMany(query:QueryOptions, update:object):Promise<object[]>
-
-		/**
-		 * Update an entity by ID
-		 *
-		 * @param {any} _id
-		 * @param {Object} update
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		updateById(_id: number | string , update:object):Promise<object>
-
-		/**
-		 * Remove many entities which are matched by `query`
-		 *
-		 * @param {Object} query
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		removeMany(query:QueryOptions):Promise<object>
-
-		/**
-		 * Remove an entity by ID
-		 *
-		 * @param {any} _id
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		removeById(_id: number | string):Promise<object>
-
-		/**
-		 * Clear all entities from DB
-		 *
-		 * @returns {Promise}
-		 * @memberof MemoryDbAdapter
-		 */
-		clear():Promise<object>
-
-		/**
-		 * Convert DB entity to JSON object
-		 *
-		 * @param {any} entity
-		 * @returns {Object}
-		 * @memberof MemoryDbAdapter
-		 */
-		entityToObject(entity:any):Promise<object>
-
-		/**
-		 * Add filters to query
-		 *
-		 * Available filters:
-		 *  - search
-		 *  - searchFields
-		 * 	- sort
-		 * 	- limit
-		 * 	- offset
-		 *  - query
-		 *
-		 * @param {Object} params
-		 * @returns {Query}
-		 * @memberof MemoryDbAdapter
-		 */
-		createCursor(params:QueryFilters):Promise<object[]> | QueryOptions
-
-		/**
-		 * Transforms 'idField' into NeDB's '_id'
-		 * @param {Object} entity
-		 * @param {String} idField
-		 * @memberof MemoryDbAdapter
-		 * @returns {Object} Modified entity
-		 */
-		beforeSaveTransformID (entity:object, idField:string):object
-
-		/**
-		 * Transforms NeDB's '_id' into user defined 'idField'
-		 * @param {Object} entity
-		 * @param {String} idField
-		 * @memberof MemoryDbAdapter
-		 * @returns {Object} Modified entity
-		 */
-		afterRetrieveTransformID (entity:object, idField:string):object
-	}
-  export default class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
-
-  }
-
-  export interface QueryOptions{
+  interface QueryOptions{
     [name: string]: any;
   }
-  export interface CursorOptions extends FilterOptions {
+  interface CursorOptions extends FilterOptions {
     sort?: string | string[];
     fields?: string | string[];
   }
 
-  export interface FilterOptions{
+  interface FilterOptions{
     limit?: string | number;
     offset?: string | number;
     searchFields?: string | string[];
@@ -222,13 +32,13 @@ declare module "moleculer-db" {
     query?: QueryOptions;
   }
 
-  export interface CountOptions {
+  interface CountOptions {
     searchFields?: string | string[];
     search?: string;
     query?: QueryOptions;
   }
 
-  export interface DbAdapter {
+  interface DbAdapter {
     /**
      * Initialize adapter
      *
@@ -421,7 +231,7 @@ declare module "moleculer-db" {
      */
     afterRetrieveTransformID(entity: object, idField: string): object;
   }
-  export interface DbContextParameters {
+  interface DbContextParameters {
     limit?: string | number;
     offset?: string | number;
     page?: string | number;
@@ -431,10 +241,195 @@ declare module "moleculer-db" {
     populate?: string | string[];
     searchFields?: string | string[];
   }
+  interface MemoryDbAdapter {
+		/**
+		 * Initialize adapter
+		 *
+		 * @param {ServiceBroker} broker
+		 * @param {Service} service
+		 * @memberof DbAdapter
+		 */
+		init(broker: ServiceBroker, service: Service): DbAdapter;
 
+		/**
+		 * Connect to database
+		 *
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		connect() :Promise<void>
 
+		/**
+		 * Disconnect from database
+		 *
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		disconnect() :Promise<void>
 
-  export interface MoleculerDB<TAdapter extends DbAdapter> {
+		/**
+		 * Find all entities by filters.
+		 *
+		 * Available filter props:
+		 * 	- limit
+		 *  - offset
+		 *  - sort
+		 *  - search
+		 *  - searchFields
+		 *  - query
+		 *
+		 * @param {Object} filters
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		find(filters:QueryFilters):Promise<any>
+		/**
+		 * Find an entity by query
+		 *
+		 * @param {Object} query
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		findOne(query:QueryOptions):Promise<object>
+		/**
+		 * Find an entity by ID
+		 *
+		 * @param {any} _id
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		findById(_id: number | string):Promise<object>
+		/**
+		 * Find all entites by IDs
+		 *
+		 * @param {Array<Number>} ids
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		findByIds(ids:number[]):Promise<object[]>
+		/**
+		 * Get count of filtered entites
+		 *
+		 * Available filter props:
+		 *  - search
+		 *  - searchFields
+		 *  - query
+		 *
+		 * @param {Object} [filters={}]
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		count(filters:object):Promise<number>
+		/**
+		 * Insert an entity
+		 *
+		 * @param {Object} entity
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		insert(entity:object):Promise<object>
+
+		/**
+		 * Insert multiple entities
+		 *
+		 * @param {Array<Object>} entities
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		insertMany(entities:object[]):Promise<object[]>
+
+		/**
+		 * Update many entities by `query` and `update`
+		 *
+		 * @param {Object} query
+		 * @param {Object} update
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		updateMany(query:QueryOptions, update:object):Promise<object[]>
+
+		/**
+		 * Update an entity by ID
+		 *
+		 * @param {any} _id
+		 * @param {Object} update
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		updateById(_id: number | string , update:object):Promise<object>
+
+		/**
+		 * Remove many entities which are matched by `query`
+		 *
+		 * @param {Object} query
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		removeMany(query:QueryOptions):Promise<object>
+
+		/**
+		 * Remove an entity by ID
+		 *
+		 * @param {any} _id
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		removeById(_id: number | string):Promise<object>
+
+		/**
+		 * Clear all entities from DB
+		 *
+		 * @returns {Promise}
+		 * @memberof MemoryDbAdapter
+		 */
+		clear():Promise<object>
+
+		/**
+		 * Convert DB entity to JSON object
+		 *
+		 * @param {any} entity
+		 * @returns {Object}
+		 * @memberof MemoryDbAdapter
+		 */
+		entityToObject(entity:any):Promise<object>
+
+		/**
+		 * Add filters to query
+		 *
+		 * Available filters:
+		 *  - search
+		 *  - searchFields
+		 * 	- sort
+		 * 	- limit
+		 * 	- offset
+		 *  - query
+		 *
+		 * @param {Object} params
+		 * @returns {Query}
+		 * @memberof MemoryDbAdapter
+		 */
+		createCursor(params:QueryFilters):Promise<object[]> | QueryOptions
+
+		/**
+		 * Transforms 'idField' into NeDB's '_id'
+		 * @param {Object} entity
+		 * @param {String} idField
+		 * @memberof MemoryDbAdapter
+		 * @returns {Object} Modified entity
+		 */
+		beforeSaveTransformID (entity:object, idField:string):object
+
+		/**
+		 * Transforms NeDB's '_id' into user defined 'idField'
+		 * @param {Object} entity
+		 * @param {String} idField
+		 * @memberof MemoryDbAdapter
+		 * @returns {Object} Modified entity
+		 */
+		afterRetrieveTransformID (entity:object, idField:string):object
+	}
+
+ class MemoryAdapter<TAdapter extends DbAdapter> {
     name: string;
     metadata?: {
       $category: string;
@@ -654,5 +649,11 @@ declare module "moleculer-db" {
     };
   }
 
+ class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+
+	}
+
+export  { DbService, MemoryAdapter  }
+export default DbService
 
 }
