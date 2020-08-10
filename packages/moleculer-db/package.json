@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "bluebird": "^3.7.2",
-    "flat": "^5.0.0",
+    "flat": "^5.0.2",
     "lodash": "^4.17.19",
     "nedb": "^1.8.0"
   }
