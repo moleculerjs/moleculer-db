@@ -83,7 +83,8 @@ class MongooseDbAdapter {
 			this.model = conn.model(this.modelName, this.schema);
 		}
 
-		return conn.then(result => {
+		return conn.then(_result => {
+			const result = _result || conn
 			this.conn = conn;
 
 			if (result.connection)
