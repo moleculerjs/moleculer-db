@@ -29,8 +29,8 @@ describe("Test populates feature", () => {
 				author: {
 					action: "users.get"
 				},
-				reviewerId: {
-					field: "reviewer",
+				reviewer: {
+					field: "reviewerId",
 					action: "users.get"
 				}
 			}
@@ -121,7 +121,7 @@ describe("Test populates feature", () => {
 	});
 
 	it("should return with the entity and populate the review instead of reviewerId", () => {
-		return broker.call("posts.get", { id: posts[0]._id, populate: ["author","reviewerId"] }).catch(protectReject).then(res => {
+		return broker.call("posts.get", { id: posts[0]._id, populate: ["author","reviewer"] }).catch(protectReject).then(res => {
 			expect(res).toEqual({
 				"_id": posts[0]._id,
 				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter"},
