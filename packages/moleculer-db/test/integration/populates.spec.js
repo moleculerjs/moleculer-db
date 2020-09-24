@@ -24,7 +24,7 @@ describe("Test populates feature", () => {
 		name: "posts",
 		adapter: new Adapter(),
 		settings: {
-			fields: ["_id", "title", "content", "author","reviewer", "reviewerId"],
+			fields: ["_id", "title", "content", "author", "reviewer", "reviewerId"],
 			populates: {
 				author: {
 					action: "users.get"
@@ -132,6 +132,4 @@ describe("Test populates feature", () => {
 			});
 		});
 	});
-
-
 });
