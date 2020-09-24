@@ -618,7 +618,8 @@ module.exports = {
 						action: rule
 					};
 				}
-				rule.field = field;
+
+				if (rule.field === undefined) rule.field = field;
 
 				let arr = Array.isArray(docs) ? docs : [docs];
 
@@ -630,9 +631,9 @@ module.exports = {
 						let id = _.get(doc, field);
 						if (_.isArray(id)) {
 							let models = _.compact(id.map(id => populatedDocs[id]));
-							_.set(doc, field, models);
+							_.set(doc, rule.field, models);
 						} else {
-							_.set(doc, field, populatedDocs[id]);
+							_.set(doc, rule.field, populatedDocs[id]);
 						}
 					});
 				};
