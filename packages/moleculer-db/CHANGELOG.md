@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.10"></a>
+# 0.8.10 (2020-09-27)
+
+## Changes
+- allow to specify resulting populated field name [#224](https://github.com/moleculerjs/moleculer-db/pull/224)
+- update typescript definitions [#202](https://github.com/moleculerjs/moleculer-db/pull/202), [#208](https://github.com/moleculerjs/moleculer-db/pull/208)
+--------------------------------------------------
 <a name="0.8.8"></a>
 # 0.8.8 (2020-06-06)
 

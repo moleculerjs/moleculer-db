@@ -1,3 +1,10 @@
+<a name="0.8.8"></a>
+# 0.8.8 (2020-09-27)
+
+## Changes
+fix connection error if there is more than one service [#222](https://github.com/moleculerjs/moleculer-db/pull/222)
+
+--------------------------------------------------
 <a name="0.8.6"></a>
 # 0.8.6 (2020-06-18)
 
