@@ -8,7 +8,7 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
-const { flatten } = require('flat');
+const { flatten } = require("flat");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
@@ -317,7 +317,8 @@ module.exports = {
 		remove: {
 			rest: "DELETE /:id",
 			params: {
-				id: { type: "any" }
+				id: { type: "any", optional: true },
+				where: { type: "any", optional: true }
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -886,14 +887,22 @@ module.exports = {
 
 			if (this.settings.useDotNotation)
 				sets = flatten(sets, { safe: true });
+			
+			if(!id && params.where && params.update) {
+				return this.adapter.updateMany(params.where, params.update);
+			}
 
-			return this.adapter.updateById(id, { "$set": sets })
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
-				});
+			if(id) {
+				return this.adapter.updateById(id, { "$set": sets })
+					.then(doc => {
+						if (!doc)
+							return Promise.reject(new EntityNotFoundError(id));
+						return this.transformDocuments(ctx, {}, doc)
+							.then(json => this.entityChanged("updated", json, ctx).then(() => json));
+					});
+			}
+			
+			return Promise.reject(new ValidationError("invalid_params"));
 		},
 
 		/**
@@ -908,13 +917,22 @@ module.exports = {
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(params.id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
-				});
+
+			if(!id && params.where) {
+				return this.adapter.removeMany(params.where);
+			}
+
+			if(id) {	
+				return this.adapter.removeById(id)
+					.then(doc => {
+						if (!doc)
+							return Promise.reject(new EntityNotFoundError(params.id));
+						return this.transformDocuments(ctx, {}, doc)
+							.then(json => this.entityChanged("removed", json, ctx).then(() => json));
+					});
+			}
+			
+			return Promise.reject(new ValidationError("invalid_params"));
 		}
 	},
 
