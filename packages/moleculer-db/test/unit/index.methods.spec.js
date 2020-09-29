@@ -1,6 +1,6 @@
 "use strict";
 
-const { ServiceBroker, Service, Context } = require("moleculer");
+const { ServiceBroker, Context } = require("moleculer");
 const DbService = require("../../src");
 
 function protectReject(err) {
@@ -241,6 +241,23 @@ describe("Test DbService methods", () => {
 			});
 		});
 
+		it("should call adapter.updateMany", () => {
+			adapter.updateMany.mockClear();
+			service.decodeID = jest.fn(id => id);
+
+			const p = {
+				where: { name: "John" },
+				update: { age: 45 }
+			};
+
+			return service._update(Context, p).catch(protectReject).then(res => {
+				expect(res).toEqual([doc]);
+
+				expect(adapter.updateMany).toHaveBeenCalledTimes(1);
+				expect(adapter.updateMany).toHaveBeenCalledWith(p.where, p.update);
+			});
+		});
+
 		it("should use dot notation if specified", () => {
 			adapter.updateById.mockClear();
 			service.transformDocuments.mockClear();
@@ -267,7 +284,7 @@ describe("Test DbService methods", () => {
 					},
 				});
 			});
-		})
+		});
 	});
 
 	describe("Test `_remove` method", () => {
@@ -294,6 +311,20 @@ describe("Test DbService methods", () => {
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context);
+			});
+		});
+
+		it("should call adapter.removeMany", () => {
+			adapter.removeMany.mockClear();
+			service.decodeID = jest.fn(id => id);
+
+			const p = {
+				where: { name: "John" }
+			};
+			
+			return service._remove(Context, p).catch(protectReject).then(res => {
+				expect(adapter.removeMany).toHaveBeenCalledTimes(1);
+				expect(adapter.removeMany).toHaveBeenCalledWith(p.where);
 			});
 		});
 	});

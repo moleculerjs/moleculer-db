@@ -1,7 +1,6 @@
 "use strict";
 
-const { ServiceBroker, Service, Context } = require("moleculer");
-const { ValidationError } = require("moleculer").Errors;
+const { ServiceBroker } = require("moleculer");
 const DbService = require("../../src");
 
 function protectReject(err) {
