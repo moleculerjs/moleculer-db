@@ -1,6 +1,7 @@
 "use strict";
 
 const { ServiceBroker, Context } = require("moleculer");
+const { ValidationError } = require("moleculer").Errors;
 const DbService = require("../../src");
 
 function protectReject(err) {
@@ -258,6 +259,22 @@ describe("Test DbService methods", () => {
 			});
 		});
 
+		it("should throw ValidationError on adapter.updateMany", () => {
+			adapter.removeMany.mockClear();
+			service.decodeID = jest.fn(id => id);
+
+			const p = {
+				invalid: { name: "John" }
+			};
+			
+			return service._update(Context, p).then(protectReject).catch(err => {
+				expect(err).toBeDefined();
+				expect(err).toBeInstanceOf(ValidationError);
+				expect(err.code).toBe(422);
+				expect(err.message).toBe("The id param is at least missing");
+			});
+		});
+
 		it("should use dot notation if specified", () => {
 			adapter.updateById.mockClear();
 			service.transformDocuments.mockClear();
@@ -325,6 +342,22 @@ describe("Test DbService methods", () => {
 			return service._remove(Context, p).catch(protectReject).then(res => {
 				expect(adapter.removeMany).toHaveBeenCalledTimes(1);
 				expect(adapter.removeMany).toHaveBeenCalledWith(p.where);
+			});
+		});
+
+		it("should throw ValidationError on adapter.removeMany", () => {
+			adapter.removeMany.mockClear();
+			service.decodeID = jest.fn(id => id);
+
+			const p = {
+				invalid: { name: "John" }
+			};
+			
+			return service._remove(Context, p).then(protectReject).catch(err => {
+				expect(err).toBeDefined();
+				expect(err).toBeInstanceOf(ValidationError);
+				expect(err.code).toBe(422);
+				expect(err.message).toBe("The id param is at least missing");
 			});
 		});
 	});

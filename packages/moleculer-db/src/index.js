@@ -873,6 +873,7 @@ module.exports = {
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
+		 * @throws {ValidationError} - 422 At least the ID parameter is invalid
 		 */
 		_update(ctx, params) {
 			let id;
@@ -902,7 +903,7 @@ module.exports = {
 					});
 			}
 			
-			return Promise.reject(new ValidationError("invalid_params"));
+			return Promise.reject(new ValidationError("The id param is at least missing", null, params));
 		},
 
 		/**
@@ -914,6 +915,7 @@ module.exports = {
 		 * @param {Object?} params - Parameters.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
+		 * @throws {ValidationError} - 422 At least the ID parameter is invalid
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
@@ -932,7 +934,7 @@ module.exports = {
 					});
 			}
 			
-			return Promise.reject(new ValidationError("invalid_params"));
+			return Promise.reject(new ValidationError("The id param is at least missing", null, params));
 		}
 	},
 
