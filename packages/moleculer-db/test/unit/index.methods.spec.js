@@ -360,5 +360,21 @@ describe("Test DbService methods", () => {
 				expect(err.message).toBe("The id param is at least missing");
 			});
 		});
+
+		it("should throw ValidationError on adapter.removeMany for an empty where parameter", () => {
+			adapter.removeMany.mockClear();
+			service.decodeID = jest.fn(id => id);
+
+			const p = {
+				where: {}
+			};
+			
+			return service._remove(Context, p).then(protectReject).catch(err => {
+				expect(err).toBeDefined();
+				expect(err).toBeInstanceOf(ValidationError);
+				expect(err.code).toBe(422);
+				expect(err.message).toBe("Filter cannot be empty. It would delete the entire table");
+			});
+		});
 	});
 });

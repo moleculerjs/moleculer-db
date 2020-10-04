@@ -921,6 +921,9 @@ module.exports = {
 			const id = this.decodeID(params.id);
 
 			if(!id && params.where) {
+				if(_.isEmpty(params.where)) {
+					return Promise.reject(new ValidationError("Filter cannot be empty. It would delete the entire table", null, params));
+				}
 				return this.adapter.removeMany(params.where);
 			}
 
