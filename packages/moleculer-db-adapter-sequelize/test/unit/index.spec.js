@@ -128,6 +128,19 @@ describe("Test SequelizeAdapter", () => {
 			});
 		});
 
+		it("should disconnect after connection error", () => {
+			let hasThrown = true;
+			model.sync.mockImplementationOnce(() => Promise.reject());
+			return adapter.connect()
+				.then(() => {
+					hasThrown = false;
+				})
+				.catch(() => {
+					expect(hasThrown).toBe(true);
+					expect(adapter.db.close).toBeCalledTimes(1);
+				});
+		});
+
 		it("call disconnect", () => {
 			adapter.db.close.mockClear();
 
@@ -377,7 +390,7 @@ describe("Test SequelizeAdapter", () => {
 		it("call inserts with option param", () => {
 			adapter.model.create.mockClear();
 			let entities = [{ name: "John" }, { name: "Jane" }];
-			let opts = { ignoreDuplicates: true, returning: false }
+			let opts = { ignoreDuplicates: true, returning: false };
 			
 			return adapter.insertMany(entities, opts).catch(protectReject).then(() => {
 				expect(adapter.model.bulkCreate).toHaveBeenCalledTimes(2);
@@ -524,6 +537,7 @@ describe("Test SequelizeAdapter", () => {
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(Sequelize).toHaveBeenCalledTimes(1);
 				expect(Sequelize).toHaveBeenCalledWith(opts);
+				expect(adapter.db).toBe(opts);
 				expect(adapter.db).toBe(db);
 				expect(adapter.db.authenticate).toHaveBeenCalledTimes(1);
 				expect(adapter.db.define).toHaveBeenCalledTimes(0);
