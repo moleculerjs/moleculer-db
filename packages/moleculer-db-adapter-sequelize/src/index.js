@@ -87,6 +87,9 @@ class SequelizeDbAdapter {
 
 			return modelReadyPromise.then(() => {
 				this.service.logger.info("Sequelize adapter has connected successfully.");
+			}).catch((e) => {
+				return this.db.close()
+					.finally(() => Promise.reject(e));
 			});
 		});
 	}
