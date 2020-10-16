@@ -8,7 +8,7 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
-const { flatten } = require('flat');
+const { flatten } = require("flat");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
