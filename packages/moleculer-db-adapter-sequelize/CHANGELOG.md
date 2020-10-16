@@ -1,3 +1,9 @@
+<a name="0.2.10"></a>
+# 0.2.10 (2020-10-16)
+
+## Changes
+- Close Sequelize before connection error. [#228](https://github.com/moleculerjs/moleculer-db/pull/228)
+--------------------------------------------------
 <a name="0.2.7"></a>
 # 0.2.7 (2020-06-06)
 
