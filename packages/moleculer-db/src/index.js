@@ -8,7 +8,7 @@
 
 const _ = require("lodash");
 const Promise = require("bluebird");
-const { flatten } = require('flat');
+const { flatten } = require("flat");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
@@ -742,6 +742,12 @@ module.exports = {
 				countParams.limit = null;
 			if (countParams && countParams.offset)
 				countParams.offset = null;
+			if (params.limit == null) {
+				if (this.settings.limit > 0 && params.pageSize > this.settings.limit)
+					params.limit = this.settings.limit;
+				else
+					params.limit = params.pageSize;
+			}
 			return Promise.all([
 				// Get rows
 				this.adapter.find(params),
