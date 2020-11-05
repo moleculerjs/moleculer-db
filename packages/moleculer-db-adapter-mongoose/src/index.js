@@ -84,7 +84,7 @@ class MongooseDbAdapter {
 		}
 
 		return conn.then(_result => {
-			const result = _result || conn
+			const result = _result || conn;
 			this.conn = conn;
 
 			if (result.connection)
@@ -112,6 +112,8 @@ class MongooseDbAdapter {
 		return new Promise(resolve => {
 			if (this.db && this.db.close) {
 				this.db.close(resolve);
+			} else if (this.conn && this.conn.close) {
+				this.conn.close(resolve);
 			} else {
 				mongoose.connection.close(resolve);
 			}
