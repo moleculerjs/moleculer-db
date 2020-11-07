@@ -66,38 +66,32 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let conn;
-
 		if (this.model) {
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
+			if (this.model.db) {
+				this.conn = this.model.db;
 				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection;
+			}
+			/* istanbul ignore next */
+			if (mongoose.connection.readyState === 1) {
+				this.conn = mongoose.connection;
+				return Promise.resolve();
+			} else if (mongoose.connection.readyState === 2) {
+				this.conn = mongoose.connection;
 			} else {
-				conn = mongoose.connect(this.uri, this.opts);
+				this.conn = mongoose.connect(this.uri, this.opts);
 			}
 		} else if (this.schema) {
-			conn = mongoose.createConnection(this.uri, this.opts);
-			this.model = conn.model(this.modelName, this.schema);
+			this.conn = mongoose.createConnection(this.uri, this.opts);
+			this.model = this.conn.model(this.modelName, this.schema);
 		}
 
-		return conn.then(_result => {
-			const result = _result || conn;
-			this.conn = conn;
-
-			if (result.connection)
-				this.db = result.connection.db;
-			else
-				this.db = result.db;
-
+		return this.conn.then(() => {
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
 			/* istanbul ignore next */
-			this.db.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
-			this.db.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
 	}
 
@@ -110,12 +104,18 @@ class MongooseDbAdapter {
 	 */
 	disconnect() {
 		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
-				this.conn.close(resolve);
-			} else {
+			if (this.conn == null) {
 				mongoose.connection.close(resolve);
+			} else {
+				(function closeConnection(conn) {
+					if (conn.readyState === 2) {
+						return setTimeout(() => closeConnection(conn), 1e3);
+					} else {
+						if (conn.close) {
+							conn.close(resolve);
+						}
+					}
+				})(this.conn);
 			}
 		});
 	}
