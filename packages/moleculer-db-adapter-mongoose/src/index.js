@@ -66,26 +66,29 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		if (this.model) {
-			if (this.model.db) {
-				this.conn = this.model.db;
-				return Promise.resolve();
+		return Promise.resolve().then(() => {
+			if (this.model) {
+				if (this.model.db) {
+					return this.model.db;
+				}
+				/* istanbul ignore next */
+				if (mongoose.connection.readyState === 1) {
+					return mongoose.connection;
+				} else if (mongoose.connection.readyState === 2) {
+					return mongoose.connection;
+				} else {
+					return mongoose.connect(this.uri, this.opts).then(() => {
+						return mongoose.connection;
+					});
+				}
+			} else if (this.schema) {
+				return mongoose.createConnection(this.uri, this.opts).then(conn => {
+					this.model = conn.model(this.modelName, this.schema);
+					return conn;
+				});
 			}
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState === 1) {
-				this.conn = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState === 2) {
-				this.conn = mongoose.connection;
-			} else {
-				this.conn = mongoose.connect(this.uri, this.opts);
-			}
-		} else if (this.schema) {
-			this.conn = mongoose.createConnection(this.uri, this.opts);
-			this.model = this.conn.model(this.modelName, this.schema);
-		}
-
-		return this.conn.then(() => {
+		}).then(conn => {
+			this.conn = conn;
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
 			/* istanbul ignore next */
