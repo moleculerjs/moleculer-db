@@ -1,3 +1,10 @@
+<a name="0.8.9"></a>
+# 0.8.9 (2020-11-16)
+
+## Changes
+fix mongoose stuck after `broker.stop` [#233](https://github.com/moleculerjs/moleculer-db/pull/233)
+
+--------------------------------------------------
 <a name="0.8.8"></a>
 # 0.8.8 (2020-09-27)
 

@@ -1,4 +1,10 @@
 --------------------------------------------------
+<a name="0.8.11"></a>
+# 0.8.11 (2020-11-16)
+
+## Changes
+- fix missing limit when directly call `this._list` [#229](https://github.com/moleculerjs/moleculer-db/pull/229)
+--------------------------------------------------
 <a name="0.8.10"></a>
 # 0.8.10 (2020-09-27)
 
