@@ -66,35 +66,34 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		return Promise.resolve().then(() => {
+		return new Promise((resolve, reject) => {
 			if (this.model) {
 				if (this.model.db) {
 					// Model.prototype.db
 					// Connection the model uses.
 					// https://mongoosejs.com/docs/api/model.html#model_Model-db
-					return this.model.db;
+					resolve(this.model.db);
+					return;
 				}
 				/* istanbul ignore next */
 				if (mongoose.connection.readyState === 1) {
-					return mongoose.connection;
+					resolve(mongoose.connection);
 				} else if (mongoose.connection.readyState === 2) {
-					return new Promise((resolve, reject) => {
-						mongoose.connection.once("error", reject);
-						mongoose.connection.once("connected", () => {
-							mongoose.connection.removeListener("error", reject);
-							resolve(mongoose.connection);
-						});
+					mongoose.connection.once("error", reject);
+					mongoose.connection.once("connected", () => {
+						mongoose.connection.removeListener("error", reject);
+						resolve(mongoose.connection);
 					});
 				} else {
-					return mongoose.connect(this.uri, this.opts).then(() => {
-						return mongoose.connection;
-					});
+					mongoose.connect(this.uri, this.opts).then(() => {
+						resolve(mongoose.connection);
+					}).catch(reject);
 				}
 			} else if (this.schema) {
-				return mongoose.createConnection(this.uri, this.opts).then(conn => {
+				mongoose.createConnection(this.uri, this.opts).then(conn => {
 					this.model = conn.model(this.modelName, this.schema);
-					return conn;
-				});
+					resolve(conn);
+				}).catch(reject);
 			}
 		}).then(conn => {
 			this.conn = conn;
