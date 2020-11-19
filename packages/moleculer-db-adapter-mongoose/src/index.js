@@ -79,7 +79,7 @@ class MongooseDbAdapter {
 					return mongoose.connection;
 				} else if (mongoose.connection.readyState === 2) {
 					return new Promise((resolve, reject) => {
-						mongoose.connection.once("connected", resolve(mongoose.connection));
+						mongoose.connection.once("connected", () => resolve(mongoose.connection));
 						mongoose.connection.once("error", reject);
 					});
 				} else {
