@@ -79,8 +79,11 @@ class MongooseDbAdapter {
 					return mongoose.connection;
 				} else if (mongoose.connection.readyState === 2) {
 					return new Promise((resolve, reject) => {
-						mongoose.connection.once("connected", () => resolve(mongoose.connection));
 						mongoose.connection.once("error", reject);
+						mongoose.connection.once("connected", () => {
+							mongoose.connection.removeListener("error", reject);
+							resolve(mongoose.connection);
+						});
 					});
 				} else {
 					return mongoose.connect(this.uri, this.opts).then(() => {
@@ -97,10 +100,22 @@ class MongooseDbAdapter {
 			this.conn = conn;
 
 			if (this.conn.constructor.name === "Db") {
-				this.db = this.conn;
+				return this.conn;
 			} else {
-				this.db = this.conn.db;
+				if (this.conn.db != null) {
+					return this.conn.db;
+				} else {
+					return new Promise((resolve, reject) => {
+						this.conn.once("error", reject);
+						this.conn.once("connected", () => {
+							this.conn.removeListener("error", reject);
+							resolve(this.conn.db);
+						});
+					});
+				}
 			}
+		}).then(db => {
+			this.db = db;
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
