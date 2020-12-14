@@ -137,7 +137,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	find(filters) {
-		return this.createCursor(filters).exec();
+		return this.createCursor(filters).lean().exec();
 	}
 
 	/**
@@ -148,7 +148,7 @@ class MongooseDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	findOne(query) {
-		return this.model.findOne(query).exec();
+		return this.model.findOne(query).lean().exec();
 	}
 
 	/**
@@ -160,7 +160,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	findById(_id) {
-		return this.model.findById(_id).exec();
+		return this.model.findById(_id).lean().exec();
 	}
 
 	/**
@@ -176,7 +176,7 @@ class MongooseDbAdapter {
 			_id: {
 				$in: idList
 			}
-		}).exec();
+		}).lean().exec();
 	}
 
 	/**
@@ -290,7 +290,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity) {
-		let json = entity.toJSON();
+		let json = entity.toJSON ? entity.toJSON() : entity;
 		if (entity._id && entity._id.toHexString) {
 			json._id = entity._id.toHexString();
 		} else if (entity._id && entity._id.toString) {
