@@ -58,9 +58,14 @@ checker.add("INSERT", () => adapter.insert({ title: "Hello", content: "Post cont
 
 // Find
 checker.add("FIND", () => adapter.find({}), res => {
-	console.log(res);
 	return res.length == 1 && res[0]._id.toHexString() == ids[0];
 });
+
+// Find using lean
+checker.add("FIND USING LEAN", () => adapter.find({ usingLean: true }), res => {
+	return res.length == 1 && res[0]._id.toHexString() == ids[0] && !res[0].toJSON;
+});
+
 
 // Find by ID
 checker.add("GET", () => adapter.findById(ids[0]), res => {
