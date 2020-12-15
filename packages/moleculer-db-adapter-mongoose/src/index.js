@@ -138,7 +138,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	find(filters) {
-		return this.createCursor(filters).lean(filters.usingLean).exec();
+		return this.createCursor(filters)
+			.lean(Boolean(filters.usingLean))
+			.exec();
 	}
 
 	/**
