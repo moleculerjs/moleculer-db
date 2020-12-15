@@ -24,9 +24,10 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(uri, opts) {
+	constructor(uri, opts, adapterOpts) {
 		this.uri = uri,
 		this.opts = opts;
+		this.adapterOpts = _.defaultsDeep(adapterOpts, { useLean: false });
 		mongoose.Promise = Promise;
 	}
 
@@ -130,7 +131,6 @@ class MongooseDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
-	 *  - usingLean
 	 *
 	 * @param {any} filters
 	 * @returns {Promise}
@@ -139,7 +139,7 @@ class MongooseDbAdapter {
 	 */
 	find(filters) {
 		return this.createCursor(filters)
-			.lean(Boolean(filters.usingLean))
+			.lean(this.adapterOpts.useLean)
 			.exec();
 	}
 
