@@ -130,6 +130,7 @@ class MongooseDbAdapter {
 	 *  - search
 	 *  - searchFields
 	 *  - query
+	 *  - usingLean
 	 *
 	 * @param {any} filters
 	 * @returns {Promise}
@@ -137,7 +138,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	find(filters) {
-		return this.createCursor(filters).lean().exec();
+		return this.createCursor(filters).lean(filters.usingLean).exec();
 	}
 
 	/**
@@ -148,7 +149,7 @@ class MongooseDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	findOne(query) {
-		return this.model.findOne(query).lean().exec();
+		return this.model.findOne(query).exec();
 	}
 
 	/**
@@ -160,7 +161,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	findById(_id) {
-		return this.model.findById(_id).lean().exec();
+		return this.model.findById(_id).exec();
 	}
 
 	/**
@@ -176,7 +177,7 @@ class MongooseDbAdapter {
 			_id: {
 				$in: idList
 			}
-		}).lean().exec();
+		}).exec();
 	}
 
 	/**
