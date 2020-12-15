@@ -21,6 +21,7 @@ class MongooseDbAdapter {
 	 * Creates an instance of MongooseDbAdapter.
 	 * @param {String} uri
 	 * @param {Object?} opts
+	 * @param {Object?} adapterOpts
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
@@ -151,7 +152,9 @@ class MongooseDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	findOne(query) {
-		return this.model.findOne(query).exec();
+		return this.model.findOne(query)
+			.lean(this.adapterOpts.useLean)
+			.exec();
 	}
 
 	/**
@@ -163,7 +166,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	findById(_id) {
-		return this.model.findById(_id).exec();
+		return this.model.findById(_id)
+			.lean(this.adapterOpts.useLean)
+			.exec();
 	}
 
 	/**
@@ -179,7 +184,7 @@ class MongooseDbAdapter {
 			_id: {
 				$in: idList
 			}
-		}).exec();
+		}).lean(this.adapterOpts.useLean).exec();
 	}
 
 	/**
