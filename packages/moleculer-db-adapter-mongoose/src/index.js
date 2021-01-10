@@ -68,7 +68,9 @@ class MongooseDbAdapter {
 	connect() {
 		return new Promise((resolve, reject) => {
 			if (this.model) {
+				// model field exists in service schema, should check if model has been connected
 				if (this.model.db) {
+					// if this.model.db is existed, adapter had connected before, just return this.model.db
 					// Model.prototype.db
 					// Connection the model uses.
 					// https://mongoosejs.com/docs/api/model.html#model_Model-db
@@ -77,30 +79,41 @@ class MongooseDbAdapter {
 				}
 				/* istanbul ignore next */
 				if (mongoose.connection.readyState === 1) {
+					// if readyState is 1, mean mongoose's connection status is connected, return it
+					// dont forget that we have model field in service schema
 					resolve(mongoose.connection);
 				} else if (mongoose.connection.readyState === 2) {
+					// readyState is 2, mean connecting, we listen on connected and return connection when done
 					mongoose.connection.once("error", reject);
 					mongoose.connection.once("connected", () => {
+						// resolve is going to call, remove error listener
 						mongoose.connection.removeListener("error", reject);
 						resolve(mongoose.connection);
 					});
 				} else {
+					// everything else cases mean we not yet do connect before, make it
 					mongoose.connect(this.uri, this.opts).then(() => {
 						resolve(mongoose.connection);
 					}).catch(reject);
 				}
 			} else if (this.schema) {
-				mongoose.createConnection(this.uri, this.opts).then(conn => {
+				// if service's schema only has schema field type, not model, we must do connect manually
+				const conn = mongoose.createConnection(this.uri, this.opts);
+				conn.once("connected", () => {
+					// init model and return connection
 					this.model = conn.model(this.modelName, this.schema);
 					resolve(conn);
-				}).catch(reject);
+				});
+				conn.on("error", reject);
 			}
 		}).then(conn => {
 			this.conn = conn;
 
 			if (this.conn.constructor.name === "Db") {
+				// conn is an mongodb.Db instance
 				return this.conn;
 			} else {
+				// if not mongodb.Db instance, it was called by test with fake mongodb schema
 				if (this.conn.db != null) {
 					return this.conn.db;
 				} else {
@@ -114,6 +127,7 @@ class MongooseDbAdapter {
 				}
 			}
 		}).then(db => {
+			// at this line, in both test and real cases, we got db as mongodb.Db instance
 			this.db = db;
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
