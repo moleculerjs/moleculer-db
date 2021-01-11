@@ -55,6 +55,6 @@
     "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.20",
-    "nedb": "https://github.com/mbasunov/nedb.git"
+    "nedb": "https://github.com/cintolas/nedb.git"
   }
 }
