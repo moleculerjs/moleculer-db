@@ -46,7 +46,10 @@ class MemoryDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	connect() {
-		this.db = new Datastore(this.opts); // in-memory
+		if(this.opts instanceof Datastore)
+			this.db = this.opts; //use preconfigured datastore
+		else
+			this.db = new Datastore(this.opts); // in-memory
 
 		["loadDatabase", "insert", "findOne", "count", "remove", "ensureIndex", "removeIndex"].forEach(method => {
 			this.db[method] = Promise.promisify(this.db[method]);
