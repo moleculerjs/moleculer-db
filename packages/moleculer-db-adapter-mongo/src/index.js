@@ -359,7 +359,7 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	stringToObjectID(id) {
-		if (typeof id == "string" && ObjectID.isValid(id))
+		if (typeof id == "string" && !isNaN(parseInt(id,16)) && ObjectID.isValid(id))
 			return new ObjectID.createFromHexString(id);
 
 		return id;
