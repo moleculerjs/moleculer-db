@@ -1,3 +1,10 @@
+<a name="0.4.11"></a>
+# 0.4.11 (2021-02-15)
+
+## Changes
+- allow only 12 character ObjectID strings [#249](https://github.com/moleculerjs/moleculer-db/pull/249)
+
+--------------------------------------------------
 <a name="0.4.6"></a>
 # 0.4.6 (2020-02-02)
 
