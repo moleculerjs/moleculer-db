@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.12"></a>
+# 0.8.12 (2021-02-15)
+
+## Changes
+- allow only 12 character ObjectID strings [#249](https://github.com/moleculerjs/moleculer-db/pull/249)
+- support custom NeDB Datastores (in MemoryDbAdapter contructor) [#248](https://github.com/moleculerjs/moleculer-db/pull/248)
+--------------------------------------------------
 <a name="0.8.11"></a>
 # 0.8.11 (2020-11-16)
 
