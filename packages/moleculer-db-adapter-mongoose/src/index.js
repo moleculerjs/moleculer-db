@@ -140,7 +140,7 @@ class MongooseDbAdapter {
 	 */
 	find(filters) {
 		return this.createCursor(filters)
-			.lean(this.adapterOpts.useLean)
+			.lean(this.adapterOpts.useLean && !filters.search)
 			.exec();
 	}
 
