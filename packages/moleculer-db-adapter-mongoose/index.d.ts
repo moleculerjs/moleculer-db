@@ -1,7 +1,6 @@
 declare module "moleculer-db-adapter-mongoose" {
 	import { Service, ServiceBroker } from "moleculer";
 	import {
-		ConnectionBase,
 		ConnectionOptions,
 		Document,
 		DocumentQuery,
