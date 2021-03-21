@@ -3,7 +3,7 @@ declare module "moleculer-db-adapter-mongoose" {
 	import {
 		ConnectionOptions,
 		Document,
-		DocumentQuery,
+		Query as DocumentQuery, //reff: https://github.com/Automattic/mongoose/issues/10036#issuecomment-803144616
 		Model,
 		Schema
 	} from "mongoose";
