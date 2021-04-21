@@ -55,7 +55,8 @@ describe("Test DbService actions", () => {
 			maxPageSize: 100,
 			pageSize: 10,
 			populates: null,
-			useDotNotation: false
+			useDotNotation: false,
+			cacheCleanEventType: "broadcast"
 		});
 	});
 
@@ -226,11 +227,29 @@ describe("Test DbService methods", () => {
 
 	it("should call broker.broadcast to clear the cache", () => {
 		broker.broadcast = jest.fn();
+		broker.emit = jest.fn();
 		broker.cacher.clean = jest.fn(() => Promise.resolve());
 
 		return service.clearCache().then(() => {
+			expect(broker.emit).toHaveBeenCalledTimes(0);
 			expect(broker.broadcast).toHaveBeenCalledTimes(1);
 			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean.v1.store");
+
+			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
+			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.*");
+		}).catch(protectReject);
+	});
+
+	it("should call broker.emit to clear the cache", () => {
+		service.settings.cacheCleanEventType = "emit";
+		broker.broadcast = jest.fn();
+		broker.emit = jest.fn();
+		broker.cacher.clean = jest.fn(() => Promise.resolve());
+
+		return service.clearCache().then(() => {
+			expect(broker.broadcast).toHaveBeenCalledTimes(0);
+			expect(broker.emit).toHaveBeenCalledTimes(1);
+			expect(broker.emit).toHaveBeenCalledWith("cache.clean.v1.store");
 
 			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
 			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.*");

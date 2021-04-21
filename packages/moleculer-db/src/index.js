@@ -66,6 +66,9 @@ module.exports = {
 
 		/** @type {Boolean} Whether to use dot notation or not when updating an entity. Will **not** convert Array to dot notation. Default: `false` */
 		useDotNotation: false,
+
+		/** @type {String} Type of cache clean event type. Values: "broadcast" or "emit" */
+		cacheCleanEventType: "broadcast",
 	},
 
 	/**
@@ -461,7 +464,7 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		clearCache() {
-			this.broker.broadcast(`cache.clean.${this.fullName}`);
+			this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
 			if (this.broker.cacher)
 				return this.broker.cacher.clean(`${this.fullName}.*`);
 			return Promise.resolve();
