@@ -1,4 +1,11 @@
 --------------------------------------------------
+<a name="0.8.13"></a>
+# 0.8.13 (2021-04-26)
+
+## Changes
+- add `cacheCleanEventType` service setting [#258](https://github.com/moleculerjs/moleculer-db/pull/258)
+- 
+--------------------------------------------------
 <a name="0.8.12"></a>
 # 0.8.12 (2021-02-15)
 
