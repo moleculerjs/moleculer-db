@@ -33,7 +33,8 @@ describe("Test DbService actions", () => {
 		removeById: jest.fn(() => Promise.resolve(3)),
 		clear: jest.fn(() => Promise.resolve(3)),
 		entityToObject: jest.fn(obj => obj),
-		beforeSaveTransformID: jest.fn(obj => obj)
+		beforeSaveTransformID: jest.fn(obj => obj),
+		afterRetrieveTransformID: jest.fn(obj => obj)
 	};
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
@@ -94,6 +95,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'getById' method with multi IDs, and should convert the result to object", () => {
 		service.transformDocuments.mockClear();
+		service.adapter.afterRetrieveTransformID.mockClear();
 		const p = { id: [5, 3, 8], mapping: true };
 
 		let docs = [
@@ -125,11 +127,17 @@ describe("Test DbService actions", () => {
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
 
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(3);
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs[0], "_id");
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs[1], "_id");
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs[2], "_id");
+
 		}).catch(protectReject);
 	});
 
 	it("should call the 'getById' method with single ID, and should convert the result to object", () => {
 		service.transformDocuments.mockClear();
+		service.adapter.afterRetrieveTransformID.mockClear();
 		const p = { id: 5, mapping: true };
 
 		let docs = { _id: 5, name: "John" };
@@ -148,6 +156,9 @@ describe("Test DbService actions", () => {
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(1);
+			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs, "_id");
 
 		}).catch(protectReject);
 	});

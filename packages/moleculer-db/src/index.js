@@ -856,13 +856,13 @@ module.exports = {
 					if (_.isArray(json) && params.mapping === true) {
 						let res = {};
 						json.forEach((doc, i) => {
-							const id = origDoc[i][this.settings.idField];
+							const id = this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField];
 							res[id] = doc;
 						});
 						return res;
 					} else if (_.isObject(json) && params.mapping === true) {
 						let res = {};
-						const id = origDoc[this.settings.idField];
+						const id = this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField];
 						res[id] = json;
 						return res;
 					}
