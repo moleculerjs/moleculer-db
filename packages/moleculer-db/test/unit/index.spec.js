@@ -247,7 +247,7 @@ describe("Test DbService methods", () => {
 			expect(broker.broadcast).toHaveBeenCalledWith("cache.clean.v1.store");
 
 			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
-			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.*");
+			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.**");
 		}).catch(protectReject);
 	});
 
@@ -263,7 +263,7 @@ describe("Test DbService methods", () => {
 			expect(broker.emit).toHaveBeenCalledWith("cache.clean.v1.store");
 
 			expect(broker.cacher.clean).toHaveBeenCalledTimes(1);
-			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.*");
+			expect(broker.cacher.clean).toHaveBeenCalledWith("v1.store.**");
 		}).catch(protectReject);
 	});
 
