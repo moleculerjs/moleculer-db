@@ -466,7 +466,7 @@ module.exports = {
 		clearCache() {
 			this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
 			if (this.broker.cacher)
-				return this.broker.cacher.clean(`${this.fullName}.*`);
+				return this.broker.cacher.clean(`${this.fullName}.**`);
 			return Promise.resolve();
 		},
 
