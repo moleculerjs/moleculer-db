@@ -765,11 +765,11 @@ module.exports = {
 							// Total rows
 							total: res[1],
 							// Page
-							page: params.page,
+							page: params.page || 1,
 							// Page size
 							pageSize: params.pageSize,
 							// Total pages
-							totalPages: Math.floor((res[1] + params.pageSize - 1) / params.pageSize)
+							totalPages: Math.floor((res[1] + params.pageSize - 1) / params.pageSize) || 1
 						};
 					});
 			});
