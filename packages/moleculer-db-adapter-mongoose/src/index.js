@@ -66,38 +66,77 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let conn;
-
-		if (this.model) {
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection;
-			} else {
-				conn = mongoose.connect(this.uri, this.opts);
+		return new Promise((resolve, reject) => {
+			if (this.model) {
+				// model field exists in service schema, should check if model has been connected
+				if (this.model.db) {
+					// if this.model.db is existed, adapter had connected before, just return this.model.db
+					// Model.prototype.db
+					// Connection the model uses.
+					// https://mongoosejs.com/docs/api/model.html#model_Model-db
+					resolve(this.model.db);
+					return;
+				}
+				/* istanbul ignore next */
+				if (mongoose.connection.readyState === 1) {
+					// if readyState is 1, mean mongoose's connection status is connected, return it
+					// dont forget that we have model field in service schema
+					resolve(mongoose.connection);
+				} else if (mongoose.connection.readyState === 2) {
+					// readyState is 2, mean connecting, we listen on connected and return connection when done
+					mongoose.connection.once("error", reject);
+					mongoose.connection.once("connected", () => {
+						// resolve is going to call, remove error listener
+						mongoose.connection.removeListener("error", reject);
+						resolve(mongoose.connection);
+					});
+				} else {
+					// everything else cases mean we not yet do connect before, make it
+					mongoose.connect(this.uri, this.opts).then(() => {
+						resolve(mongoose.connection);
+					}).catch(reject);
+				}
+			} else if (this.schema) {
+				// note: do not use sth likes mongoose.createConnection().then()/*.catch()*/ here, some cases will trigger bluebird warning
+				// https://github.com/petkaantonov/bluebird/blob/master/docs/docs/warning-explanations.md#warning-a-promise-was-created-in-a-handler-but-was-not-returned-from-it
+				resolve(mongoose.createConnection(this.uri, this.opts));
 			}
-		} else if (this.schema) {
-			conn = mongoose.createConnection(this.uri, this.opts);
-			this.model = conn.model(this.modelName, this.schema);
-		}
-
-		return conn.then(_result => {
-			const result = _result || conn;
+		}).then(conn => {
+			if (this.model == null && this.schema) {
+				// if service's schema only has schema field type, not model, init model and return connection
+				this.model = conn.model(this.modelName, this.schema);
+			}
 			this.conn = conn;
 
-			if (result.connection)
-				this.db = result.connection.db;
-			else
-				this.db = result.db;
+			if (this.conn.constructor.name === "Db") {
+				// conn is an mongodb.Db instance
+				return this.conn;
+			} else {
+				// if not mongodb.Db instance, it was called by test with fake mongodb schema
+				if (this.conn.db != null) {
+					return this.conn.db;
+				} else {
+					return new Promise((resolve, reject) => {
+						this.conn.once("error", reject);
+						this.conn.once("connected", () => {
+							this.conn.removeListener("error", reject);
+							resolve(this.conn.db);
+						});
+					});
+				}
+			}
+		}).then(db => {
+			// at this line, in both test and real cases, we got db as mongodb.Db instance
+			this.db = db;
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
+			// do not use this.db.on() because of next line
+			// DeprecationWarning: Listening to events on the Db class has been deprecated and will be removed in the next major version.
 			/* istanbul ignore next */
-			this.db.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
-			this.db.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
 	}
 
@@ -110,12 +149,20 @@ class MongooseDbAdapter {
 	 */
 	disconnect() {
 		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
-				this.conn.close(resolve);
-			} else {
+			if (this.conn == null) {
 				mongoose.connection.close(resolve);
+			} else {
+				(function closeConnection(conn, db) {
+					if (conn.readyState === 2) {
+						return setTimeout(() => closeConnection(conn, db), 1e3);
+					} else if (conn.close) {
+						conn.close(resolve);
+					} else if (db != null && db.close) {
+						db.close(resolve);
+					} else {
+						mongoose.connection.close(resolve);
+					}
+				})(this.conn, this.db);
 			}
 		});
 	}

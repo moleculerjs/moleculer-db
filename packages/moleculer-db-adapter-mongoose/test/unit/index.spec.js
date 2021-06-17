@@ -2,7 +2,6 @@
 
 const { ServiceBroker } = require("moleculer");
 const MongooseStoreAdapter = require("../../src");
-const mongoose = require("mongoose");
 
 function protectReject(err) {
 	if (err && err.stack) {
@@ -12,44 +11,73 @@ function protectReject(err) {
 	expect(err).toBe(true);
 }
 
-const doc = {
-	toJSON: jest.fn(() => ({})),
-	_id: {
-		toHexString: jest.fn()
-	}
-};
+jest.mock("mongoose", () => {
+	const doc = {
+		toJSON: jest.fn(() => ({})),
+		_id: {
+			toHexString: jest.fn()
+		}
+	};
+	const docIdString = {
+		toJSON: jest.fn(() => ({})),
+		_id: {
+			toString: jest.fn()
+		}
+	};
 
-const docIdString = {
-	toJSON: jest.fn(() => ({})),
-	_id: {
-		toString: jest.fn()
-	}
-};
+	const execCB = jest.fn(() => Promise.resolve());
+	const saveCB = jest.fn(() => Promise.resolve());
+	const leanCB = jest.fn(() => ({ exec: execCB }));
+	const countCB = jest.fn(() => ({ exec: execCB }));
+	const query = jest.fn(() => ({ lean: leanCB, exec: execCB, countDocuments: countCB }));
 
-const execCB = jest.fn(() => Promise.resolve());
-const saveCB = jest.fn(() => Promise.resolve());
-const leanCB = jest.fn(() => ({ exec: execCB }));
-const countCB = jest.fn(() => ({ exec: execCB }));
-const query = jest.fn(() => ({ lean: leanCB, exec: execCB, countDocuments: countCB }));
+	const fakeSchema = {};
 
-const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
-	find: jest.fn(() => query()),
-	findOne: jest.fn(() => query()),
-	findById: jest.fn(() => query()),
-	create: jest.fn(() => Promise.resolve()),
-	updateMany: jest.fn(() => Promise.resolve({ n: 2 })),
-	findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
-	deleteMany: jest.fn(() => Promise.resolve({ n: 2 })),
-	findByIdAndRemove: jest.fn(() => Promise.resolve()),
+	const fakeModel = Object.assign(jest.fn(() => ({ save: saveCB })), {
+		find: jest.fn(() => query()),
+		findOne: jest.fn(() => query()),
+		findById: jest.fn(() => query()),
+		create: jest.fn(() => Promise.resolve()),
+		updateMany: jest.fn(() => Promise.resolve({ n: 2 })),
+		findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
+		deleteMany: jest.fn(() => Promise.resolve({ n: 2 })),
+		findByIdAndRemove: jest.fn(() => Promise.resolve()),
+	});
+
+	const fakeDb = {
+		on: jest.fn(),
+		close: jest.fn(fn => fn()),
+		model: jest.fn(() => fakeModel)
+	};
+	const connection = { db: fakeDb };
+	return {
+		fake: {
+			doc, docIdString,
+			execCB, saveCB, leanCB, countCB, query,
+			fakeSchema, fakeModel, fakeDb
+		},
+		connect: jest.fn(() => Promise.resolve({ connection })),
+		set: jest.fn(),
+		connection,
+		Types: {
+			ObjectId: {
+				isValid: jest.fn(() => true)
+			}
+		},
+		Schema: {
+			Types: {
+				ObjectId: jest.fn()
+			}
+		}
+	};
 });
 
-const fakeSchema = {};
-
-let fakeDb = {
-	on: jest.fn(),
-	close: jest.fn(fn => fn()),
-	model: jest.fn(() => fakeModel)
-};
+const mongoose = require("mongoose");
+const {
+	doc, docIdString,
+	execCB, saveCB, leanCB, countCB, query,
+	fakeSchema, fakeModel, fakeDb
+} = mongoose.fake;
 
 describe("Test MongooseStoreAdapter", () => {
 	const broker = new ServiceBroker({ logger: false });
@@ -129,7 +157,6 @@ describe("Test MongooseStoreAdapter", () => {
 		it("call connect with uri", () => {
 			fakeDb.on.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
 			adapter.opts = undefined;
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
@@ -145,8 +172,8 @@ describe("Test MongooseStoreAdapter", () => {
 
 		it("call connect with uri & opts", () => {
 			fakeDb.on.mockClear();
+			mongoose.connect.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
 			adapter.opts = {
 				user: "admin",
 				pass: "123456"
@@ -203,9 +230,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 			const makeModel = jest.fn(() => fakeModel);
 			mongoose.createConnection = jest.fn(() => {
-				const conn = Promise.resolve({ connection: { db: fakeDb } });
-				conn.model = makeModel;
-				return conn;
+				return Promise.resolve({ db: fakeDb, model: makeModel });
 			});
 
 			adapter.opts = {
@@ -297,7 +322,7 @@ describe("Test MongooseStoreAdapter", () => {
 			expect(q.sort).toHaveBeenCalledWith({"_score": {"$meta": "textScore"}});
 			expect(q._fields).toEqual({"_score": {"$meta": "textScore"}});
 		});
-		
+
 		it("call with searchFields", () => {
 			adapter.model.find.mockClear();
 			let q = adapter.createCursor({ search: "walter", searchFields: ["name", "lastname"] });
