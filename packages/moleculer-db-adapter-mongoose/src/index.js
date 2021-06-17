@@ -25,7 +25,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	constructor(uri, opts) {
-		this.uri = uri,
+		this.uri = uri;
 		this.opts = opts;
 		mongoose.Promise = Promise;
 	}
@@ -308,7 +308,7 @@ class MongooseDbAdapter {
 	 * 	- offset
 	 *  - query
 	 *
- 	 * @param {Object} params
+	 * @param {Object} params
 	 * @returns {MongoQuery}
 	 */
 	createCursor(params) {
@@ -366,12 +366,12 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	* Transforms 'idField' into MongoDB's '_id'
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof MongoDbAdapter
-	* @returns {Object} Modified entity
-	*/
+	 * Transforms 'idField' into MongoDB's '_id'
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof MongoDbAdapter
+	 * @returns {Object} Modified entity
+	 */
 	beforeSaveTransformID (entity, idField) {
 		let newEntity = _.cloneDeep(entity);
 
@@ -384,12 +384,12 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	* Transforms MongoDB's '_id' into user defined 'idField'
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof MongoDbAdapter
-	* @returns {Object} Modified entity
-	*/
+	 * Transforms MongoDB's '_id' into user defined 'idField'
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof MongoDbAdapter
+	 * @returns {Object} Modified entity
+	 */
 	afterRetrieveTransformID (entity, idField) {
 		if (idField !== "_id") {
 			entity[idField] = this.objectIDToString(entity["_id"]);
@@ -399,11 +399,11 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	* Convert hex string to ObjectID
-	* @param {String} id
-	* @returns ObjectID}
-	* @memberof MongooseDbAdapter
-	*/
+	 * Convert hex string to ObjectID
+	 * @param {String} id
+	 * @returns ObjectID}
+	 * @memberof MongooseDbAdapter
+	 */
 	stringToObjectID (id) {
 		if (typeof id == "string" && mongoose.Types.ObjectId.isValid(id))
 			return new mongoose.Schema.Types.ObjectId(id);
@@ -411,11 +411,11 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	* Convert ObjectID to hex string
-	* @param {ObjectID} id
-	* @returns {String}
-	* @memberof MongooseDbAdapter
-	*/
+	 * Convert ObjectID to hex string
+	 * @param {ObjectID} id
+	 * @returns {String}
+	 * @memberof MongooseDbAdapter
+	 */
 	objectIDToString (id) {
 		if(id && id.toString)
 			return id.toString();
