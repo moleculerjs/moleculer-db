@@ -94,7 +94,7 @@ describe("Test CRUD methods with idField", () => {
 
 	it("should update an entity", () => {
 		return broker.call("posts.update", {
-			myID: posts[1].myID,
+			id: posts[1].myID,
 			title: "Other title",
 			content: "Modify my content",
 			votes: 8
