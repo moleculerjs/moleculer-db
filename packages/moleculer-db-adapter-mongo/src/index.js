@@ -25,7 +25,7 @@ class MongoDbAdapter {
 	 */
 	constructor(uri, opts, dbName) {
 		this.uri = uri,
-		this.opts = opts;
+			this.opts = opts;
 		this.dbName = dbName;
 	}
 
@@ -271,8 +271,8 @@ class MongoDbAdapter {
 	 * 	- offset
 	 *  - query
 	 *
- 	 * @param {Object} params
- 	 * @param {Boolean} isCounting
+	 * @param {Object} params
+	 * @param {Boolean} isCounting
 	 * @returns {MongoCursor}
 	 */
 	createCursor(params, isCounting) {
@@ -381,12 +381,12 @@ class MongoDbAdapter {
 	}
 
 	/**
-	* Transforms 'idField' into MongoDB's '_id'
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof MongoDbAdapter
-	* @returns {Object} Modified entity
-	*/
+	 * Transforms 'idField' into MongoDB's '_id'
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof MongoDbAdapter
+	 * @returns {Object} Modified entity
+	 */
 	beforeSaveTransformID (entity, idField) {
 		let newEntity = _.cloneDeep(entity);
 
@@ -399,12 +399,12 @@ class MongoDbAdapter {
 	}
 
 	/**
-	* Transforms MongoDB's '_id' into user defined 'idField'
-	* @param {Object} entity
-	* @param {String} idField
-	* @memberof MongoDbAdapter
-	* @returns {Object} Modified entity
-	*/
+	 * Transforms MongoDB's '_id' into user defined 'idField'
+	 * @param {Object} entity
+	 * @param {String} idField
+	 * @memberof MongoDbAdapter
+	 * @returns {Object} Modified entity
+	 */
 	afterRetrieveTransformID (entity, idField) {
 		if (idField !== "_id") {
 			entity[idField] = this.objectIDToString(entity["_id"]);
