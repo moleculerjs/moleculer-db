@@ -21,12 +21,14 @@ class MongooseDbAdapter {
 	 * Creates an instance of MongooseDbAdapter.
 	 * @param {String} uri
 	 * @param {Object?} opts
+	 * @param {Object?} adapterOpts
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(uri, opts) {
+	constructor(uri, opts, adapterOpts) {
 		this.uri = uri,
 		this.opts = opts;
+		this.adapterOpts = _.defaultsDeep(adapterOpts, { useLean: false });
 		mongoose.Promise = Promise;
 	}
 
@@ -137,7 +139,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	find(filters) {
-		return this.createCursor(filters).exec();
+		return this.createCursor(filters)
+			.lean(this.adapterOpts.useLean && !filters.search)
+			.exec();
 	}
 
 	/**
@@ -148,7 +152,9 @@ class MongooseDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	findOne(query) {
-		return this.model.findOne(query).exec();
+		return this.model.findOne(query)
+			.lean(this.adapterOpts.useLean)
+			.exec();
 	}
 
 	/**
@@ -160,7 +166,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	findById(_id) {
-		return this.model.findById(_id).exec();
+		return this.model.findById(_id)
+			.lean(this.adapterOpts.useLean)
+			.exec();
 	}
 
 	/**
@@ -176,7 +184,7 @@ class MongooseDbAdapter {
 			_id: {
 				$in: idList
 			}
-		}).exec();
+		}).lean(this.adapterOpts.useLean).exec();
 	}
 
 	/**
@@ -290,7 +298,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity) {
-		let json = entity.toJSON();
+		let json = entity.toJSON ? entity.toJSON() : entity;
 		if (entity._id && entity._id.toHexString) {
 			json._id = entity._id.toHexString();
 		} else if (entity._id && entity._id.toString) {
