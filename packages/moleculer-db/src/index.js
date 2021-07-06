@@ -119,8 +119,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._find(ctx, params);
+				return this._find(ctx, ctx.params);
 			}
 		},
 
@@ -152,8 +151,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._count(ctx, params);
+				return this._count(ctx, ctx.params);
 			}
 		},
 
@@ -202,8 +200,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._list(ctx, params);
+				return this._list(ctx, ctx.params);
 			}
 		},
 
@@ -240,8 +237,7 @@ module.exports = {
 				entities: { type: "array", optional: true }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._insert(ctx, params);
+				return this._insert(ctx, ctx.params);
 			}
 		},
 
@@ -282,8 +278,7 @@ module.exports = {
 				mapping: { type: "boolean", optional: true }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._get(ctx, params);
+				return this._get(ctx, ctx.params);
 
 			}
 		},
@@ -323,8 +318,7 @@ module.exports = {
 				id: { type: "any" }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._remove(ctx, params);
+				return this._remove(ctx, ctx.params);
 			}
 		}
 	},
@@ -705,6 +699,7 @@ module.exports = {
 		 * @returns {Array<Object>} List of found entities.
 		 */
 		_find(ctx, params) {
+			params = this.sanitizeParams(ctx, params);
 			return this.adapter.find(params)
 				.then(docs => this.transformDocuments(ctx, params, docs));
 		},
@@ -720,7 +715,8 @@ module.exports = {
 		 * @returns {Number} Count of found entities.
 		 */
 		_count(ctx, params) {
-			// Remove pagination params
+			params = this.sanitizeParams(ctx, params);
+			// Remove pagination param
 			if (params && params.limit)
 				params.limit = null;
 			if (params && params.offset)
@@ -739,6 +735,7 @@ module.exports = {
 		 * @returns {Object} List of found entities and count.
 		 */
 		_list(ctx, params) {
+			params = this.sanitizeParams(ctx, params);
 			let countParams = Object.assign({}, params);
 			// Remove pagination params
 			if (countParams && countParams.limit)
@@ -806,6 +803,7 @@ module.exports = {
 		 * @returns {Object|Array.<Object>} Saved entity(ies).
 		 */
 		_insert(ctx, params) {
+			params = this.sanitizeParams(ctx, params);
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
@@ -843,6 +841,7 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		_get(ctx, params) {
+			params = this.sanitizeParams(ctx, params);
 			let id = params.id;
 			let origDoc;
 			return this.getById(id, true)
@@ -916,6 +915,7 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		_remove(ctx, params) {
+			params = this.sanitizeParams(ctx, params);
 			const id = this.decodeID(params.id);
 			return this.adapter.removeById(id)
 				.then(doc => {
