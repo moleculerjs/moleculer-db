@@ -320,7 +320,8 @@ module.exports = {
 		remove: {
 			rest: "DELETE /:id",
 			params: {
-				id: { type: "any" }
+				id: { type: "any", optional: true },
+				where: { type: "any", optional: true }
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
@@ -881,6 +882,7 @@ module.exports = {
 		 * @returns {Object} Updated entity.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
+		 * @throws {ValidationError} - 422 At least the ID parameter is invalid
 		 */
 		_update(ctx, params) {
 			let id;
@@ -895,14 +897,22 @@ module.exports = {
 
 			if (this.settings.useDotNotation)
 				sets = flatten(sets, { safe: true });
+			
+			if(!id && params.where && params.update) {
+				return this.adapter.updateMany(params.where, params.update);
+			}
 
-			return this.adapter.updateById(id, { "$set": sets })
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
-				});
+			if(id) {
+				return this.adapter.updateById(id, { "$set": sets })
+					.then(doc => {
+						if (!doc)
+							return Promise.reject(new EntityNotFoundError(id));
+						return this.transformDocuments(ctx, {}, doc)
+							.then(json => this.entityChanged("updated", json, ctx).then(() => json));
+					});
+			}
+			
+			return Promise.reject(new ValidationError("The id param is at least missing", null, params));
 		},
 
 		/**
@@ -914,16 +924,29 @@ module.exports = {
 		 * @param {Object?} params - Parameters.
 		 *
 		 * @throws {EntityNotFoundError} - 404 Entity not found
+		 * @throws {ValidationError} - 422 At least the ID parameter is invalid
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
-				.then(doc => {
-					if (!doc)
-						return Promise.reject(new EntityNotFoundError(params.id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
-				});
+
+			if(!id && params.where) {
+				if(_.isEmpty(params.where)) {
+					return Promise.reject(new ValidationError("Filter cannot be empty. It would delete the entire table", null, params));
+				}
+				return this.adapter.removeMany(params.where);
+			}
+
+			if(id) {	
+				return this.adapter.removeById(id)
+					.then(doc => {
+						if (!doc)
+							return Promise.reject(new EntityNotFoundError(params.id));
+						return this.transformDocuments(ctx, {}, doc)
+							.then(json => this.entityChanged("removed", json, ctx).then(() => json));
+					});
+			}
+			
+			return Promise.reject(new ValidationError("The id param is at least missing", null, params));
 		}
 	},
 
