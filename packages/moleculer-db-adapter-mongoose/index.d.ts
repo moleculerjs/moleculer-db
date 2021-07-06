@@ -1,12 +1,11 @@
 declare module "moleculer-db-adapter-mongoose" {
 	import { Service, ServiceBroker } from "moleculer";
 	import {
-		ConnectionBase,
 		ConnectionOptions,
 		Document,
 		DocumentQuery,
 		Model,
-		Schema
+		Schema,
 	} from "mongoose";
 	import { Db } from "mongodb";
 
@@ -149,7 +148,7 @@ declare module "moleculer-db-adapter-mongoose" {
 		createCursor(
 			params: FindFilters
 		): DocumentQuery<TDocument[], TDocument>;
-		
+
 		/**
 		 * Transforms 'idField' into MongoDB's '_id'
 		 */
