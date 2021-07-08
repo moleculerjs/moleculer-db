@@ -3,7 +3,7 @@
 const { ServiceBroker } = require("moleculer");
 const Adapter = require("../../src/memory-adapter");
 
-const Datastore = require('nedb');
+const Datastore = require('@seald-io/nedb');
 
 function protectReject(err) {
 	if (err && err.stack) {
