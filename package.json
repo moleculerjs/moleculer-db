@@ -25,17 +25,16 @@
   "license": "MIT",
   "homepage": "https://github.com/moleculerjs/moleculer-db#readme",
   "devDependencies": {
-    "coveralls": "^3.1.0",
-    "eslint": "^7.2.0",
-    "glob": "^7.1.6",
-    "jest": "^26.0.1",
-    "jest-cli": "^26.0.1",
-    "lerna": "^3.22.0",
-    "lodash": "^4.17.15",
-    "markdown-magic": "^0.1.25",
-    "moleculer": "^0.14.7",
-    "nodemon": "^2.0.4",
-    "npm-check": "^5.9.2"
+    "coveralls": "^3.1.1",
+    "eslint": "^7.30.0",
+    "glob": "^7.1.7",
+    "jest": "^27.0.6",
+    "jest-cli": "^27.0.6",
+    "lerna": "^4.0.0",
+    "lodash": "^4.17.21",
+    "markdown-magic": "^2.3.2",
+    "moleculer": "^0.14.14",
+    "nodemon": "^2.0.10"
   },
   "dependencies": {
     "moleculer-cli": "^0.7.1"
