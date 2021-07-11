@@ -2,7 +2,9 @@
 
 # moleculer-db-adapter-mongoose [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongoose.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongoose)
 
-**Note: This's not official moleculer. I publish because some pulls I requested still not yet accepted. I believe my pulls fixed some error/warning of original module** 
+**Note: This's not official moleculer. I publish because some pulls I requested still not yet accepted. I believe my pulls fixed some error/warning of original module**
+[Compare with original](https://github.com/moleculerjs/moleculer-db/compare/master...0x0a0d:improve_conn_and_db)
+
 
 Mongoose adapter for Moleculer DB service
 
@@ -62,7 +64,7 @@ new MongooseAdapter("mongodb://localhost/moleculer-db")
 ```js
 new MongooseAdapter("mongodb://db-server-hostname/my-db", {
     user: process.env.MONGO_USERNAME,
-    pass: process.env.MONGO_PASSWORD
+    pass: process.env.MONGO_PASSWORD,
     keepAlive: true
 })
 ```
