@@ -1,6 +1,6 @@
 {
   "name": "@cylution/moleculer-db-adapter-mongoose",
-  "version": "0.8.12",
+  "version": "0.8.13-0",
   "description": "Mongoose adapter for Moleculer DB service",
   "main": "index.js",
   "types": "index.d.ts",
