@@ -2,6 +2,8 @@
 
 # moleculer-db-adapter-mongoose [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongoose.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongoose)
 
+**Note: This's not official moleculer. I publish because some pulls I requested still not yet accepted. I believe my pulls fixed some error/warning of original module** 
+
 Mongoose adapter for Moleculer DB service
 
 ## Features
