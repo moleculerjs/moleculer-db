@@ -219,8 +219,7 @@ module.exports = {
 		create: {
 			rest: "POST /",
 			handler(ctx) {
-				let params = ctx.params;
-				return this._create(ctx, params);
+				return this._create(ctx, ctx.params);
 			}
 		},
 
