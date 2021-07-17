@@ -8,7 +8,7 @@
 
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
-const Datastore = require("nedb");
+const Datastore = require("@seald-io/nedb");
 
 /**
  * NeDB adapter for `moleculer-db`
