@@ -240,8 +240,7 @@ module.exports = {
 				entities: { type: "array", optional: true }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._insert(ctx, params);
+				return this._insert(ctx, ctx.params);
 			}
 		},
 
@@ -302,8 +301,7 @@ module.exports = {
 		update: {
 			rest: "PUT /:id",
 			handler(ctx) {
-				let params = ctx.params;
-				return this._update(ctx, params);
+				return this._update(ctx, ctx.params);
 			}
 		},
 
@@ -323,8 +321,7 @@ module.exports = {
 				id: { type: "any" }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._remove(ctx, params);
+				return this._remove(ctx, ctx.params);
 			}
 		}
 	},
