@@ -219,8 +219,7 @@ module.exports = {
 		create: {
 			rest: "POST /",
 			handler(ctx) {
-				let params = ctx.params;
-				return this._create(ctx, params);
+				return this._create(ctx, ctx.params);
 			}
 		},
 
@@ -240,8 +239,7 @@ module.exports = {
 				entities: { type: "array", optional: true }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._insert(ctx, params);
+				return this._insert(ctx, ctx.params);
 			}
 		},
 
@@ -302,8 +300,7 @@ module.exports = {
 		update: {
 			rest: "PUT /:id",
 			handler(ctx) {
-				let params = ctx.params;
-				return this._update(ctx, params);
+				return this._update(ctx, ctx.params);
 			}
 		},
 
@@ -323,8 +320,7 @@ module.exports = {
 				id: { type: "any" }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
-				return this._remove(ctx, params);
+				return this._remove(ctx, ctx.params);
 			}
 		}
 	},
@@ -466,7 +462,7 @@ module.exports = {
 		clearCache() {
 			this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
 			if (this.broker.cacher)
-				return this.broker.cacher.clean(`${this.fullName}.*`);
+				return this.broker.cacher.clean(`${this.fullName}.**`);
 			return Promise.resolve();
 		},
 
