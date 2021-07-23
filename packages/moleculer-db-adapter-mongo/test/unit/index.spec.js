@@ -505,5 +505,31 @@ describe("Test MongoDbAdapter", () => {
 		expect(res._id).toEqual(entry._id);
 	});
 
+	it("should insert a 12 character _id string that is not hex", () => {
+		adapter.collection.insertOne.mockClear();
+		let entry = {
+			_id: "qqq.qqq.qqq.",
+			title: "not hex"
+		};
+		return adapter.insert(entry).catch(protectReject).then(res => {
+			expect(res).toEqual(entry);
+			expect(adapter.collection.insertOne).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.insertOne).toHaveBeenCalledWith(entry);
+		});
+	});
+
+	it("should update a 12 chararcter _id string that is not hex", () => {
+		adapter.collection.findOneAndUpdate.mockClear();
+		doc.toJSON.mockClear();
+		let update = {};
+		return adapter.updateById("qqq.qqq.qqq.", update).catch(protectReject).then(res => {
+			expect(res).toEqual(doc);
+			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledTimes(1);
+			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledWith({ _id: "qqq.qqq.qqq." }, update, { returnOriginal: false });
+		});
+	});
+
+	
+
 });
 
