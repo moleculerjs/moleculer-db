@@ -186,6 +186,19 @@ describe("Test MongoDbAdapter", () => {
 		adapter.stringToObjectID("123");
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
+	
+		//test 12 character non hex
+		mongodb.ObjectID.createFromHexString.mockClear();
+		let res = adapter.stringToObjectID("qqq.qqq.qqq.");
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(0);
+		expect(res).toEqual("qqq.qqq.qqq.");
+
+		//test 24 character hex
+		mongodb.ObjectID.createFromHexString.mockClear();
+		adapter.stringToObjectID("000011112222333344445555");
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("000011112222333344445555");
+	
 	});
 
 	it("call objectIDToString with not ObjectID", () => {
@@ -504,32 +517,6 @@ describe("Test MongoDbAdapter", () => {
 		expect(res.myID).toEqual(undefined);
 		expect(res._id).toEqual(entry._id);
 	});
-
-	it("should insert a 12 character _id string that is not hex", () => {
-		adapter.collection.insertOne.mockClear();
-		let entry = {
-			_id: "qqq.qqq.qqq.",
-			title: "not hex"
-		};
-		return adapter.insert(entry).catch(protectReject).then(res => {
-			expect(res).toEqual(entry);
-			expect(adapter.collection.insertOne).toHaveBeenCalledTimes(1);
-			expect(adapter.collection.insertOne).toHaveBeenCalledWith(entry);
-		});
-	});
-
-	it("should update a 12 chararcter _id string that is not hex", () => {
-		adapter.collection.findOneAndUpdate.mockClear();
-		doc.toJSON.mockClear();
-		let update = {};
-		return adapter.updateById("qqq.qqq.qqq.", update).catch(protectReject).then(res => {
-			expect(res).toEqual(doc);
-			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledTimes(1);
-			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledWith({ _id: "qqq.qqq.qqq." }, update, { returnOriginal: false });
-		});
-	});
-
-	
 
 });
 
