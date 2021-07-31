@@ -186,6 +186,19 @@ describe("Test MongoDbAdapter", () => {
 		adapter.stringToObjectID("123");
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
+	
+		//test 12 character non hex
+		mongodb.ObjectID.createFromHexString.mockClear();
+		let res = adapter.stringToObjectID("qqq.qqq.qqq.");
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(0);
+		expect(res).toEqual("qqq.qqq.qqq.");
+
+		//test 24 character hex
+		mongodb.ObjectID.createFromHexString.mockClear();
+		adapter.stringToObjectID("000011112222333344445555");
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
+		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("000011112222333344445555");
+	
 	});
 
 	it("call objectIDToString with not ObjectID", () => {
