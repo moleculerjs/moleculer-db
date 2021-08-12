@@ -137,9 +137,9 @@ describe("Test MongooseStoreAdapter", () => {
 
 				expect(adapter.db).toBe(fakeDb);
 				expect(adapter.db.on).toHaveBeenCalledTimes(3);
-				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", jasmine.any(Function));
-				expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
-				expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", expect.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 			});
 		});
 
@@ -297,7 +297,7 @@ describe("Test MongooseStoreAdapter", () => {
 			expect(q.sort).toHaveBeenCalledWith({"_score": {"$meta": "textScore"}});
 			expect(q._fields).toEqual({"_score": {"$meta": "textScore"}});
 		});
-		
+
 		it("call with searchFields", () => {
 			adapter.model.find.mockClear();
 			let q = adapter.createCursor({ search: "walter", searchFields: ["name", "lastname"] });

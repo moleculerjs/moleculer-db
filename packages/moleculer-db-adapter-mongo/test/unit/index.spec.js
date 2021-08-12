@@ -120,9 +120,9 @@ describe("Test MongoDbAdapter", () => {
 
 			expect(adapter.db).toBe(fakeDb);
 			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", jasmine.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
@@ -157,9 +157,9 @@ describe("Test MongoDbAdapter", () => {
 
 			expect(adapter.db).toBe(fakeDb);
 			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", jasmine.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
+			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
@@ -186,7 +186,7 @@ describe("Test MongoDbAdapter", () => {
 		adapter.stringToObjectID("123");
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
-	
+
 		//test 12 character non hex
 		mongodb.ObjectID.createFromHexString.mockClear();
 		let res = adapter.stringToObjectID("qqq.qqq.qqq.");
@@ -198,7 +198,7 @@ describe("Test MongoDbAdapter", () => {
 		adapter.stringToObjectID("000011112222333344445555");
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
 		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("000011112222333344445555");
-	
+
 	});
 
 	it("call objectIDToString with not ObjectID", () => {

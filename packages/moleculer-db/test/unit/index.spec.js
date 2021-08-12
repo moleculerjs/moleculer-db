@@ -82,13 +82,13 @@ describe("Test DbService actions", () => {
 
 		return broker.call("store.get", p).then(() => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(expect.any(Context), p);
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
 			expect(service.getById).toHaveBeenCalledWith(5, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, doc);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, doc);
 
 		}).catch(protectReject);
 	});
@@ -125,7 +125,7 @@ describe("Test DbService actions", () => {
 			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
 
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(3);
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs[0], "_id");
@@ -155,7 +155,7 @@ describe("Test DbService actions", () => {
 			expect(service.getById).toHaveBeenCalledWith(5, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
 
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(1);
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs, "_id");
@@ -758,7 +758,7 @@ describe("Test populateDocs method", () => {
 			expect(service.settings.populates.rate).toHaveBeenCalledTimes(1);
 			expect(service.settings.populates.rate).toHaveBeenCalledWith([4, 5], docs, {
 				field: "rate",
-				handler: jasmine.any(Function)
+				handler: expect.any(Function)
 			}, ctx);
 
 			expect(res).toEqual([
