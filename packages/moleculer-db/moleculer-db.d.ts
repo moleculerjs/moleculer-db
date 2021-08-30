@@ -367,7 +367,7 @@ declare module "moleculer-db" {
 			 * @methods
 			 * @returns {Promise}
 			 */
-			clearCache(): Promise<void>;
+			clearCache?(): Promise<void>;
 
 			/**
 			 * Transform the fetched documents
