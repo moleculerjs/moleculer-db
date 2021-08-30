@@ -307,17 +307,10 @@ declare module "moleculer-db" {
 						| any
 						>;
 				};
-				params?: {
-					populate: string | string[];
-					fields?: string | string[];
-					limit?: number;
-					offset?: number;
-					sort?: string;
-					search?: string;
-					searchFields?: string | string[];
+				params?: DbContextParameters & {
 					query?: any;
 				};
-				handler?(ctx: Context): Promise<any>;
+				handler?(ctx: Context): Promise<object[]>;
 			};
 		};
 
