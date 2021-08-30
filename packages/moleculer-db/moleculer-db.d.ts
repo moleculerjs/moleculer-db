@@ -6,13 +6,26 @@ declare module "moleculer-db" {
 	}
 
 	export interface DbServiceSettings {
-		idField: string;
-		fields?: Array<string>;
-		populates?: Array<any>;
+		/** @type {String} Name of ID field. */
+		idField?: string;
+
+		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
+		fields?: string[];
+
+		/** @type {Array?} Schema for population. [Read more](#populating). */
+		populates?: any[];
+
+		/** @type {Number} Default page size in `list` action. */
 		pageSize?: number;
+
+		/** @type {Number} Maximum page size in `list` action. */
 		maxPageSize?: number;
+
+		/** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
 		maxLimit?: number;
-		entityValidator?: any;
+
+		/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
+		entityValidator?: object | Function;
 	}
 
 
@@ -257,28 +270,7 @@ declare module "moleculer-db" {
 		/**
 		 * Default settings
 		 */
-		settings?: {
-			/** @type {String} Name of ID field. */
-			idField?: string;
-
-			/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
-			fields?: string[];
-
-			/** @type {Array?} Schema for population. [Read more](#populating). */
-			populates?: any[];
-
-			/** @type {Number} Default page size in `list` action. */
-			pageSize?: number;
-
-			/** @type {Number} Maximum page size in `list` action. */
-			maxPageSize?: number;
-
-			/** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
-			maxLimit?: number;
-
-			/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
-			entityValidator?: object | Function;
-		};
+		settings?: DbServiceSettings;
 
 		/**
 		 * Actions
