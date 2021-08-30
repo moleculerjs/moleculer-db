@@ -295,7 +295,7 @@ declare module "moleculer-db" {
 			 */
 			find?: {
 				cache?: {
-					keys:
+					keys: Array<
 						| "populate"
 						| "fields"
 						| "limit"
@@ -303,7 +303,9 @@ declare module "moleculer-db" {
 						| "sort"
 						| "search"
 						| "searchFields"
-						| "query";
+						| "query"
+						| any
+						>;
 				};
 				params?: {
 					populate: string | string[];
