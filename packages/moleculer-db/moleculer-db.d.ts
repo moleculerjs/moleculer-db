@@ -254,7 +254,7 @@ declare module "moleculer-db" {
 		populate?: string | string[];
 		searchFields?: string | string[];
 	}
-
+	export type DbContextSanitizedParams = DbContextParameters & { query?: QueryOptions }
 
 	export interface MoleculerDB<TAdapter extends DbAdapter> {
 		name: string;
@@ -327,13 +327,15 @@ declare module "moleculer-db" {
 			 * Sanitize context parameters at `find` action.
 			 *
 			 * @param {Context} ctx
-			 * @param {any} origParams
-			 * @returns {Promise}
+			 * @param {any?} params
+			 * @returns {Object}
 			 */
 			sanitizeParams?(
 				ctx: Context,
-				params?: DbContextParameters
-			): Promise<void>;
+				params?: DbContextParameters & {
+					query?: QueryOptions | any
+				}
+			): DbContextSanitizedParams;
 
 			/**
 			 * Get entity(ies) by ID(s).
