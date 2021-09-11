@@ -257,7 +257,8 @@ describe("Test MongooseStoreAdapter", () => {
 				limit: jest.fn(),
 				lean: leanCB,
 				exec: execCB,
-				count: countCB
+				count: countCB,
+				getQuery: jest.fn(() => ({}))
 			}));
 		});
 
@@ -331,6 +332,99 @@ describe("Test MongooseStoreAdapter", () => {
 
 			expect(q.find).toHaveBeenCalledTimes(1);
 			expect(q.find).toHaveBeenCalledWith({ "$or": [{ "name": /walter/i }, { "lastname": /walter/i }] });
+		});
+
+		it("call with query.$or & searchFields", () => {
+			const fakeQuery = {
+				$or: [
+					{ breaking: "bad" }
+				]
+			};
+			const getQueryCB = jest.fn(() => fakeQuery);
+			const setQueryCB = jest.fn();
+			adapter.model.find = jest.fn(() => ({
+				find: jest.fn(),
+				sort: jest.fn(),
+				skip: jest.fn(),
+				limit: jest.fn(),
+				lean: leanCB,
+				exec: execCB,
+				count: countCB,
+				getQuery: getQueryCB,
+				setQuery: setQueryCB,
+			}));
+
+			let q = adapter.createCursor({ search: "walter", searchFields: ["name", "lastname"] });
+			expect(adapter.model.find).toHaveBeenCalledTimes(1);
+			expect(adapter.model.find).toHaveBeenCalledWith(undefined);
+
+			expect(q.find).toHaveBeenCalledTimes(0);
+			expect(setQueryCB).toHaveBeenCalledWith({
+				"$and": [{
+					"$or": [{
+						"breaking": "bad"
+					}]
+				}, {
+					"$or": [{
+						"name": /walter/i
+					}, {
+						"lastname": /walter/i
+					}]
+				}]
+			});
+		});
+
+		it("call with query.$or, $query.$and & searchFields", () => {
+			const fakeQuery = {
+				$or: [
+					{ breaking: "bad" }
+				],
+				$and: [
+					{ prison: "break" }
+				]
+			};
+			const getQueryCB = jest.fn(() => fakeQuery);
+			const setQueryCB = jest.fn();
+			adapter.model.find = jest.fn(() => ({
+				find: jest.fn(),
+				sort: jest.fn(),
+				skip: jest.fn(),
+				limit: jest.fn(),
+				lean: leanCB,
+				exec: execCB,
+				count: countCB,
+				getQuery: getQueryCB,
+				setQuery: setQueryCB,
+			}));
+
+			let q = adapter.createCursor({ search: "walter", searchFields: ["name", "lastname"] });
+			expect(adapter.model.find).toHaveBeenCalledTimes(1);
+			expect(adapter.model.find).toHaveBeenCalledWith(undefined);
+
+			expect(q.find).toHaveBeenCalledTimes(0);
+			expect(setQueryCB).toHaveBeenCalledWith({
+				"$and": [
+					{
+						"prison": "break"
+					},
+					{
+						"$or": [
+							{
+								"breaking": "bad"
+							}
+						]
+					},
+					{
+						"$or": [
+							{
+								"name": /walter/i
+							}, {
+								"lastname": /walter/i
+							}
+						]
+					}
+				]
+			});
 		});
 	});
 
