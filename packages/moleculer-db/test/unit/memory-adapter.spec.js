@@ -3,7 +3,7 @@
 const { ServiceBroker } = require("moleculer");
 const Adapter = require("../../src/memory-adapter");
 
-const Datastore = require('nedb');
+const Datastore = require("@seald-io/nedb");
 
 function protectReject(err) {
 	if (err && err.stack) {
@@ -26,14 +26,14 @@ describe("Test Adapter constructor", () => {
 		expect(adapter.opts).toBe(opts);
 	});
 
-	it('should use preconfigured Datastore', () => {
+	it("should use preconfigured Datastore", () => {
 		const ds = new Datastore();
 		const adapter = new Adapter(ds);
 		adapter.connect();
 		expect(adapter).toBeDefined();
 		expect(adapter.db).toBe(ds);
 	});
-	
+
 });
 
 describe("Test Adapter methods", () => {
