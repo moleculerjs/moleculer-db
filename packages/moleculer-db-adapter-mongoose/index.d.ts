@@ -1,4 +1,4 @@
-declare module "moleculer-db-adapter-mongoose" {
+declare module "@cylution/moleculer-db-adapter-mongoose" {
 	import { Service, ServiceBroker } from "moleculer";
 	import {
 		ConnectionOptions,
