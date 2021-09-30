@@ -414,10 +414,10 @@ declare module "moleculer-db" {
 			/**
 			 * Validate an entity by validator.
 			 *
-			 * @param {T} entity
+			 * @param {Object | Object[]} entity
 			 * @returns {Promise}
 			 */
-			validateEntity?(entity: object): Promise<any>;
+			validateEntity?(entity: object | object[]): Promise<any>;
 
 			/**
 			 * Encode ID of entity.
