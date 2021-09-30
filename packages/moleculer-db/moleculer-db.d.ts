@@ -46,7 +46,7 @@ declare module "moleculer-db" {
 		 * @param {Service} service
 		 * @memberof DbAdapter
 		 */
-		init(broker: ServiceBroker, service: Service): DbAdapter;
+		init(broker: ServiceBroker, service: Service): void;
 		/**
 		 * Connect to database
 		 *
@@ -473,7 +473,7 @@ declare module "moleculer-db" {
 		 * @param {Service} service
 		 * @typeOf DbAdapter
 		 */
-		init(broker: ServiceBroker, service: Service): DbAdapter;
+		init(broker: ServiceBroker, service: Service): void;
 
 		/**
 		 * Connect to database
