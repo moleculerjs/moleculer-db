@@ -53,5 +53,10 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "lodash": "^4.17.21"
-  }
+  },
+  "files": [
+    "index.d.ts",
+    "index.js",
+    "src"
+  ]
 }
