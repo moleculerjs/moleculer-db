@@ -509,7 +509,7 @@ module.exports = {
 					// Compatibility with < 0.4
 					/* istanbul ignore next */
 					if (_.isString(fields))
-						fields = fields.split(" ");
+						fields = fields.split(/\s+/);
 
 					// Authorize the requested fields
 					const authFields = this.authorizeFields(fields);
