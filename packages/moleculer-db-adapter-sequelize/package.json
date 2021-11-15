@@ -3,6 +3,7 @@
   "version": "0.2.11",
   "description": "SQL adapter (Postgres, MySQL, SQLite & MSSQL) for Moleculer DB service",
   "main": "index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "dev": "nodemon examples/index.js",
     "ci": "jest --watch",
