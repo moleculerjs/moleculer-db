@@ -1,3 +1,5 @@
+import { Sequelize } from "sequelize/types";
+
 declare module "moleculer-db-adapter-sequelize" {
 	import { Service, ServiceBroker } from "moleculer";
 
@@ -24,6 +26,8 @@ declare module "moleculer-db-adapter-sequelize" {
     }
 
     export interface SequelizeDbAdapter  {
+
+      constructor(opts:Sequelize | string): void;
 		/**
 		 * Initialize adapter
 		 *
@@ -31,7 +35,7 @@ declare module "moleculer-db-adapter-sequelize" {
 		 * @param {Service} service
 		 * @memberof DbAdapter
 		 */
-         init(broker: ServiceBroker, service: Service): DbAdapter;
+         init(broker: ServiceBroker, service: Service): void;
          /**
           * Connect to database
           *
