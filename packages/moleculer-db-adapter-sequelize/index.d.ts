@@ -1,7 +1,7 @@
-import { Sequelize } from "sequelize/types";
-
 declare module "moleculer-db-adapter-sequelize" {
 	import { Service, ServiceBroker } from "moleculer";
+  import { Sequelize } from "sequelize/types";
+
 
 	export interface QueryOptions{
 		[name: string]: any;
@@ -25,9 +25,9 @@ declare module "moleculer-db-adapter-sequelize" {
 	
     }
 
-    export interface SequelizeDbAdapter  {
+  export default class SequelizeDbAdapter  {
 
-      constructor(opts:Sequelize | string): void;
+      constructor(opts:Sequelize | string);
 		/**
 		 * Initialize adapter
 		 *
