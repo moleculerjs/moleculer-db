@@ -5,16 +5,61 @@ declare module "moleculer-db" {
 		sort?:string;
 	}
 
-	export interface DbServiceSettings {
-		idField: string;
-		fields?: Array<string>;
-		populates?: Array<any>;
-		pageSize?: number;
-		maxPageSize?: number;
-		maxLimit?: number;
-		entityValidator?: any;
+	namespace Populate {
+		function HandlerFunctionRule(ids: any[], items: any[], rule: HandlerRule, ctx: Context): any
+		type CommonRule = {
+			field?: string
+			params?: DbContextSanitizedParams
+		}
+		type ActionRule = CommonRule & { action: string }
+		type HandlerRule = CommonRule & { handler: typeof HandlerFunctionRule }
+		type Rule =
+			| string
+			| ActionRule
+			| HandlerRule
+			| typeof HandlerFunctionRule
 	}
+	export interface DbServiceSettings {
+		/**
+		 *  Name of ID field.
+		 *  @default "_id"
+		 */
+		idField?: string;
 
+		/**
+		 *  Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities.
+		 */
+		fields?: string[];
+
+		/**
+		 *  Schema for population.
+		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
+		 */
+		populates?: { [k: string]: Populate.Rule };
+
+		/**
+		 * Default page size in `list` action.
+		 * @default 10
+		 */
+		pageSize?: number;
+
+		/**
+		 * Maximum page size in `list` action.
+		 * @default 100
+		 */
+		maxPageSize?: number;
+
+		/**
+		 * Maximum value of limit in `find` action.
+		 * @default `-1` (no limit)
+		 */
+		maxLimit?: number;
+
+		/**
+		 * Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.
+		 */
+		entityValidator?: object | Function;
+	}
 
 	export interface QueryOptions{
 		[name: string]: any;
@@ -46,7 +91,7 @@ declare module "moleculer-db" {
 		 * @param {Service} service
 		 * @memberof DbAdapter
 		 */
-		init(broker: ServiceBroker, service: Service): DbAdapter;
+		init(broker: ServiceBroker, service: Service): void;
 		/**
 		 * Connect to database
 		 *
@@ -241,7 +286,7 @@ declare module "moleculer-db" {
 		populate?: string | string[];
 		searchFields?: string | string[];
 	}
-
+	export type DbContextSanitizedParams = DbContextParameters & { query?: QueryOptions }
 
 	export interface MoleculerDB<TAdapter extends DbAdapter> {
 		name: string;
@@ -257,28 +302,7 @@ declare module "moleculer-db" {
 		/**
 		 * Default settings
 		 */
-		settings?: {
-			/** @type {String} Name of ID field. */
-			idField?: string;
-
-			/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
-			fields?: string[];
-
-			/** @type {Array?} Schema for population. [Read more](#populating). */
-			populates?: any[];
-
-			/** @type {Number} Default page size in `list` action. */
-			pageSize?: number;
-
-			/** @type {Number} Maximum page size in `list` action. */
-			maxPageSize?: number;
-
-			/** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
-			maxLimit?: number;
-
-			/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
-			entityValidator?: object | Function;
-		};
+		settings?: DbServiceSettings;
 
 		/**
 		 * Actions
@@ -303,7 +327,7 @@ declare module "moleculer-db" {
 			 */
 			find?: {
 				cache?: {
-					keys:
+					keys: Array<
 						| "populate"
 						| "fields"
 						| "limit"
@@ -311,19 +335,14 @@ declare module "moleculer-db" {
 						| "sort"
 						| "search"
 						| "searchFields"
-						| "query";
+						| "query"
+						| any
+						>;
 				};
-				params?: {
-					populate: string | string[];
-					fields?: string | string[];
-					limit?: number;
-					offset?: number;
-					sort?: string;
-					search?: string;
-					searchFields?: string | string[];
+				params?: DbContextParameters & {
 					query?: any;
 				};
-				handler?(ctx: Context): Promise<any>;
+				handler?(ctx: Context): Promise<object[]>;
 			};
 		};
 
@@ -340,13 +359,15 @@ declare module "moleculer-db" {
 			 * Sanitize context parameters at `find` action.
 			 *
 			 * @param {Context} ctx
-			 * @param {any} origParams
-			 * @returns {Promise}
+			 * @param {any?} params
+			 * @returns {Object}
 			 */
 			sanitizeParams?(
 				ctx: Context,
-				params?: DbContextParameters
-			): Promise<void>;
+				params?: DbContextParameters & {
+					query?: QueryOptions | any
+				}
+			): DbContextSanitizedParams;
 
 			/**
 			 * Get entity(ies) by ID(s).
@@ -380,7 +401,7 @@ declare module "moleculer-db" {
 			 * @methods
 			 * @returns {Promise}
 			 */
-			clearCache(): Promise<void>;
+			clearCache?(): Promise<void>;
 
 			/**
 			 * Transform the fetched documents
@@ -425,7 +446,7 @@ declare module "moleculer-db" {
 			/**
 			 * Validate an entity by validator.
 			 *
-			 * @param {T} entity
+			 * @param {Object} entity
 			 * @returns {Promise}
 			 */
 			validateEntity?(entity: object): Promise<any>;
@@ -460,6 +481,67 @@ declare module "moleculer-db" {
 			 * Service created lifecycle event handler
 			 */
 			created?(): Promise<void>;
+
+			/**
+			 * Find entities by query.
+			 *
+			 * @methods
+			 *
+			 * @param {Context} ctx - Context instance.
+			 * @param {Object?} params - Parameters.
+			 *
+			 * @returns {Array<Object>} List of found entities.
+			 */
+			_find?(ctx: Context, params?: FilterOptions): object[];
+
+			/**
+			 * Get count of entities by query.
+			 * @methods
+			 */
+			_count?(ctx: Context, params?: CountOptions): Number;
+
+			/**
+			 * List entities by filters and pagination results.
+			 * @methods
+			 */
+			_list?(ctx: Context, params?: DbContextSanitizedParams): {
+				rows: object[],
+				total: number,
+				page: number,
+				pageSize: number,
+				totalPages: number
+			}
+			/**
+			 * Create a new entity.
+			 * @methods
+			 */
+			_create?(ctx: Context, params: object): Promise<object>,
+
+			/**
+			 * Create many new entities.
+			 * @methods
+			 */
+			_insert?(ctx: Context, params: object): Promise<object>
+			_insert?(ctx: Context, params: object[]): Promise<object[]>
+
+			/**
+			 * Get entity by ID.
+			 * @methods
+			 */
+			_get?(ctx: Context, params?: Pick<DbContextParameters, "populate" | "fields"> & { id: any | any[], mapping?: boolean }): Promise<object| object[]>
+
+			/**
+			 * Update an entity by ID.
+			 * > After update, clear the cache & call lifecycle events.
+			 * @methods
+			 */
+			_update?(ctx: Context, params: object): Promise<object>
+
+			/**
+			 * Remove an entity by ID.
+			 * @methods
+			 */
+			_remove?(ctx: Context, params?: {id: any}): Promise<object>
 		};
 	}
 
@@ -473,7 +555,7 @@ declare module "moleculer-db" {
 		 * @param {Service} service
 		 * @typeOf DbAdapter
 		 */
-		init(broker: ServiceBroker, service: Service): DbAdapter;
+		init(broker: ServiceBroker, service: Service): void;
 
 		/**
 		 * Connect to database
@@ -652,9 +734,7 @@ declare module "moleculer-db" {
 		 */
 		afterRetrieveTransformID (entity:object, idField:string):object
 	}
-	export  class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+	export class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
 
 	}
-
-
 }

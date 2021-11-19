@@ -25,7 +25,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	constructor(uri, opts) {
-		this.uri = uri,
+		this.uri = uri;
 		this.opts = opts;
 		mongoose.Promise = Promise;
 	}
@@ -318,13 +318,24 @@ class MongooseDbAdapter {
 			// Search
 			if (_.isString(params.search) && params.search !== "") {
 				if (params.searchFields && params.searchFields.length > 0) {
-					q.find({
+					const searchQuery = {
 						$or: params.searchFields.map(f => (
 							{
 								[f]: new RegExp(params.search, "i")
 							}
 						))
-					});
+					};
+					const query = q.getQuery();
+					if (query.$or) {
+						if (!Array.isArray(query.$and)) query.$and = [];
+						query.$and.push(
+							_.pick(query, "$or"),
+							searchQuery
+						);
+						q.setQuery(_.omit(query, "$or"));
+					} else {
+						q.find(searchQuery);
+					}
 				} else {
 					// Full-text search
 					// More info: https://docs.mongodb.com/manual/reference/operator/query/text/
