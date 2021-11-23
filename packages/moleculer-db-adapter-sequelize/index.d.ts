@@ -27,7 +27,7 @@ declare module "moleculer-db-adapter-sequelize" {
 
   export default class SequelizeDbAdapter {
 
-    constructor(opts: Sequelize | string);
+    constructor(opts: object | string);
     /**
      * Initialize adapter
      *
