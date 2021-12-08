@@ -528,7 +528,7 @@ declare module "moleculer-db" {
 			 * Get entity by ID.
 			 * @methods
 			 */
-			_get?(ctx: Context, params?: Pick<DbContextParameters, "populate" | "fields"> & { id: any | any[], mapping?: boolean }): Promise<object| object[]>
+			_get?(ctx: Context, params: { id: any | any[], mapping?: boolean } & Partial<Pick<DbContextParameters, "populate" | "fields">>): Promise<object| object[]>
 
 			/**
 			 * Update an entity by ID.
@@ -541,7 +541,7 @@ declare module "moleculer-db" {
 			 * Remove an entity by ID.
 			 * @methods
 			 */
-			_remove?(ctx: Context, params?: {id: any}): Promise<object>
+			_remove?(ctx: Context, params: {id: any}): Promise<object>
 		};
 	}
 
