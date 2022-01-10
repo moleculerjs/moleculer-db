@@ -302,9 +302,10 @@ class SequelizeDbAdapter {
 	 * @returns {Promise}
 	 */
 	createCursor(params, isCounting) {
+		const strictCountRule = { distinct: true, col: `${this.model.tableName}.${this.model.primaryKeyAttribute}` };
 		if (!params) {
 			if (isCounting)
-				return this.model.count();
+				return this.model.count(strictCountRule);
 
 			return this.model.findAll();
 		}
@@ -356,7 +357,7 @@ class SequelizeDbAdapter {
 			q.limit = params.limit;
 
 		if (isCounting)
-			return this.model.count(q);
+			return this.model.count(_.merge(q, strictCountRule));
 
 		return this.model.findAll(q);
 	}
