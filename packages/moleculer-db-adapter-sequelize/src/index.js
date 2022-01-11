@@ -302,7 +302,7 @@ class SequelizeDbAdapter {
 	 * @returns {Promise}
 	 */
 	createCursor(params, isCounting) {
-		const strictCountRule = { distinct: true, col: `${this.model.tableName}.${this.model.primaryKeyAttribute}` };
+		const strictCountRule = { distinct: true, col: `${this.model.name ||this.model.tableName}.${this.model.primaryKeyAttribute}` };
 		if (!params) {
 			if (isCounting)
 				return this.model.count(strictCountRule);
