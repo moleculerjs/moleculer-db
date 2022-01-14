@@ -945,7 +945,9 @@ describe("Test validateEntity method", () => {
 
 	describe("Test with built-in validator function", () => {
 
-		const broker = new ServiceBroker({ logger: false, validation: true });
+		const broker = new ServiceBroker({ logger: false, validation: {
+			options: { useNewCustomCheckerFunction: true } // Enable async validations
+		} });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -953,6 +955,23 @@ describe("Test validateEntity method", () => {
 				entityValidator: {
 					id: "number",
 					name: "string"
+				}
+			}
+		});
+
+		// Service with async validation
+		const otherService = broker.createService(DbService, {
+			name: "shop",
+			adapter: mockAdapter,
+			settings: {
+				entityValidator: {
+					$$async: true,
+					id: "number",
+					name: { type: "string", custom: async (value) => {
+						return await new Promise(resolve => { setTimeout(() => {
+							resolve(value);
+						}, 10); });
+					} }
 				}
 			}
 		});
@@ -976,6 +995,27 @@ describe("Test validateEntity method", () => {
 				expect(err.data[0].field).toBe("id");
 			});
 		});
+
+		// Async validator
+		it("should call async validator with correct entity", () => {
+			let entity = { id: 5, name: "Mario" };
+			return otherService.validateEntity(entity).catch(protectReject).then(res => {
+				expect(res).toBe(entity);
+			});
+		});
+
+		it("should call async validator with incorrect entity", () => {
+			let entity = { name: "Luigi" };
+			return otherService.validateEntity(entity).then(protectReject).catch(err => {
+				expect(err).toBeDefined();
+				expect(err).toBeInstanceOf(ValidationError);
+				expect(err.code).toBe(422);
+				expect(err.message).toBe("Entity validation error!");
+
+				expect(err.data[0].type).toBe("required");
+				expect(err.data[0].field).toBe("id");
+			});
+		})
 
 	});
 
