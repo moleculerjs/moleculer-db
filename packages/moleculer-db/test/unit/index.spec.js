@@ -51,6 +51,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
@@ -589,6 +590,75 @@ describe("Test transformDocuments method", () => {
 		});
 	});
 
+	describe("Test excludeFields", () => {
+		describe("Test with object", function () {
+			const docs = { _id : 2, a: { b: 6, c: 7, d: { e: { f: 8 }, g: 9} } };
+
+			const broker = new ServiceBroker({ logger: false, validation: false });
+			const service = broker.createService(DbService, {
+				name: "store",
+				adapter: mockAdapter
+			});
+
+			it("should return expected - fields", () => {
+				const ctx = { params: { fields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({a: { c: 7 }});
+				});
+			});
+
+			it("should return expected - excludeFields", () => {
+				const ctx = { params: { excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"_id": 2,
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields - deep", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.d.e.f"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+		});
+	});
+
 });
 
 describe("Test authorizeFields method", () => {
@@ -1015,7 +1085,7 @@ describe("Test validateEntity method", () => {
 				expect(err.data[0].type).toBe("required");
 				expect(err.data[0].field).toBe("id");
 			});
-		})
+		});
 
 	});
 
