@@ -49,6 +49,9 @@ module.exports = {
 		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
 		fields: null,
 
+		/** @type {Array<String>?} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
+		excludeFields: null,
+
 		/** @type {Array?} Schema for population. [Read more](#populating). */
 		populates: null,
 
@@ -83,6 +86,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} limit - Max count of rows.
 		 * @param {Number?} offset - Count of skipped rows.
 		 * @param {String?} sort - Sorted fields.
@@ -102,6 +106,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -165,6 +173,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} page - Page number.
 		 * @param {Number?} pageSize - Size of a page.
 		 * @param {String?} sort - Sorted fields.
@@ -185,6 +194,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -252,6 +265,7 @@ module.exports = {
 		 * @param {any|Array<any>} id - ID(s) of entity.
 		 * @param {String|Array<String>} populate - Field list for populate.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Boolean?} mapping - Convert the returned `Array` to `Object` where the key is the value of `id`.
 		 *
 		 * @returns {Object|Array<Object>} Found entity(ies).
@@ -274,6 +288,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -505,6 +523,7 @@ module.exports = {
 				// Filter fields
 				.then(json => {
 					let fields = ctx && params.fields ? params.fields : this.settings.fields;
+					let excludeFields = ctx && params.excludeFields ? params.excludeFields : this.settings.excludeFields;
 
 					// Compatibility with < 0.4
 					/* istanbul ignore next */
@@ -514,7 +533,22 @@ module.exports = {
 					// Authorize the requested fields
 					const authFields = this.authorizeFields(fields);
 
-					return json.map(item => this.filterFields(item, authFields));
+					if (excludeFields) {
+						// Compatibility with < 0.4
+						/* istanbul ignore next */
+						if (_.isString(excludeFields))
+							excludeFields = excludeFields.split(/\s+/);
+
+						return json.map(item => {
+							const doc = this.filterFields(item, authFields);
+							excludeFields.forEach(excludePath => {
+								_.unset(doc, excludePath);
+							});
+							return doc;
+						});
+					} else {
+						return json.map(item => this.filterFields(item, authFields));
+					}
 				})
 
 				// Return
@@ -929,7 +963,11 @@ module.exports = {
 	created() {
 		// Compatibility with < 0.4
 		if (_.isString(this.settings.fields)) {
-			this.settings.fields = this.settings.fields.split(" ");
+			this.settings.fields = this.settings.fields.split(/\s+/);
+		}
+
+		if (_.isString(this.settings.excludeFields)) {
+			this.settings.excludeFields = this.settings.excludeFields.split(/\s+/);
 		}
 
 		if (!this.schema.adapter)

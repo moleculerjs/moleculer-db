@@ -51,6 +51,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
@@ -82,13 +83,13 @@ describe("Test DbService actions", () => {
 
 		return broker.call("store.get", p).then(() => {
 			expect(service.sanitizeParams).toHaveBeenCalledTimes(1);
-			expect(service.sanitizeParams).toHaveBeenCalledWith(jasmine.any(Context), p);
+			expect(service.sanitizeParams).toHaveBeenCalledWith(expect.any(Context), p);
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
 			expect(service.getById).toHaveBeenCalledWith(5, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, doc);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, doc);
 
 		}).catch(protectReject);
 	});
@@ -125,7 +126,7 @@ describe("Test DbService actions", () => {
 			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
 
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(3);
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs[0], "_id");
@@ -155,7 +156,7 @@ describe("Test DbService actions", () => {
 			expect(service.getById).toHaveBeenCalledWith(5, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
-			expect(service.transformDocuments).toHaveBeenCalledWith(jasmine.any(Context), p, docs);
+			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
 
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledTimes(1);
 			expect(service.adapter.afterRetrieveTransformID).toHaveBeenCalledWith(docs, "_id");
@@ -589,6 +590,75 @@ describe("Test transformDocuments method", () => {
 		});
 	});
 
+	describe("Test excludeFields", () => {
+		describe("Test with object", function () {
+			const docs = { _id : 2, a: { b: 6, c: 7, d: { e: { f: 8 }, g: 9} } };
+
+			const broker = new ServiceBroker({ logger: false, validation: false });
+			const service = broker.createService(DbService, {
+				name: "store",
+				adapter: mockAdapter
+			});
+
+			it("should return expected - fields", () => {
+				const ctx = { params: { fields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({a: { c: 7 }});
+				});
+			});
+
+			it("should return expected - excludeFields", () => {
+				const ctx = { params: { excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"_id": 2,
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields - deep", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.d.e.f"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+		});
+	});
+
 });
 
 describe("Test authorizeFields method", () => {
@@ -758,7 +828,7 @@ describe("Test populateDocs method", () => {
 			expect(service.settings.populates.rate).toHaveBeenCalledTimes(1);
 			expect(service.settings.populates.rate).toHaveBeenCalledWith([4, 5], docs, {
 				field: "rate",
-				handler: jasmine.any(Function)
+				handler: expect.any(Function)
 			}, ctx);
 
 			expect(res).toEqual([
@@ -945,7 +1015,9 @@ describe("Test validateEntity method", () => {
 
 	describe("Test with built-in validator function", () => {
 
-		const broker = new ServiceBroker({ logger: false, validation: true });
+		const broker = new ServiceBroker({ logger: false, validation: {
+			options: { useNewCustomCheckerFunction: true } // Enable async validations
+		} });
 		const service = broker.createService(DbService, {
 			name: "store",
 			adapter: mockAdapter,
@@ -953,6 +1025,23 @@ describe("Test validateEntity method", () => {
 				entityValidator: {
 					id: "number",
 					name: "string"
+				}
+			}
+		});
+
+		// Service with async validation
+		const otherService = broker.createService(DbService, {
+			name: "shop",
+			adapter: mockAdapter,
+			settings: {
+				entityValidator: {
+					$$async: true,
+					id: "number",
+					name: { type: "string", custom: async (value) => {
+						return await new Promise(resolve => { setTimeout(() => {
+							resolve(value);
+						}, 10); });
+					} }
 				}
 			}
 		});
@@ -967,6 +1056,27 @@ describe("Test validateEntity method", () => {
 		it("should call validator with incorrect entity", () => {
 			let entities = [{ id: 5, name: "John" }, { name: "Jane" }];
 			return service.validateEntity(entities).then(protectReject).catch(err => {
+				expect(err).toBeDefined();
+				expect(err).toBeInstanceOf(ValidationError);
+				expect(err.code).toBe(422);
+				expect(err.message).toBe("Entity validation error!");
+
+				expect(err.data[0].type).toBe("required");
+				expect(err.data[0].field).toBe("id");
+			});
+		});
+
+		// Async validator
+		it("should call async validator with correct entity", () => {
+			let entity = { id: 5, name: "Mario" };
+			return otherService.validateEntity(entity).catch(protectReject).then(res => {
+				expect(res).toBe(entity);
+			});
+		});
+
+		it("should call async validator with incorrect entity", () => {
+			let entity = { name: "Luigi" };
+			return otherService.validateEntity(entity).then(protectReject).catch(err => {
 				expect(err).toBeDefined();
 				expect(err).toBeInstanceOf(ValidationError);
 				expect(err.code).toBe(422);
