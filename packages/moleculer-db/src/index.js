@@ -49,6 +49,9 @@ module.exports = {
 		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
 		fields: null,
 
+		/** @type {Array<String>?} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
+		excludeFields: null,
+
 		/** @type {Array?} Schema for population. [Read more](#populating). */
 		populates: null,
 
@@ -83,6 +86,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} limit - Max count of rows.
 		 * @param {Number?} offset - Count of skipped rows.
 		 * @param {String?} sort - Sorted fields.
@@ -102,6 +106,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -165,6 +173,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} page - Page number.
 		 * @param {Number?} pageSize - Size of a page.
 		 * @param {String?} sort - Sorted fields.
@@ -185,6 +194,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -252,6 +265,7 @@ module.exports = {
 		 * @param {any|Array<any>} id - ID(s) of entity.
 		 * @param {String|Array<String>} populate - Field list for populate.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Boolean?} mapping - Convert the returned `Array` to `Object` where the key is the value of `id`.
 		 *
 		 * @returns {Object|Array<Object>} Found entity(ies).
@@ -274,6 +288,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -537,6 +555,23 @@ module.exports = {
 					return json.map(item => this.filterFields(item, authFields));
 				})
 
+				// Filter excludeFields
+				.then(json => {
+					const excludeFields = (ctx && params.excludeFields)
+						? _.isString(params.excludeFields)
+							? params.excludeFields.split(/\s+/)
+							: params.excludeFields
+						: this.settings.excludeFields;
+
+					if (Array.isArray(excludeFields) && excludeFields.length > 0) {
+						return json.map(doc => {
+							return this._excludeFields(doc, excludeFields);
+						});
+					} else {
+						return json;
+					}
+				})
+
 				// Return
 				.then(json => isDoc ? json[0] : json);
 		},
@@ -561,6 +596,32 @@ module.exports = {
 			}
 
 			return doc;
+		},
+
+		/**
+		 * Exclude fields in the entity object
+		 *
+		 * @param {Object} 	doc
+		 * @param {Array<String>} 	fields	Exclude properties of model.
+		 * @returns	{Object}
+		 */
+		excludeFields(doc, fields) {
+			if (Array.isArray(fields) && fields.length > 0) {
+				return this._excludeFields(doc, fields);
+			}
+
+			return doc;
+		},
+
+		/**
+		 * Exclude fields in the entity object. Internal use only, must ensure `fields` is an Array
+		 */
+		_excludeFields(doc, fields) {
+			const res = _.cloneDeep(doc);
+			fields.forEach(field => {
+				_.unset(res, field);
+			});
+			return res;
 		},
 
 		/**
@@ -997,6 +1058,10 @@ module.exports = {
 		// Compatibility with < 0.4
 		if (_.isString(this.settings.fields)) {
 			this.settings.fields = this.settings.fields.split(" ");
+		}
+
+		if (_.isString(this.settings.excludeFields)) {
+			this.settings.excludeFields = this.settings.excludeFields.split(/\s+/);
 		}
 
 		if (!this.schema.adapter)

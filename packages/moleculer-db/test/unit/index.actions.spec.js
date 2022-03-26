@@ -58,6 +58,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,

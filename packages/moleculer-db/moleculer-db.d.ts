@@ -34,6 +34,11 @@ declare module "moleculer-db" {
 		fields?: string[];
 
 		/**
+		 * List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored.
+		 */
+		excludeFields?: string[],
+
+		/**
 		 *  Schema for population.
 		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
 		 */
@@ -351,6 +356,14 @@ declare module "moleculer-db" {
 		 * @returns	{Object}
 		 */
 		filterFields(doc: any, fields: any[]): object;
+		/**
+		 * Exclude fields in the entity object
+		 *
+		 * @param {Object} 	doc
+		 * @param {Array} 	fields	Exclude properties of model.
+		 * @returns	{Object}
+		 */
+		excludeFields(doc: any, fields: any[]): object;
 
 		/**
 		 * Authorize the required field list. Remove fields which is not exist in the `this.settings.fields`
