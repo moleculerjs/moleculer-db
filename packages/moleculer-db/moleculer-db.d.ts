@@ -32,6 +32,11 @@ declare module "@cylution/moleculer-db" {
 		fields?: string[];
 
 		/**
+		 * List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored.
+		 */
+		excludeFields?: string[],
+
+		/**
 		 *  Schema for population.
 		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
 		 */
