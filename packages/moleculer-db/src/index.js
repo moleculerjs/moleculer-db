@@ -103,7 +103,10 @@ module.exports = {
 			params: {
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: [
+						"string",
+						{ type: "object", props: { populate: "string", fields: { type: "array", optional: true, items: "string" }}},
+					] },
 				],
 				fields: [
 					{ type: "string", optional: true },
@@ -191,7 +194,10 @@ module.exports = {
 			params: {
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: [
+						"string",
+						{ type: "object", props: { populate: "string", fields: { type: "array", optional: true, items: "string" }}},
+					] },
 				],
 				fields: [
 					{ type: "string", optional: true },
@@ -285,7 +291,10 @@ module.exports = {
 				],
 				populate: [
 					{ type: "string", optional: true },
-					{ type: "array", optional: true, items: "string" },
+					{ type: "array", optional: true, items: [
+						"string",
+						{ type: "object", props: { populate: "string", fields: { type: "array", optional: true, items: "string" }}},
+					] },
 				],
 				fields: [
 					{ type: "string", optional: true },
@@ -578,17 +587,18 @@ module.exports = {
 		},
 
 		/**
-		 * Authorize the required field list. Remove fields which is not exist in the `this.settings.fields`
+		 * Authorize the required field list. Remove fields which is not exist in the `allowedFields`( default: `this.settings.fields`)
 		 *
 		 * @param {Array} fields
+		 * @param {Array} allowedFields filter fields based on allowedFields list
 		 * @returns {Array}
 		 */
-		authorizeFields(fields) {
-			if (this.settings.fields && this.settings.fields.length > 0) {
+		authorizeFields(fields, allowedFields = this.settings.fields) {
+			if (allowedFields && allowedFields.length > 0) {
 				let res = [];
 				if (Array.isArray(fields) && fields.length > 0) {
 					fields.forEach(f => {
-						if (this.settings.fields.indexOf(f) !== -1) {
+						if (allowedFields.indexOf(f) !== -1) {
 							res.push(f);
 							return;
 						}
@@ -597,19 +607,19 @@ module.exports = {
 							let parts = f.split(".");
 							while (parts.length > 1) {
 								parts.pop();
-								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
+								if (allowedFields.indexOf(parts.join(".")) !== -1) {
 									res.push(f);
 									break;
 								}
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(prop => prop.indexOf(f + ".") !== -1);
+						let nestedFields = allowedFields.filter(prop => prop.indexOf(f + ".") !== -1);
 						if (nestedFields.length > 0) {
 							res = res.concat(nestedFields);
 						}
 					});
-					//return _.intersection(f, this.settings.fields);
+					//return _.intersection(f, allowedFields);
 				}
 				return res;
 			}
@@ -626,7 +636,7 @@ module.exports = {
 		 * @returns	{Promise}
 		 */
 		populateDocs(ctx, docs, populateFields) {
-			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
+			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length === 0)
 				return Promise.resolve(docs);
 
 			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
@@ -635,18 +645,18 @@ module.exports = {
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, field) => {
 
-				if (populateFields.indexOf(field) === -1)
+				let populateField = populateFields.find(populateField => {
+					return (typeof populateField === "string" && populateField === field) ||
+						(typeof populateField === "object" && populateField != null && populateField.populate === field);
+				});
+				if (populateField == null)
 					return; // skip
 
-				// if the rule is a function, save as a custom handler
-				if (_.isFunction(rule)) {
+				if (_.isFunction(rule)) { // if the rule is a function, save as a custom handler
 					rule = {
 						handler: Promise.method(rule)
 					};
-				}
-
-				// If string, convert to object
-				if (_.isString(rule)) {
+				} else if (_.isString(rule)) { // If is string, convert to object
 					rule = {
 						action: rule
 					};
@@ -675,11 +685,19 @@ module.exports = {
 					promises.push(rule.handler.call(this, idList, arr, rule, ctx));
 				} else if (idList.length > 0) {
 					// Call the target action & collect the promises
-					const params = Object.assign({
+					const params = {
 						id: idList,
 						mapping: true,
-						populate: rule.populate
-					}, rule.params || {});
+						populate: rule.populate,
+						...rule.params,
+					};
+					const customFields = typeof populateField === "string" ? null : populateField.fields;
+					if (Array.isArray(customFields)) {
+						params.fields = Array.isArray(params.fields)
+							// if populate had `params.fields`, limit asked fields
+							? this.authorizeFields(customFields, params.fields)
+							: customFields;
+					}
 
 					promises.push(ctx.call(rule.action, params).then(resultTransform));
 				}
