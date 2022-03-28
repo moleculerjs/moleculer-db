@@ -281,6 +281,10 @@ declare module "@cylution/moleculer-db" {
 		 */
 		afterRetrieveTransformID(entity: object, idField: string): object;
 	}
+	type PopulateParams = string | {
+		populate: string
+		fields?: string[]
+	}
 	export interface DbContextParameters {
 		limit?: string | number;
 		offset?: string | number;
@@ -288,7 +292,7 @@ declare module "@cylution/moleculer-db" {
 		pageSize?: string | number;
 		sort?: string | string[];
 		fields?: string | string[];
-		populate?: string | string[];
+		populate?: string | PopulateParams[];
 		searchFields?: string | string[];
 	}
 	export type DbContextSanitizedParams = DbContextParameters & { query?: QueryOptions }
