@@ -1,6 +1,6 @@
 ![Moleculer logo](https://moleculer.services/images/banner.png)
 
-# moleculer-db [![NPM version](https://img.shields.io/npm/v/moleculer-db.svg)](https://www.npmjs.com/package/moleculer-db)
+# @cylution/moleculer-db [![NPM version](https://img.shields.io/npm/v/moleculer-db.svg)](https://www.npmjs.com/package/moleculer-db)
 
 Moleculer service to store entities in database.
 
@@ -74,15 +74,16 @@ broker.start()
 # Settings
 
 <!-- AUTO-CONTENT-START:SETTINGS -->
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-| `idField` | `String` | **required** | Name of ID field. |
-| `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
-| `populates` | `Array` | `null` | Schema for population. [Read more](#populating). |
-| `pageSize` | `Number` | **required** | Default page size in `list` action. |
-| `maxPageSize` | `Number` | **required** | Maximum page size in `list` action. |
-| `maxLimit` | `Number` | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit) |
-| `entityValidator` | `Object`, `function` | `null` | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. |
+| Property          | Type                 | Default      | Description                                                                                                               |
+|-------------------|----------------------|--------------|---------------------------------------------------------------------------------------------------------------------------|
+| `idField`         | `String`             | **required** | Name of ID field.                                                                                                         |
+| `fields`          | `Array.<String>`     | `null`       | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
+| `excludeFields`   | `Array.<String>`     | `null`       | Exclude fields from list. It must be an `Array`.                                                                          |
+| `populates`       | `Array`              | `null`       | Schema for population. [Read more](#populating).                                                                          |
+| `pageSize`        | `Number`             | **required** | Default page size in `list` action.                                                                                       |
+| `maxPageSize`     | `Number`             | **required** | Maximum page size in `list` action.                                                                                       |
+| `maxLimit`        | `Number`             | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit)                                                         |
+| `entityValidator` | `Object`, `function` | `null`       | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.                            |
 
 <!-- AUTO-CONTENT-END:SETTINGS -->
 
@@ -592,6 +593,7 @@ broker.createService({
             "author": {
                 action: "users.get",
                 params: {
+                    // limit populate fields
                     fields: "username fullName"
                 }
             },
@@ -606,6 +608,9 @@ broker.createService({
 
 // List posts with populated authors
 broker.call("posts.find", { populate: ["author"]}).then(console.log);
+
+// List posts with populated authors but get author.fullName only
+broker.call("posts.find", { populate: [{ populate: "author", fields: ["fullName"]}]}).then(console.log);
 ```
 
 > The `populate` parameter is available in `find`, `list` and `get` actions.
