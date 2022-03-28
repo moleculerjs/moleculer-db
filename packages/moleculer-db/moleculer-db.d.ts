@@ -1,33 +1,65 @@
-declare module "moleculer-db" {
+declare module "@cylution/moleculer-db" {
 	import { Context, ServiceBroker, Service } from "moleculer";
 
 	export interface QueryFilters extends FilterOptions{
 		sort?:string;
 	}
 
+	namespace Populate {
+		function HandlerFunctionRule(ids: any[], items: any[], rule: HandlerRule, ctx: Context): any
+		type CommonRule = {
+			field?: string
+			params?: DbContextSanitizedParams
+		}
+		type ActionRule = CommonRule & { action: string }
+		type HandlerRule = CommonRule & { handler: typeof HandlerFunctionRule }
+		type Rule =
+			| string
+			| ActionRule
+			| HandlerRule
+			| typeof HandlerFunctionRule
+	}
 	export interface DbServiceSettings {
-		/** @type {String} Name of ID field. */
+		/**
+		 *  Name of ID field.
+		 *  @default "_id"
+		 */
 		idField?: string;
 
-		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
+		/**
+		 *  Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities.
+		 */
 		fields?: string[];
 
-		/** @type {Array?} Schema for population. [Read more](#populating). */
-		populates?: any[];
+		/**
+		 *  Schema for population.
+		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
+		 */
+		populates?: { [k: string]: Populate.Rule };
 
-		/** @type {Number} Default page size in `list` action. */
+		/**
+		 * Default page size in `list` action.
+		 * @default 10
+		 */
 		pageSize?: number;
 
-		/** @type {Number} Maximum page size in `list` action. */
+		/**
+		 * Maximum page size in `list` action.
+		 * @default 100
+		 */
 		maxPageSize?: number;
 
-		/** @type {Number} Maximum value of limit in `find` action. Default: `-1` (no limit) */
+		/**
+		 * Maximum value of limit in `find` action.
+		 * @default `-1` (no limit)
+		 */
 		maxLimit?: number;
 
-		/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
+		/**
+		 * Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.
+		 */
 		entityValidator?: object | Function;
 	}
-
 
 	export interface QueryOptions{
 		[name: string]: any;
@@ -414,10 +446,10 @@ declare module "moleculer-db" {
 			/**
 			 * Validate an entity by validator.
 			 *
-			 * @param {Object | Object[]} entity
+			 * @param {Object} entity
 			 * @returns {Promise}
 			 */
-			validateEntity?(entity: object | object[]): Promise<any>;
+			validateEntity?(entity: object): Promise<any>;
 
 			/**
 			 * Encode ID of entity.
@@ -496,7 +528,7 @@ declare module "moleculer-db" {
 			 * Get entity by ID.
 			 * @methods
 			 */
-			_get?(ctx: Context, params?: Pick<DbContextParameters, "populate" | "fields"> & { id: any | any[], mapping?: boolean }): Promise<object| object[]>
+			_get?(ctx: Context, params: { id: any | any[], mapping?: boolean } & Partial<Pick<DbContextParameters, "populate" | "fields">>): Promise<object| object[]>
 
 			/**
 			 * Update an entity by ID.
@@ -509,7 +541,7 @@ declare module "moleculer-db" {
 			 * Remove an entity by ID.
 			 * @methods
 			 */
-			_remove?(ctx: Context, params?: {id: any}): Promise<object>
+			_remove?(ctx: Context, params: {id: any}): Promise<object>
 		};
 	}
 
@@ -702,9 +734,7 @@ declare module "moleculer-db" {
 		 */
 		afterRetrieveTransformID (entity:object, idField:string):object
 	}
-	export  class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+	export class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
 
 	}
-
-
 }

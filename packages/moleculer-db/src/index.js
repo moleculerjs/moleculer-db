@@ -509,7 +509,7 @@ module.exports = {
 					// Compatibility with < 0.4
 					/* istanbul ignore next */
 					if (_.isString(fields))
-						fields = fields.split(" ");
+						fields = fields.split(/\s+/);
 
 					// Authorize the requested fields
 					const authFields = this.authorizeFields(fields);
@@ -942,8 +942,9 @@ module.exports = {
 		// Transform entity validation schema to checker function
 		if (this.broker.validator && _.isObject(this.settings.entityValidator) && !_.isFunction(this.settings.entityValidator)) {
 			const check = this.broker.validator.compile(this.settings.entityValidator);
-			this.settings.entityValidator = entity => {
-				const res = check(entity);
+			this.settings.entityValidator = async entity => {
+				let res = check(entity);
+				if (check.async === true || (res.then) instanceof Function) res = await res;
 				if (res === true)
 					return Promise.resolve();
 				else
