@@ -692,8 +692,8 @@ module.exports = {
 						...rule.params,
 					};
 					const customFields = typeof populateField === "string" ? null : populateField.fields;
-					if (Array.isArray(customFields)) {
-						params.fields = Array.isArray(params.fields)
+					if (Array.isArray(customFields) && customFields.length > 0) {
+						params.fields = (Array.isArray(params.fields) && params.fields.length > 0)
 							// if populate had `params.fields`, limit asked fields
 							? this.authorizeFields(customFields, params.fields)
 							: customFields;
