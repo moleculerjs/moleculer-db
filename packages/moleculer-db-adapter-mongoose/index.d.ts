@@ -1,7 +1,7 @@
 declare module "@cylution/moleculer-db-adapter-mongoose" {
 	import { Service, ServiceBroker } from "moleculer";
 	import {
-		ConnectionOptions,
+		ConnectOptions,
 		Document,
 		Query as DocumentQuery, //reff: https://github.com/Automattic/mongoose/issues/10036#issuecomment-803144616
 		Model,
@@ -11,12 +11,12 @@ declare module "@cylution/moleculer-db-adapter-mongoose" {
 
 	type HasModelOrSchema<T extends Document> =
 		| {
-				model: Model<T>;
-		  }
+		model: Model<T>;
+	}
 		| {
-				schema: Schema;
-				modelName: string;
-		  };
+		schema: Schema;
+		modelName: string;
+	};
 
 	/**
 	 * Parameters to {@link MongooseDbAdapter.count}
@@ -41,7 +41,7 @@ declare module "@cylution/moleculer-db-adapter-mongoose" {
 
 	class MongooseDbAdapter<TDocument extends Document> {
 		uri: string;
-		opts?: ConnectionOptions;
+		opts?: ConnectOptions;
 		broker: ServiceBroker;
 		service: Service;
 		model: Model<TDocument>;
@@ -52,7 +52,7 @@ declare module "@cylution/moleculer-db-adapter-mongoose" {
 		/**
 		 * Creates an instance of MongooseDbAdapter.
 		 */
-		constructor(uri: string, opts?: ConnectionOptions);
+		constructor(uri: string, opts?: ConnectOptions);
 		/**
 		 * Initialize adapter
 		 */
