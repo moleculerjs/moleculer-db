@@ -49,14 +49,20 @@ jest.mock("mongoose", () => {
 		close: jest.fn(fn => fn()),
 		model: jest.fn(() => fakeModel)
 	};
-	const connection = { db: fakeDb };
+	const connection = { ...fakeDb, db: fakeDb };
 	return {
 		fake: {
 			doc, docIdString,
 			execCB, saveCB, leanCB, countCB, query,
 			fakeSchema, fakeModel, fakeDb
 		},
-		connect: jest.fn(() => Promise.resolve({ connection })),
+		connect: jest.fn((...args) => {
+			if (typeof args[args.length -1] === "function") {
+				args[args.length -1](null, {connection});
+			} else {
+				return Promise.resolve({ connection });
+			}
+		}),
 		set: jest.fn(),
 		connection,
 		Types: {
@@ -160,13 +166,13 @@ describe("Test MongooseStoreAdapter", () => {
 			adapter.opts = undefined;
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
-				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://localhost", undefined);
+				expect(mongoose.connect).toHaveBeenCalledWith("mongodb://localhost", undefined, expect.any(Function));
 
 				expect(adapter.db).toBe(fakeDb);
 				expect(adapter.db.on).toHaveBeenCalledTimes(3);
-				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", jasmine.any(Function));
-				expect(adapter.db.on).toHaveBeenCalledWith("error", jasmine.any(Function));
-				expect(adapter.db.on).toHaveBeenCalledWith("reconnect", jasmine.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("disconnected", expect.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
+				expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 			});
 		});
 
@@ -181,7 +187,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
-				expect(mongoose.connect).toHaveBeenCalledWith(adapter.uri, adapter.opts);
+				expect(mongoose.connect).toHaveBeenCalledWith(adapter.uri, adapter.opts, expect.any(Function));
 			});
 		});
 
@@ -230,7 +236,7 @@ describe("Test MongooseStoreAdapter", () => {
 
 			const makeModel = jest.fn(() => fakeModel);
 			mongoose.createConnection = jest.fn(() => {
-				return Promise.resolve({ db: fakeDb, model: makeModel });
+				return Promise.resolve({  ...fakeDb, db: fakeDb, model: makeModel });
 			});
 
 			adapter.opts = {
@@ -238,7 +244,9 @@ describe("Test MongooseStoreAdapter", () => {
 				pass: "123456"
 			};
 
-			return adapter.connect().catch(protectReject).then(() => {
+			return adapter.connect().catch(e => {
+				protectReject(e);
+			}).then(() => {
 				expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
 				expect(mongoose.createConnection).toHaveBeenCalledWith(adapter.uri, adapter.opts);
 				expect(makeModel).toHaveBeenCalledWith("fakeModel", fakeSchema);

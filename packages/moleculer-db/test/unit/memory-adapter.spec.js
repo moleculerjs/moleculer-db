@@ -62,7 +62,7 @@ describe("Test Adapter methods", () => {
 	it("should insert a document", () => {
 		return adapter.insert(doc)
 			.then(res => {
-				expect(res).toEqual(Object.assign({}, doc, { _id: jasmine.any(String) }));
+				expect(res).toEqual(Object.assign({}, doc, { _id: expect.any(String) }));
 				savedDoc = res;
 			})
 			.catch(protectReject);
