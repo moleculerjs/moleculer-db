@@ -1,6 +1,6 @@
 {
   "name": "@cylution/moleculer-db",
-  "version": "0.8.17-3",
+  "version": "0.8.17-4",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
