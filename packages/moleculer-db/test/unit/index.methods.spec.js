@@ -2,6 +2,7 @@
 
 const { ServiceBroker, Context } = require("moleculer");
 const DbService = require("../../src");
+const _ = require("lodash");
 
 function protectReject(err) {
 	if (err && err.stack) {
@@ -41,7 +42,13 @@ describe("Test DbService methods", () => {
 		name: "store",
 		version: 1,
 		adapter,
-		afterConnected
+		afterConnected,
+		settings: {
+			fields: [
+				"id",
+				"foo"
+			]
+		}
 	});
 
 	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(docs));
@@ -296,5 +303,239 @@ describe("Test DbService methods", () => {
 				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context, 3);
 			});
 		});
+	});
+});
+
+describe("Test 'entityChanged' method", () => {
+	const fields = ["id"];
+	const doc = { id : 1 };
+	const docRaw = { id : 1, foo: "bar" };
+	const p = {
+		foo: "bar"
+	};
+	const docs = [doc];
+	const docsRaw = [docRaw];
+
+	const adapter = {
+		init: jest.fn(() => Promise.resolve()),
+		insert: jest.fn((params) => Promise.resolve({ ...params,...doc })),
+		insertMany: jest.fn((docs) => Promise.resolve(docs.map((doc, i) => ({...doc, id: i + 1})))),
+		updateMany: jest.fn((docs) => Promise.resolve(docs.map((doc, i) => ({...doc, id: i + 1})))),
+		updateById: jest.fn((id, { $set: params }) => Promise.resolve({ ...params,...doc, id })),
+		removeMany: jest.fn(() => Promise.resolve(5)),
+		removeById: jest.fn((id) => Promise.resolve({ ...docRaw, id })),
+		beforeSaveTransformID: jest.fn(obj => obj)
+	};
+
+	const afterConnected = jest.fn();
+
+	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
+	const service = broker.createService(DbService, {
+		name: "store",
+		version: 1,
+		adapter,
+		afterConnected,
+		settings: {
+			fields
+		}
+	});
+
+	service.transformDocuments = jest.fn((ctx, params, docs) => Promise.resolve(typeof docs !== "object"
+		? docs
+		: Array.isArray(docs)
+			? docs.map(doc => _.pick(doc, fields))
+			: _.pick(docs, fields)));
+
+	describe("should call entityChanged with docRaw", () => {
+
+		describe("Test `_create` method", () => {
+
+			it("should call adapter.insert", () => {
+				adapter.insert.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
+				return service._create(Context, p).catch(protectReject).then(res => {
+					expect(res).toEqual(doc);
+
+					expect(adapter.insert).toHaveBeenCalledTimes(1);
+					expect(adapter.insert).toHaveBeenCalledWith(p);
+
+					expect(service.validateEntity).toHaveBeenCalledTimes(1);
+					expect(service.validateEntity).toHaveBeenCalledWith(p);
+
+					expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+					expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docRaw);
+
+					expect(service.entityChanged).toHaveBeenCalledTimes(1);
+					expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, docRaw);
+				});
+			});
+		});
+
+		describe("Test `_insert` method", () => {
+
+			it("should call adapter.insert", () => {
+				adapter.insert.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
+				const params = {
+					entity: p
+				};
+
+				return service._insert(Context, params).catch(protectReject).then(res => {
+					expect(res).toEqual(doc);
+
+					expect(adapter.insert).toHaveBeenCalledTimes(1);
+					expect(adapter.insert).toHaveBeenCalledWith(params.entity);
+
+					expect(service.validateEntity).toHaveBeenCalledTimes(1);
+					expect(service.validateEntity).toHaveBeenCalledWith(params.entity);
+
+					expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+					expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docRaw);
+
+					expect(service.entityChanged).toHaveBeenCalledTimes(1);
+					expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, docRaw);
+				});
+			});
+
+			it("should call adapter.insertMany", () => {
+				adapter.insert.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
+				const params = {
+					entities: [p]
+				};
+
+				return service._insert(Context, params).catch(protectReject).then(res => {
+					expect(res).toEqual(docs);
+
+					expect(adapter.insertMany).toHaveBeenCalledTimes(1);
+					expect(adapter.insertMany).toHaveBeenCalledWith(params.entities);
+
+					expect(service.validateEntity).toHaveBeenCalledTimes(1);
+					expect(service.validateEntity).toHaveBeenCalledWith(params.entities);
+
+					expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+					expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docsRaw);
+
+					expect(service.entityChanged).toHaveBeenCalledTimes(1);
+					expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context, docsRaw);
+				});
+			});
+		});
+
+		describe("Test `_update` method", () => {
+
+			it("should call adapter.updateById", () => {
+				adapter.updateById.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.decodeID = jest.fn(id => id);
+
+				const id = 123;
+				const p = {
+					_id: id,
+					foo: "John",
+					age: 45
+				};
+
+				return service._update(Context, p).catch(protectReject).then(res => {
+					expect(res).toEqual({ id });
+
+					expect(service.decodeID).toHaveBeenCalledTimes(1);
+					expect(service.decodeID).toHaveBeenCalledWith(id);
+
+					expect(adapter.updateById).toHaveBeenCalledTimes(1);
+					expect(adapter.updateById).toHaveBeenCalledWith(id, { "$set": {
+						foo: "John",
+						age: 45
+					}});
+
+					expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+					expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, {
+						id: 123,
+						foo: "John",
+						age: 45
+					});
+
+					expect(service.entityChanged).toHaveBeenCalledTimes(1);
+					expect(service.entityChanged).toHaveBeenCalledWith("updated", { id }, Context, {
+						id: 123,
+						foo: "John",
+						age: 45
+					});
+				});
+			});
+
+			it("should use dot notation if specified", () => {
+				adapter.updateById.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.decodeID = jest.fn(id => id);
+
+				service.settings.useDotNotation = true;
+
+				const p = {
+					_id: 123,
+					colors: [{ name:"red" }, { name:"blue" }],
+					name: { first: "John", last: "Doe" }
+				};
+
+				return service._update(Context, p).catch(protectReject).then(res => {
+					expect(res).toEqual({ id: 123 });
+
+					expect(adapter.updateById).toHaveBeenCalledTimes(1);
+					expect(adapter.updateById).toHaveBeenCalledWith(123, {
+						"$set": {
+							"colors": [{ name:"red" }, { name:"blue" }],
+							"name.first": "John",
+							"name.last": "Doe",
+						},
+					});
+				});
+			});
+		});
+
+		describe("Test `_remove` method", () => {
+
+			it("should call adapter.remove", () => {
+				adapter.removeById.mockClear();
+				service.transformDocuments.mockClear();
+				service.entityChanged = jest.fn(() => Promise.resolve());
+				service.decodeID = jest.fn(id => id);
+
+				const p = { id: 3 };
+
+				return service._remove(Context, p).catch(protectReject).then(res => {
+					expect(res).toEqual(p);
+
+					expect(service.decodeID).toHaveBeenCalledTimes(1);
+					expect(service.decodeID).toHaveBeenCalledWith(3);
+
+					expect(adapter.removeById).toHaveBeenCalledTimes(1);
+					expect(adapter.removeById).toHaveBeenCalledWith(3);
+
+					expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+					expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, {
+						id: 3,
+						foo: "bar"
+					});
+
+					expect(service.entityChanged).toHaveBeenCalledTimes(1);
+					expect(service.entityChanged).toHaveBeenCalledWith("removed", p, Context, {
+						id: 3,
+						foo: "bar"
+					});
+				});
+			});
+		});
+
 	});
 });
