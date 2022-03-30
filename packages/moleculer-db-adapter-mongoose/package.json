@@ -1,6 +1,6 @@
 {
   "name": "@cylution/moleculer-db-adapter-mongoose",
-  "version": "0.8.16",
+  "version": "0.8.17-alpha.0",
   "description": "Mongoose adapter for Moleculer DB service",
   "main": "index.js",
   "types": "index.d.ts",
@@ -28,8 +28,6 @@
     "mongoose": "^6"
   },
   "devDependencies": {
-    "mongoose": "^6.2.9",
-    "nodemon": "^2.0.7",
     "benchmarkify": "^3.0.0",
     "coveralls": "^3.1.1",
     "eslint": "^8.0.1",
@@ -38,6 +36,8 @@
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
     "moleculer": "^0.14.17",
+    "mongoose": "^6.2.9",
+    "nodemon": "^2.0.7",
     "npm-check": "^5.9.2"
   },
   "jest": {
