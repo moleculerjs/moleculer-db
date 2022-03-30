@@ -7,13 +7,13 @@
 "use strict";
 
 const _ 		= require("lodash");
-const Promise	= require("bluebird");
 const { ServiceSchemaError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
-mongoose.set("useNewUrlParser", true);
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
+// removed: https://mongoosejs.com/docs/migrating_to_6.html#no-more-deprecation-warning-options
+// mongoose.set("useNewUrlParser", true);
+// mongoose.set("useFindAndModify", false);
+// mongoose.set("useCreateIndex", true);
 
 class MongooseDbAdapter {
 
@@ -27,7 +27,6 @@ class MongooseDbAdapter {
 	constructor(uri, opts) {
 		this.uri = uri;
 		this.opts = opts;
-		mongoose.Promise = Promise;
 	}
 
 	/**
