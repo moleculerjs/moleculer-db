@@ -1,6 +1,6 @@
 "use strict";
 
-const { ServiceBroker, Service, Context } = require("moleculer");
+const { ServiceBroker, Context } = require("moleculer");
 const DbService = require("../../src");
 
 function protectReject(err) {
@@ -148,7 +148,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, doc);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, doc);
 			});
 		});
 	});
@@ -178,7 +178,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, doc);
 			});
 		});
 
@@ -205,7 +205,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context, docs);
 			});
 		});
 	});
@@ -237,7 +237,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, Context, doc);
 			});
 		});
 
@@ -267,7 +267,7 @@ describe("Test DbService methods", () => {
 					},
 				});
 			});
-		})
+		});
 	});
 
 	describe("Test `_remove` method", () => {
@@ -293,7 +293,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, 3);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context, 3);
 			});
 		});
 	});
