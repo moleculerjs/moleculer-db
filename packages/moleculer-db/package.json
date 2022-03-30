@@ -48,7 +48,7 @@
     ]
   },
   "engines": {
-    "node": ">= 8.x.x"
+    "node": ">= 12"
   },
   "dependencies": {
     "@seald-io/nedb": "^2.0.3",
