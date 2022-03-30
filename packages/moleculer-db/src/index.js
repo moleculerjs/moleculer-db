@@ -440,15 +440,16 @@ module.exports = {
 		 *
 		 * @methods
 		 * @param {String} type
-		 * @param {Object|Array<Object>|Number} json
+		 * @param {Object|Array<Object>|Number} docTransformed
+		 * @param {Object|Array<Object>|Number} docRaw
 		 * @param {Context} ctx
 		 * @returns {Promise}
 		 */
-		entityChanged(type, json, ctx) {
+		entityChanged(type, docTransformed, ctx, docRaw) {
 			return this.clearCache().then(() => {
 				const eventName = `entity${_.capitalize(type)}`;
 				if (this.schema[eventName] != null) {
-					return this.schema[eventName].call(this, json, ctx);
+					return this.schema[eventName].call(this, docTransformed, ctx, docRaw);
 				}
 			});
 		},
@@ -787,8 +788,10 @@ module.exports = {
 				// Apply idField
 				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 				.then(entity => this.adapter.insert(entity))
-				.then(doc => this.transformDocuments(ctx, {}, doc))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+				.then(doc => {
+					return this.transformDocuments(ctx, {}, doc)
+						.then(json => this.entityChanged("created", json, ctx, doc).then(() => json));
+				});
 		},
 
 		/**
@@ -822,8 +825,10 @@ module.exports = {
 					}
 					return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
 				})
-				.then(docs => this.transformDocuments(ctx, {}, docs))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+				.then(docs => {
+					return this.transformDocuments(ctx, {}, docs)
+						.then(json => this.entityChanged("created", json, ctx, docs).then(() => json));
+				});
 		},
 
 		/**
@@ -883,7 +888,7 @@ module.exports = {
 			let sets = {};
 			// Convert fields from params to "$set" update object
 			Object.keys(params).forEach(prop => {
-				if (prop == "id" || prop == this.settings.idField)
+				if (prop === "id" || prop === this.settings.idField)
 					id = this.decodeID(params[prop]);
 				else
 					sets[prop] = params[prop];
@@ -897,7 +902,7 @@ module.exports = {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
 					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
+						.then(json => this.entityChanged("updated", json, ctx, doc).then(() => json));
 				});
 		},
 
@@ -918,7 +923,7 @@ module.exports = {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(params.id));
 					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
+						.then(json => this.entityChanged("removed", json, ctx, doc).then(() => json));
 				});
 		}
 	},
