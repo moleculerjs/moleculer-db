@@ -92,9 +92,10 @@ class MongooseDbAdapter {
 					});
 				} else {
 					// everything else cases mean we not yet do connect before, make it
-					mongoose.connect(this.uri, this.opts).then(() => {
-						resolve(mongoose.connection);
-					}).catch(reject);
+					mongoose.connect(this.uri, this.opts, error => {
+						if (error) return reject(error);
+						else resolve(mongoose.connection);
+					});
 				}
 			} else if (this.schema) {
 				// note: do not use sth likes mongoose.createConnection().then()/*.catch()*/ here, some cases will trigger bluebird warning
@@ -356,7 +357,7 @@ class MongooseDbAdapter {
 	 *  - query
 	 *
 	 * @param {Object} params
-	 * @returns {MongoQuery}
+	 * @returns {QueryWithHelpers}
 	 */
 	createCursor(params) {
 		if (params) {
