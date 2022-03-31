@@ -547,10 +547,10 @@ declare module "moleculer-db" {
 		// Lifecycle entity events
 		// https://moleculer.services/docs/0.14/moleculer-db.html#Lifecycle-entity-events
 
-		afterConnected(): void | Promise<void>
-		entityCreated<T, C = Context<any, any>>(docTransformed: Partial<T> | Partial<T>[], ctx: C, docRaw: T | T[]): void | Promise<void>
-		entityUpdated<T, C = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>
-		entityRemoved<T, C = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>
+		afterConnected?(): void | Promise<void>
+		entityCreated?<T, C = Context<any, any>>(docTransformed: Partial<T> | Partial<T>[], ctx: C, docRaw: T | T[]): void | Promise<void>
+		entityUpdated?<T, C = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>
+		entityRemoved?<T, C = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>
 	}
 
 	export class  MemoryAdapter {
