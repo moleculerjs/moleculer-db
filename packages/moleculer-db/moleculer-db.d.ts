@@ -1,8 +1,8 @@
-declare module "@cylution/moleculer-db" {
-	import { Context, ServiceBroker, Service } from "moleculer";
+import { Context, ServiceBroker, Service } from "moleculer";
 
-	export interface QueryFilters extends FilterOptions{
-		sort?:string;
+declare namespace MoleculerDB {
+	interface QueryFilters extends FilterOptions{
+		sort?: string
 	}
 
 	namespace Populate {
@@ -19,76 +19,76 @@ declare module "@cylution/moleculer-db" {
 			| HandlerRule
 			| typeof HandlerFunctionRule
 	}
-	export interface DbServiceSettings {
+	interface DbServiceSettings {
 		/**
 		 *  Name of ID field.
 		 *  @default "_id"
 		 */
-		idField?: string;
+		idField?: string
 
 		/**
 		 *  Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities.
 		 */
-		fields?: string[];
+		fields?: string[]
 
 		/**
 		 * List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored.
 		 */
-		excludeFields?: string[],
+		excludeFields?: string[]
 
 		/**
 		 *  Schema for population.
 		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
 		 */
-		populates?: { [k: string]: Populate.Rule };
+		populates?: { [k: string]: Populate.Rule }
 
 		/**
 		 * Default page size in `list` action.
 		 * @default 10
 		 */
-		pageSize?: number;
+		pageSize?: number
 
 		/**
 		 * Maximum page size in `list` action.
 		 * @default 100
 		 */
-		maxPageSize?: number;
+		maxPageSize?: number
 
 		/**
 		 * Maximum value of limit in `find` action.
 		 * @default `-1` (no limit)
 		 */
-		maxLimit?: number;
+		maxLimit?: number
 
 		/**
 		 * Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.
 		 */
-		entityValidator?: object | Function;
+		entityValidator?: object | Function
 	}
 
-	export interface QueryOptions{
-		[name: string]: any;
+	interface QueryOptions{
+		[name: string]: any
 	}
-	export interface CursorOptions extends FilterOptions {
-		sort?: string | string[];
-		fields?: string | string[];
-	}
-
-	export interface FilterOptions{
-		limit?: string | number;
-		offset?: string | number;
-		searchFields?: string | string[];
-		search?: string;
-		query?: QueryOptions;
+	interface CursorOptions extends FilterOptions {
+		sort?: string | string[]
+		fields?: string | string[]
 	}
 
-	export interface CountOptions {
-		searchFields?: string | string[];
-		search?: string;
-		query?: QueryOptions;
+	interface FilterOptions{
+		limit?: string | number
+		offset?: string | number
+		searchFields?: string | string[]
+		search?: string
+		query?: QueryOptions
 	}
 
-	export interface DbAdapter {
+	interface CountOptions {
+		searchFields?: string | string[]
+		search?: string
+		query?: QueryOptions
+	}
+
+	interface DbAdapter {
 		/**
 		 * Initialize adapter
 		 *
@@ -96,21 +96,21 @@ declare module "@cylution/moleculer-db" {
 		 * @param {Service} service
 		 * @memberof DbAdapter
 		 */
-		init(broker: ServiceBroker, service: Service): void;
+		init(broker: ServiceBroker, service: Service): void
 		/**
 		 * Connect to database
 		 *
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		connect(): Promise<void>;
+		connect(): Promise<void>
 		/**
 		 * Disconnect from database
 		 *
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		disconnect(): Promise<void>;
+		disconnect(): Promise<void>
 
 		/**
 		 * Find all entities by filters.
@@ -127,7 +127,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		find(filters: FilterOptions): Promise<object[]>;
+		find(filters: FilterOptions): Promise<object[]>
 
 		/**
 		 * Find an entity by query
@@ -136,7 +136,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		findOne<Q extends QueryOptions>(query: Q): Promise<object>;
+		findOne<Q extends QueryOptions>(query: Q): Promise<object>
 
 		/**
 		 * Find an entity by ID
@@ -145,7 +145,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		findById(id: any): Promise<object>;
+		findById(id: any): Promise<object>
 
 		/**
 		 * Find all entites by IDs
@@ -154,7 +154,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		findByIds(ids: (string | number)[]): Promise<object[]>;
+		findByIds(ids: (string | number)[]): Promise<object[]>
 
 		/**
 		 * Get count of filtered entites
@@ -168,7 +168,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		count(filters?: CountOptions): Promise<number>;
+		count(filters?: CountOptions): Promise<number>
 
 		/**
 		 * Insert an entity
@@ -177,7 +177,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof MemoryDbAdapter
 		 */
-		insert(entity: object): Promise<object[]>;
+		insert(entity: object): Promise<object[]>
 
 		/**
 		 * Insert multiple entities
@@ -186,7 +186,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof MemoryDbAdapter
 		 */
-		insertMany(...entities: object[]): Promise<object[]>;
+		insertMany(...entities: object[]): Promise<object[]>
 
 		/**
 		 * Update many entities by `query` and `update`
@@ -199,7 +199,7 @@ declare module "@cylution/moleculer-db" {
 		updateMany< Q extends QueryOptions>(
 			query: Q,
 			update: object
-		): Promise<number>;
+		): Promise<number>
 
 		/**
 		 * Update an entity by ID
@@ -209,7 +209,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		updateById(id: string | number, update: object): Promise<object>;
+		updateById(id: string | number, update: object): Promise<object>
 
 		/**
 		 * Remove many entities which are matched by `query`
@@ -218,7 +218,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		removeMany(query: QueryOptions): Promise<number>;
+		removeMany(query: QueryOptions): Promise<number>
 
 		/**
 		 * Remove an entity by ID
@@ -227,7 +227,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		removeById(id: number | string): Promise<any>;
+		removeById(id: number | string): Promise<any>
 
 		/**
 		 * Clear all entities from DB
@@ -235,7 +235,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		clear(): Promise<void>;
+		clear(): Promise<void>
 
 		/**
 		 * Convert DB entity to JSON object
@@ -244,7 +244,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Object}
 		 * @memberof DbAdapter
 		 */
-		entityToObject(entity: any): object;
+		entityToObject(entity: any): object
 
 		/**
 		 * Add filters to query
@@ -261,7 +261,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {any}
 		 * @memberof DbAdapter
 		 */
-		createCursor(params: CursorOptions): any;
+		createCursor(params: CursorOptions): any
 
 		/**
 		 * Transforms 'idField' into NeDB's '_id'
@@ -270,7 +270,7 @@ declare module "@cylution/moleculer-db" {
 		 * @memberof DbAdapter
 		 * @returns {Object} Modified entity
 		 */
-		beforeSaveTransformID(entity: object, idField: string): object;
+		beforeSaveTransformID(entity: object, idField: string): object
 
 		/**
 		 * Transforms NeDB's '_id' into user defined 'idField'
@@ -279,39 +279,39 @@ declare module "@cylution/moleculer-db" {
 		 * @memberof DbAdapter
 		 * @returns {Object} Modified entity
 		 */
-		afterRetrieveTransformID(entity: object, idField: string): object;
+		afterRetrieveTransformID(entity: object, idField: string): object
 	}
 	type PopulateParams = string | {
 		populate: string
 		fields?: string[]
 	}
-	export interface DbContextParameters {
-		limit?: string | number;
-		offset?: string | number;
-		page?: string | number;
-		pageSize?: string | number;
-		sort?: string | string[];
-		fields?: string | string[];
-		populate?: string | PopulateParams[];
-		searchFields?: string | string[];
+	interface DbContextParameters {
+		limit?: string | number
+		offset?: string | number
+		page?: string | number
+		pageSize?: string | number
+		sort?: string | string[]
+		fields?: string | string[]
+		populate?: string | PopulateParams[]
+		searchFields?: string | string[]
 	}
-	export type DbContextSanitizedParams = DbContextParameters & { query?: QueryOptions }
+	type DbContextSanitizedParams = DbContextParameters & { query?: QueryOptions }
 
-	export interface MoleculerDB<TAdapter extends DbAdapter> {
-		name: string;
+	interface MoleculerDBSchema<TAdapter extends DbAdapter> {
+		name: string
 		metadata?: {
-			$category: string;
-			$official: boolean;
-			$name: string;
-			$version: string;
-			$repo?: string;
-		};
+			$category: string
+			$official: boolean
+			$name: string
+			$version: string
+			$repo?: string
+		}
 		// Store adapter (NeDB adapter is the default)
-		adapter?: TAdapter;
+		adapter?: TAdapter
 		/**
 		 * Default settings
 		 */
-		settings?: DbServiceSettings;
+		settings?: DbServiceSettings
 
 		/**
 		 * Actions
@@ -346,24 +346,24 @@ declare module "@cylution/moleculer-db" {
 						| "searchFields"
 						| "query"
 						| any
-						>;
-				};
+						>
+				}
 				params?: DbContextParameters & {
-					query?: any;
-				};
-				handler?(ctx: Context): Promise<object[]>;
-			};
-		};
+					query?: any
+				}
+				handler?(ctx: Context): Promise<object[]>
+			}
+		}
 
 		/**
 		 * Methods
 		 */
 		methods?: {
-			connect?(): Promise<void>;
+			connect?(): Promise<void>
 			/**
 			 * Disconnect from database.
 			 */
-			disconnect?(): Promise<void>;
+			disconnect?(): Promise<void>
 			/**
 			 * Sanitize context parameters at `find` action.
 			 *
@@ -376,7 +376,7 @@ declare module "@cylution/moleculer-db" {
 				params?: DbContextParameters & {
 					query?: QueryOptions | any
 				}
-			): DbContextSanitizedParams;
+			): DbContextSanitizedParams
 
 			/**
 			 * Get entity(ies) by ID(s).
@@ -389,7 +389,7 @@ declare module "@cylution/moleculer-db" {
 			getById?(
 				id: string | number | string[],
 				decoding?: boolean
-			): Promise<object | object[]>;
+			): Promise<object | object[]>
 			/**
 			 * Clear the cache & call entity lifecycle events
 			 *
@@ -402,7 +402,7 @@ declare module "@cylution/moleculer-db" {
 				type: string,
 				json: number | any[] | any,
 				ctx: Context
-			): Promise<any>;
+			): Promise<any>
 
 			/**
 			 * Clear cached entities
@@ -410,7 +410,7 @@ declare module "@cylution/moleculer-db" {
 			 * @methods
 			 * @returns {Promise}
 			 */
-			clearCache?(): Promise<void>;
+			clearCache?(): Promise<void>
 
 			/**
 			 * Transform the fetched documents
@@ -420,7 +420,7 @@ declare module "@cylution/moleculer-db" {
 			 * @param {Context} ctx
 			 * @returns {Array|Object}
 			 */
-			transformDocuments?(ctx: Context, params: object, docs: any[] | object): any;
+			transformDocuments?(ctx: Context, params: object, docs: any[] | object): any
 			/**
 			 * Filter fields in the entity object
 			 *
@@ -428,7 +428,7 @@ declare module "@cylution/moleculer-db" {
 			 * @param {Array} 	fields	Filter properties of model.
 			 * @returns	{Object}
 			 */
-			filterFields?(doc: any, fields: any[]): object;
+			filterFields?(doc: any, fields: any[]): object
 
 			/**
 			 * Authorize the required field list. Remove fields which is not exist in the `this.settings.fields`
@@ -436,7 +436,7 @@ declare module "@cylution/moleculer-db" {
 			 * @param {Array} fields
 			 * @returns {Array}
 			 */
-			authorizeFields?(fields: any[]): any[];
+			authorizeFields?(fields: any[]): any[]
 
 			/**
 			 * Populate documents.
@@ -450,7 +450,7 @@ declare module "@cylution/moleculer-db" {
 				ctx: Context,
 				docs: any,
 				populateFields: any[]
-			): Promise<any>;
+			): Promise<any>
 
 			/**
 			 * Validate an entity by validator.
@@ -458,7 +458,7 @@ declare module "@cylution/moleculer-db" {
 			 * @param {Object} entity
 			 * @returns {Promise}
 			 */
-			validateEntity?(entity: object): Promise<any>;
+			validateEntity?(entity: object): Promise<any>
 
 			/**
 			 * Encode ID of entity.
@@ -467,7 +467,7 @@ declare module "@cylution/moleculer-db" {
 			 * @param {any} id
 			 * @returns {any}
 			 */
-			encodeID?(id: any): any;
+			encodeID?(id: any): any
 
 			/**
 			 * Decode ID of entity.
@@ -476,20 +476,20 @@ declare module "@cylution/moleculer-db" {
 			 * @param {any} id
 			 * @returns {any}
 			 */
-			decodeID?(id: any): any;
+			decodeID?(id: any): any
 
 			/**
 			 * Service started lifecycle event handler
 			 */
-			started?(): Promise<void>;
+			started?(): Promise<void>
 			/**
 			 * Service stopped lifecycle event handler
 			 */
-			stopped?(): Promise<void>;
+			stopped?(): Promise<void>
 			/**
 			 * Service created lifecycle event handler
 			 */
-			created?(): Promise<void>;
+			created?(): Promise<void>
 
 			/**
 			 * Find entities by query.
@@ -501,30 +501,30 @@ declare module "@cylution/moleculer-db" {
 			 *
 			 * @returns {Array<Object>} List of found entities.
 			 */
-			_find?(ctx: Context, params?: FilterOptions): object[];
+			_find?(ctx: Context, params?: FilterOptions): object[]
 
 			/**
 			 * Get count of entities by query.
 			 * @methods
 			 */
-			_count?(ctx: Context, params?: CountOptions): Number;
+			_count?(ctx: Context, params?: CountOptions): Number
 
 			/**
 			 * List entities by filters and pagination results.
 			 * @methods
 			 */
 			_list?(ctx: Context, params?: DbContextSanitizedParams): {
-				rows: object[],
-				total: number,
-				page: number,
-				pageSize: number,
+				rows: object[]
+				total: number
+				page: number
+				pageSize: number
 				totalPages: number
 			}
 			/**
 			 * Create a new entity.
 			 * @methods
 			 */
-			_create?(ctx: Context, params: object): Promise<object>,
+			_create?(ctx: Context, params: object): Promise<object>
 
 			/**
 			 * Create many new entities.
@@ -551,7 +551,7 @@ declare module "@cylution/moleculer-db" {
 			 * @methods
 			 */
 			_remove?(ctx: Context, params: {id: any}): Promise<object>
-		};
+		}
 
 		// Lifecycle entity events
 		// https://moleculer.services/docs/0.14/moleculer-db.html#Lifecycle-entity-events
@@ -562,9 +562,9 @@ declare module "@cylution/moleculer-db" {
 		entityRemoved?<T, C = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>
 	}
 
-	export class  MemoryAdapter {
+	class  MemoryAdapter {
 
-		constructor(opts?:object) ;
+		constructor(opts?: object) ;
 		/**
 		 * Initialize adapter
 		 *
@@ -580,7 +580,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		connect() :Promise<void>
+		connect(): Promise<void>
 
 		/**
 		 * Disconnect from database
@@ -588,7 +588,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		disconnect() :Promise<void>
+		disconnect(): Promise<void>
 
 		/**
 		 * Find all entities by filters.
@@ -605,7 +605,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		find(filters:QueryFilters):Promise<any>
+		find(filters: QueryFilters): Promise<any>
 		/**
 		 * Find an entity by query
 		 *
@@ -613,7 +613,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		findOne(query:QueryOptions):Promise<object>
+		findOne(query: QueryOptions): Promise<object>
 		/**
 		 * Find an entity by ID
 		 *
@@ -621,7 +621,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		findById(_id: number | string):Promise<object>
+		findById(_id: number | string): Promise<object>
 		/**
 		 * Find all entites by IDs
 		 *
@@ -629,7 +629,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		findByIds(ids:number[]):Promise<object[]>
+		findByIds(ids: number[]): Promise<object[]>
 		/**
 		 * Get count of filtered entites
 		 *
@@ -642,7 +642,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		count(filters:object):Promise<number>
+		count(filters: object): Promise<number>
 		/**
 		 * Insert an entity
 		 *
@@ -650,7 +650,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		insert(entity:object):Promise<object>
+		insert(entity: object): Promise<object>
 
 		/**
 		 * Insert multiple entities
@@ -659,7 +659,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		insertMany(entities:object[]):Promise<object[]>
+		insertMany(entities: object[]): Promise<object[]>
 
 		/**
 		 * Update many entities by `query` and `update`
@@ -669,7 +669,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		updateMany(query:QueryOptions, update:object):Promise<object[]>
+		updateMany(query: QueryOptions, update: object): Promise<object[]>
 
 		/**
 		 * Update an entity by ID
@@ -679,7 +679,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		updateById(_id: number | string , update:object):Promise<object>
+		updateById(_id: number | string , update: object): Promise<object>
 
 		/**
 		 * Remove many entities which are matched by `query`
@@ -688,7 +688,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		removeMany(query:QueryOptions):Promise<object>
+		removeMany(query: QueryOptions): Promise<object>
 
 		/**
 		 * Remove an entity by ID
@@ -697,7 +697,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		removeById(_id: number | string):Promise<object>
+		removeById(_id: number | string): Promise<object>
 
 		/**
 		 * Clear all entities from DB
@@ -705,7 +705,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Promise}
 		 * @typeOf MemoryDbAdapter
 		 */
-		clear():Promise<object>
+		clear(): Promise<object>
 
 		/**
 		 * Convert DB entity to JSON object
@@ -714,8 +714,9 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Object}
 		 * @typeOf MemoryDbAdapter
 		 */
-		entityToObject(entity:any):Promise<object>
+		entityToObject(entity: any): Promise<object>
 
+		// noinspection JSValidateJSDoc
 		/**
 		 * Add filters to query
 		 *
@@ -731,7 +732,7 @@ declare module "@cylution/moleculer-db" {
 		 * @returns {Query}
 		 * @typeOf MemoryDbAdapter
 		 */
-		createCursor(params:QueryFilters):Promise<object[]> | QueryOptions
+		createCursor(params: QueryFilters): Promise<object[]> | QueryOptions
 
 		/**
 		 * Transforms 'idField' into NeDB's '_id'
@@ -740,7 +741,7 @@ declare module "@cylution/moleculer-db" {
 		 * @typeOf MemoryDbAdapter
 		 * @returns {Object} Modified entity
 		 */
-		beforeSaveTransformID (entity:object, idField:string):object
+		beforeSaveTransformID (entity: object, idField: string): object
 
 		/**
 		 * Transforms NeDB's '_id' into user defined 'idField'
@@ -749,9 +750,11 @@ declare module "@cylution/moleculer-db" {
 		 * @typeOf MemoryDbAdapter
 		 * @returns {Object} Modified entity
 		 */
-		afterRetrieveTransformID (entity:object, idField:string):object
+		afterRetrieveTransformID (entity: object, idField: string): object
 	}
-	export class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
+	class DbService<S extends DbServiceSettings = DbServiceSettings> extends Service<S> {
 
 	}
 }
+
+export = MoleculerDB
