@@ -46,13 +46,13 @@ module.exports = {
 		/** @type {String} Name of ID field. */
 		idField: "_id",
 
-		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
+		/** @type {Array<String>} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
 		fields: null,
 
-		/** @type {Array<String>?} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
+		/** @type {Array<String>} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
 		excludeFields: null,
 
-		/** @type {Array?} Schema for population. [Read more](#populating). */
+		/** @type {Object} Schema for population. [Read more](#populating). */
 		populates: null,
 
 		/** @type {Number} Default page size in `list` action. */
@@ -668,7 +668,7 @@ module.exports = {
 				let arr = Array.isArray(docs) ? docs : [docs];
 
 				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => _.get(doc, rule.field)))));
+				let idList = _.uniq(_.compact(_.flattenDeep(arr.map(doc => _.get(doc, rule.field)))));
 				// Replace the received models according to IDs in the original docs
 				const resultTransform = (populatedDocs) => {
 					arr.forEach(doc => {
@@ -844,8 +844,8 @@ module.exports = {
 		 * @returns {Object} Saved entity.
 		 */
 		_create(ctx, params) {
-			let entity = params;
-			return this.validateEntity(entity)
+			// let entity = params;
+			return this.validateEntity(params)
 				// Apply idField
 				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 				.then(entity => this.adapter.insert(entity))
