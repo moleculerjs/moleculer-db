@@ -705,7 +705,6 @@ module.exports = {
 					const params = {
 						id: idList,
 						mapping: true,
-						populate: rule.populate,
 						...rule.params,
 					};
 
