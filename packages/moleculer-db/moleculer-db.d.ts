@@ -8,6 +8,8 @@ declare namespace MoleculerDB {
 	namespace Populate {
 		function HandlerFunctionRule(ids: any[], items: any[], rule: HandlerRule, ctx: Context): any
 		type CommonRule = {
+			// do not precompute id list
+			$idList?: boolean
 			field?: string
 			params?: DbContextSanitizedParams
 		}

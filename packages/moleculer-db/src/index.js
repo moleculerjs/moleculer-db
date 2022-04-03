@@ -667,21 +667,6 @@ module.exports = {
 
 				let arr = Array.isArray(docs) ? docs : [docs];
 
-				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.compact(_.flattenDeep(arr.map(doc => _.get(doc, rule.field)))));
-				// Replace the received models according to IDs in the original docs
-				const resultTransform = (populatedDocs) => {
-					arr.forEach(doc => {
-						let id = _.get(doc, rule.field);
-						if (_.isArray(id)) {
-							let models = _.compact(id.map(id => populatedDocs[id]));
-							_.set(doc, field, models);
-						} else {
-							_.set(doc, field, populatedDocs[id]);
-						}
-					});
-				};
-
 				const fields = (Array.isArray(populateField.fields) && populateField.fields.length > 0)
 					? (rule.params && Array.isArray(rule.params.fields) && rule.params.fields.length > 0)
 						?this.authorizeFields(populateField.fields, rule.params.fields)
@@ -699,16 +684,39 @@ module.exports = {
 				};
 
 				if (rule.handler) {
-					promises.push(rule.handler.call(this, idList, arr, rule, ctx));
-				} else if (idList.length > 0) {
-					// Call the target action & collect the promises
-					const params = {
-						id: idList,
-						mapping: true,
-						...rule.params,
-					};
+					if (rule.$idList === false) {
+						promises.push(rule.handler.call(this, [], arr, rule, ctx));
+					} else {
+						// Collect IDs from field of docs (flatten, compact & unique list)
+						let idList = _.uniq(_.compact(_.flattenDeep(arr.map(doc => _.get(doc, rule.field)))));
 
-					promises.push(ctx.call(rule.action, params).then(resultTransform));
+						promises.push(rule.handler.call(this, idList, arr, rule, ctx));
+					}
+				} else {
+					// Collect IDs from field of docs (flatten, compact & unique list)
+					let idList = _.uniq(_.compact(_.flattenDeep(arr.map(doc => _.get(doc, rule.field)))));
+
+					if (idList.length > 0) {
+						// Call the target action & collect the promises
+						const params = {
+							id: idList,
+							mapping: true,
+							...rule.params,
+						};
+
+						promises.push(ctx.call(rule.action, params).then((populatedDocs) => {
+							// Replace the received models according to IDs in the original docs
+							arr.forEach(doc => {
+								let id = _.get(doc, rule.field);
+								if (_.isArray(id)) {
+									let models = _.compact(id.map(id => populatedDocs[id]));
+									_.set(doc, field, models);
+								} else {
+									_.set(doc, field, populatedDocs[id]);
+								}
+							});
+						}));
+					}
 				}
 			});
 
