@@ -9,6 +9,7 @@
 const _ 		= require("lodash");
 const { ServiceSchemaError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
+const { escapeRegex } = require("./utils");
 
 // removed: https://mongoosejs.com/docs/migrating_to_6.html#no-more-deprecation-warning-options
 // mongoose.set("useNewUrlParser", true);
@@ -368,7 +369,7 @@ class MongooseDbAdapter {
 					const searchQuery = {
 						$or: params.searchFields.map(f => (
 							{
-								[f]: new RegExp(params.search, "i")
+								[f]: new RegExp(escapeRegex(params.search), "i")
 							}
 						))
 					};
