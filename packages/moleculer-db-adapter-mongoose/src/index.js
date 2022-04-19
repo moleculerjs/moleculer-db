@@ -321,7 +321,7 @@ class MongooseDbAdapter {
 					const searchQuery = {
 						$or: params.searchFields.map(f => (
 							{
-								[f]: new RegExp(params.search, "i")
+								[f]: new RegExp(_.escapeRegExp(params.search), "i")
 							}
 						))
 					};
