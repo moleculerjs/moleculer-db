@@ -14,7 +14,8 @@
     "deps": "lerna exec --concurrency 1 npm run deps",
     "audit": "lerna exec --concurrency 1 npm audit fix",
     "release": "lerna publish",
-    "readme": "node readme-generator.js"
+    "readme": "node readme-generator.js",
+    "fake-merge": "git merge -s ours"
   },
   "repository": {
     "type": "git",
