@@ -1,6 +1,6 @@
 --------------------------------------------------
-<a name="0.8.14"></a>
-# 0.8.14 (2021-05-25)
+<a name="0.8.18"></a>
+# 0.8.18 (2022-05-25)
 
 ## Changes
 - upgrade `seald-io/nedb` to 3.0.0 [#315](https://github.com/moleculerjs/moleculer-db/pull/315)
