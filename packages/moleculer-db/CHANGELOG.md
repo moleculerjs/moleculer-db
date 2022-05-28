@@ -1,4 +1,14 @@
 --------------------------------------------------
+<a name="0.8.18"></a>
+# 0.8.18 (2022-05-25)
+
+## Changes
+- upgrade `seald-io/nedb` to 3.0.0 [#315](https://github.com/moleculerjs/moleculer-db/pull/315)
+- async custom validation [#306](https://github.com/moleculerjs/moleculer-db/pull/306)
+- fix `count` just the right number of row [#304](https://github.com/moleculerjs/moleculer-db/pull/304)
+- fix RegExp throw error if search startsWith '.' or '+' [#316](https://github.com/moleculerjs/moleculer-db/pull/316)
+ 
+--------------------------------------------------
 <a name="0.8.13"></a>
 # 0.8.13 (2021-04-26)
 

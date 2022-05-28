@@ -42,7 +42,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "moleculer-cli": "^0.7.1"
+    "moleculer-cli": "^0.8.0"
   },
   "jest": {
     "testEnvironment": "node",
