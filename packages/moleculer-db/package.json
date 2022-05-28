@@ -1,6 +1,6 @@
 {
   "name": "@cylution/moleculer-db",
-  "version": "0.8.17-11",
+  "version": "0.8.18-1",
   "publishConfig": {
     "access": "restricted"
   },
