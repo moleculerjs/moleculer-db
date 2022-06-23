@@ -130,6 +130,24 @@ class SequelizeDbAdapter {
 	}
 
 	/**
+	 * Find all entities by filters and count entities by filters.
+	 *
+	 * Available filter props:
+	 * 	- limit
+	 *  - offset
+	 *  - sort
+	 *  - where
+	 *
+	 * @param {any} filters
+	 * @returns {Promise}
+	 *
+	 * @memberof SequelizeDbAdapter
+	 */
+	 findAndCountAll(filters) {
+		return this.model.findAndCountAll(filters);
+	}
+
+	/**
 	 * Find an entity by query
 	 *
 	 * @param {Object} query
