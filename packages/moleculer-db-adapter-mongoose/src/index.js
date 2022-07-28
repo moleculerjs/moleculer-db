@@ -8,7 +8,7 @@
 
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
-const { ServiceSchemaError } = require("moleculer").Errors;
+const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
 mongoose.set("useNewUrlParser", true);
@@ -87,11 +87,22 @@ class MongooseDbAdapter {
 			const result = _result || conn;
 			this.conn = conn;
 
+            if (mongoose.connection.readyState != mongoose.connection.states.connected) {
+                throw new MoleculerError(
+                    `MongoDB connection failed . Status is "${
+                        mongoose.connection.states[mongoose.connection._readyState]
+                    }"`
+                );
+            }
+			
 			if (result.connection)
 				this.db = result.connection.db;
 			else
 				this.db = result.db;
 
+            if (!this.db) {
+                throw new MoleculerError(`MongoDB connection failed to get DB object`);
+            }
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
 			/* istanbul ignore next */
