@@ -299,6 +299,9 @@ module.exports = {
 		 */
 		update: {
 			rest: "PUT /:id",
+			params: {
+				id: { type: "any" }
+			},
 			handler(ctx) {
 				return this._update(ctx, ctx.params);
 			}
