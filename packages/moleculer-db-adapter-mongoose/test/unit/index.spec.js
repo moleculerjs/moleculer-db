@@ -129,7 +129,11 @@ describe("Test MongooseStoreAdapter", () => {
 		it("call connect with uri", () => {
 			fakeDb.on.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
+			mongoose.connection.readyState = mongoose.connection.states.disconnected;
+			mongoose.connect = jest.fn(() => {
+				mongoose.connection.readyState = mongoose.connection.states.connected;
+				return Promise.resolve({ connection: { db: fakeDb } });
+			});
 			adapter.opts = undefined;
 			return adapter.connect().catch(protectReject).then(() => {
 				expect(mongoose.connect).toHaveBeenCalledTimes(1);
@@ -146,7 +150,11 @@ describe("Test MongooseStoreAdapter", () => {
 		it("call connect with uri & opts", () => {
 			fakeDb.on.mockClear();
 
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: { db: fakeDb } }));
+			mongoose.connection.readyState = mongoose.connection.states.disconnected;
+			mongoose.connect = jest.fn(() => {
+				mongoose.connection.readyState = mongoose.connection.states.connected;
+				return Promise.resolve({ connection: { db: fakeDb } });
+			});
 			adapter.opts = {
 				user: "admin",
 				pass: "123456"
