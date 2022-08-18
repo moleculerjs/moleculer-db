@@ -1,7 +1,6 @@
 declare module "moleculer-db-adapter-prisma" {
   import { Service, ServiceBroker } from "moleculer";
 
-
   export interface QueryOptions {
     [name: string]: any;
   }
