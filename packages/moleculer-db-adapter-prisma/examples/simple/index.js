@@ -63,8 +63,8 @@ const date = new Date();
 
 // Count of posts
 checker.add("COUNT", () => adapter.count(), res => {
-	console.log(res);
-	return res == 0;
+	console.log("COUNT: ", res);
+	return res === 0;
 });
 
 // Insert a new Post
