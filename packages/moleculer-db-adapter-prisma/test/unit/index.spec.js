@@ -7,7 +7,6 @@ const fakeModel = {
 	id: "FAKE_ID",
 	title: "value",
 	votes: 3,
-	author: 1,
 	status: true,
 };
 
@@ -16,7 +15,7 @@ const dbMock = {
 	$disconnect: jest.fn(() => Promise.resolve()),
 	$queryRawUnsafe: jest.fn(() => Promise.resolve()),
   
-	model: {
+	post: {
 		findFirst: jest.fn(() => Promise.resolve(fakeModel)),
 		findUnique: jest.fn(() => Promise.resolve(fakeModel)),
 		findMany: jest.fn(() => Promise.resolve([fakeModel])),
@@ -24,12 +23,12 @@ const dbMock = {
 		count: jest.fn(() => Promise.resolve(1)),
 
 		create: jest.fn(() => Promise.resolve(fakeModel)),
-		createMany: jest.fn(() => Promise.resolve([fakeModel])),
+		createMany: jest.fn(() => Promise.resolve({ count: 1 })),
 
 		update: jest.fn(() => Promise.resolve(fakeModel)),
 		updateMany: jest.fn(() => Promise.resolve({ count: 1 })),
 
-		deleteMany: jest.fn(() => Promise.resolve()),
+		deleteMany: jest.fn(() => Promise.resolve({ count: 1 })),
 	},
 };
 
@@ -49,7 +48,7 @@ describe("Test PrismaAdapter", () => {
 		const broker = new ServiceBroker({ logger: false });
 		const service = broker.createService({
 			name: "service",
-			model: "model",
+			model: "post",
 		});
 
 		beforeEach(async () => {
@@ -87,7 +86,7 @@ describe("Test PrismaAdapter", () => {
 
 
 		it("call connect", () => {
-			expect(adapter.model).toBe(dbMock.model);
+			expect(adapter.model).toBe(dbMock.post);
 		});
 
 		it("call disconnect", () => {
@@ -288,12 +287,14 @@ describe("Test PrismaAdapter", () => {
 			adapter.model.updateMany.mockClear();
 
 			const where = {};
-			const update = {};
+			const update = {
+				$set: { title: "Test" }
+			};
 
 			return adapter.updateMany(where, update).catch(protectReject).then(res => {
 				expect(res).toBe(1);
 				expect(adapter.model.updateMany).toHaveBeenCalledTimes(1);
-				expect(adapter.model.updateMany).toHaveBeenCalledWith({ where, data: update });
+				expect(adapter.model.updateMany).toHaveBeenCalledWith({ where, data: update.$set });
 			});
 		});
 

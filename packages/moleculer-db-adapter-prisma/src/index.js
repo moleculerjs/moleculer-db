@@ -205,7 +205,7 @@ class PrismaDbAdapter {
 	 * @returns {Promise}
 	 */
 	async insertMany(entities) {
-		return this.model.createMany({ data: entities });
+		return this.model.createMany({ data: entities }).then((res) => res.count);
 	}
 
 	/**
@@ -216,7 +216,7 @@ class PrismaDbAdapter {
 	 * @returns {Promise}
 	 */
 	async updateMany(where, data) {
-		return this.model.updateMany({ where, data }).then((res) => res.count);
+		return this.model.updateMany({ where, data: data.$set }).then((res) => res.count);
 	}
 
 	/**
@@ -237,7 +237,7 @@ class PrismaDbAdapter {
 	 * @returns {Promise}
 	 */
 	async removeMany(where) {
-		return this.model.deleteMany({ where });
+		return this.model.deleteMany({ where }).then((res) => res.count);
 	}
 
 	/**
@@ -256,7 +256,7 @@ class PrismaDbAdapter {
 	 * @returns {Promise}
 	 */
 	async clear() {
-		return this.model.deleteMany({ where: {} });
+		return this.model.deleteMany({ where: {} }).then((res) => res.count);
 	}
 
 	/**

@@ -16,7 +16,7 @@ $ npm install moleculer-db-adapter-prisma --save
 
 <!-- AUTO-CONTENT-START:USAGE -->
 <!-- AUTO-CONTENT-END:USAGE -->
-
+<!-- docker run --name prisma-demo -e MYSQL_PASSWORD=password -e MYSQL_USER=user -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -e MYSQL_DATABASE=prisma -p 3306:3306 -d mysql:8.0.23 --default-authentication-plugin=mysql_native_password -->
 <!-- AUTO-CONTENT-TEMPLATE:USAGE
 -->
 

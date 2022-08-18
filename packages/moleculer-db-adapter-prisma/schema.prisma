@@ -7,11 +7,11 @@ datasource db {
   url      = env("DB_CONNECTION_URL")
 }
 
-model Model {
-  id      String  @id @default(uuid()) @db.VarChar(36)
-  title   String  @db.VarChar(255)
-  content String?
-  votes   Int
-  author  Int
-  status  Boolean
+model Post {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  title     String   @db.VarChar(255)
+  content   String?
+  votes     Int
+  status    Boolean
+  createdAt DateTime @default(now())
 }
