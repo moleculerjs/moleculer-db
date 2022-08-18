@@ -2,511 +2,111 @@
 
 # moleculer-db-adapter-prisma [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-prisma.svg)](https://www.npmjs.com/package/moleculer-db-adapter-prisma)
 
-Prisma adapter for Moleculer DB service
+SQL adapter for Moleculer DB service with [Prisma](https://www.prisma.io).
 
 # Features
 
 # Install
 
 ```bash
-$ npm install moleculer-db-adapter-prisma --save
+$ npm install moleculer-db-adapter-prisma prisma --save
 ```
 
-# Usage
-
-<!-- AUTO-CONTENT-START:USAGE -->
-<!-- AUTO-CONTENT-END:USAGE -->
-<!-- docker run --name prisma-demo -e MYSQL_PASSWORD=password -e MYSQL_USER=user -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -e MYSQL_DATABASE=prisma -p 3306:3306 -d mysql:8.0.23 --default-authentication-plugin=mysql_native_password -->
-<!-- AUTO-CONTENT-TEMPLATE:USAGE
--->
-
-
-
-# Settings
-
-<!-- AUTO-CONTENT-START:SETTINGS -->
-<!-- AUTO-CONTENT-END:SETTINGS -->
-
-<!-- AUTO-CONTENT-TEMPLATE:SETTINGS
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-| `` |  |  |  |
-
--->
-
-# Actions
-<!-- AUTO-CONTENT-START:ACTIONS -->
-<!-- AUTO-CONTENT-END:ACTIONS -->
-
-<!-- AUTO-CONTENT-TEMPLATE:ACTIONS
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
--->
-
-# Methods
-
-<!-- AUTO-CONTENT-START:METHODS -->
-<!-- AUTO-CONTENT-END:METHODS -->
-
-<!-- AUTO-CONTENT-TEMPLATE:METHODS
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
-## `` 
-
-
-
-### Parameters
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-*No input parameters.*
-
-
-
--->
+## Usage
+
+### Define schema in project root
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_CONNECTION_URL")
+}
+
+model Post {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  title     String   @db.VarChar(255)
+  content   String?
+  votes     Int
+  status    Boolean
+  createdAt DateTime @default(now())
+}
+```
+
+### Generate client
+```sh
+prisma generate
+```
+
+> Do not forget sync DB structure: [Schema prototyping](https://www.prisma.io/docs/guides/database/prototyping-schema-db-push)
+
+### Write service
+```js
+"use strict";
+
+const { ServiceBroker } = require("moleculer");
+const DbService = require("moleculer-db");
+const PrismaAdapter = require("moleculer-db-adapter-prisma");
+
+const broker = new ServiceBroker();
+
+broker.createService({
+  name: "posts",
+  mixins: [DbService],
+  adapter: new PrismaAdapter(),
+  model: "post", // Model name in camelCase
+});
+
+broker.start()
+// Create a new post
+.then(() => broker.call("posts.create", {
+  title: "My first post",
+  votes: 0,
+  status: true,
+}))
+
+// Get all posts
+.then(() => broker.call("posts.find").then(console.log));
+```
+
+### Raw queries
+```js
+actions: {
+  findHello2() {
+    return this.adapter.db
+      .query("SELECT * FROM posts WHERE title = 'Hello 2' LIMIT 1")
+      .then(console.log);
+  }
+}
+```
+
+### Soft delete
+1. Add `deletedAt` field to model
+```prisma
+model Post {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  title     String   @db.VarChar(255)
+  content   String?
+  votes     Int
+  status    Boolean
+  createdAt DateTime @default(now())
+  deletedAt DateTime? @db.DateTime()
+}
+```
+
+2. Define adapter with `enableSoftDelete` flag:
+```js
+broker.createService({
+  name: "posts",
+  mixins: [DbService],
+  adapter: new PrismaAdapter({ enableSoftDelete: true }),
+  model: "post", // Model name in camelCase
+});
+```
+
+3. Next all 'deletion' methods will set `deletedAt = now()`. Get and find methods will filter by `deletedAt IS NULL`
 
 # Test
 ```
