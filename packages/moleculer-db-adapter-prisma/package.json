@@ -15,7 +15,10 @@
   },
   "keywords": [
     "microservice",
-    "moleculer"
+    "moleculer",
+    "orm",
+    "database",
+    "prisma"
   ],
   "repository": {
     "type": "git",

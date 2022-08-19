@@ -108,6 +108,23 @@ broker.createService({
 
 3. Next all 'deletion' methods will set `deletedAt = now()`. Get and find methods will filter by `deletedAt IS NULL`
 
+# Run example
+1. Up local DB instance in docker
+```sh
+docker run --name prisma_demo -e MYSQL_PASSWORD=password -e MYSQL_USER=user -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -e MYSQL_DATABASE=prisma -p 3306:3306 -d mysql:8.0.23 --default-authentication-plugin=mysql_native_password
+```
+
+2. Sync DB structure and generate client
+```sh
+prisma db push
+prisma generate
+```
+
+3. Run example script
+```sh
+npm run dev
+```
+
 # Test
 ```
 $ npm test
