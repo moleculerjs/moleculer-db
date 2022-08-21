@@ -1,5 +1,10 @@
 "use strict";
 
+if (process.versions.node.split(".")[0] < 14) {
+	console.log("Skipping Prisma tests because node version is too low");
+	process.exit(0);
+}
+
 const { ServiceBroker } = require("moleculer");
 const PrismaAdapter = require("../../src");
 
@@ -14,7 +19,7 @@ const dbMock = {
 	$connect: jest.fn(() => Promise.resolve()),
 	$disconnect: jest.fn(() => Promise.resolve()),
 	$queryRawUnsafe: jest.fn(() => Promise.resolve()),
-  
+
 	post: {
 		findFirst: jest.fn(() => Promise.resolve(fakeModel)),
 		findUnique: jest.fn(() => Promise.resolve(fakeModel)),
@@ -113,7 +118,7 @@ describe("Test PrismaAdapter", () => {
 
 			it("call with query", () => {
 				adapter.model.findMany.mockClear();
-				
+
 				const query = {};
 				adapter.createCursor({ query });
 				expect(adapter.model.findMany).toHaveBeenCalledTimes(1);
@@ -122,7 +127,7 @@ describe("Test PrismaAdapter", () => {
 
 			it("call with query & counting", () => {
 				adapter.model.count.mockClear();
-				
+
 				const query = {};
 				adapter.createCursor({ query }, true);
 				expect(adapter.model.count).toHaveBeenCalledTimes(1);
@@ -131,7 +136,7 @@ describe("Test PrismaAdapter", () => {
 
 			it("call with sort string", () => {
 				adapter.model.findMany.mockClear();
-				
+
 				const query = {};
 				adapter.createCursor({ query, sort: "-votes title" });
 				expect(adapter.model.findMany).toHaveBeenCalledTimes(1);
@@ -143,7 +148,7 @@ describe("Test PrismaAdapter", () => {
 
 			it("call with sort array", () => {
 				adapter.model.findMany.mockClear();
-				
+
 				const query = {};
 				adapter.createCursor({ query, sort: ["createdAt", "title"] });
 				expect(adapter.model.findMany).toHaveBeenCalledTimes(1);
@@ -155,7 +160,7 @@ describe("Test PrismaAdapter", () => {
 
 			it("call with sort object", () => {
 				adapter.model.findMany.mockClear();
-				
+
 				const query = {};
 				adapter.createCursor({ query, sort: { createdAt: 1, title: -1 } });
 				expect(adapter.model.findMany).toHaveBeenCalledTimes(1);

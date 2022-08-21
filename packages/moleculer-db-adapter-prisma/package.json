@@ -41,8 +41,8 @@
     "jest": "22.4.2",
     "jest-cli": "22.4.2",
     "lolex": "2.3.2",
-    "moleculer": "0.12.1",
-    "moleculer-docgen": "0.2.1",
+    "moleculer": "^0.14.23",
+    "moleculer-docgen": "^0.3.0",
     "nodemon": "1.17.1",
     "npm-check": "5.5.2",
     "prisma": "^4.2.1"
