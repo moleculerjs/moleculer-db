@@ -116,8 +116,8 @@ docker run --name prisma_demo -e MYSQL_PASSWORD=password -e MYSQL_USER=user -e M
 
 2. Sync DB structure and generate client
 ```sh
-prisma db push
-prisma generate
+npm run prisma:push
+npm run prisma:gen
 ```
 
 3. Run example script

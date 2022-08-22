@@ -5,6 +5,8 @@
   "main": "index.js",
   "types": "./index.d.ts",
   "scripts": {
+    "prisma:gen": "prisma generate --schema=./examples/schema.prisma",
+    "prisma:push": "prisma db push --schema=./examples/schema.prisma",
     "dev": "nodemon examples/index.js",
     "ci": "jest --watch",
     "test": "jest --coverage",
