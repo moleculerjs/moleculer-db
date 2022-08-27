@@ -1,12 +1,6 @@
-<a name="0.x.x"></a>
-# 0.x.x (2017-xx-xx)
+<a name="0.1.0"></a>
+# 0.1.0 (2022-08-27)
 
-## New
-
-## Fixes
-
-## Breaking changes
-
-## Changes
+Initial version
 
 --------------------------------------------------
