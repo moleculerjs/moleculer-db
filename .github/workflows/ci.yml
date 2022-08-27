@@ -35,7 +35,12 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install dependencies
+      run: npm run setup-no-prisma
+      if: ${{ matrix.node-version == '10.x' || matrix.node-version == '12.x' }}
+
+    - name: Install dependencies
       run: npm run setup
+      if: ${{ matrix.node-version != '10.x' && matrix.node-version != '12.x' }}
 
     - name: Execute unit tests
       run: npm test
