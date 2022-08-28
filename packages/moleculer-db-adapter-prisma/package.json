@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-prisma",
-  "version": "0.1.0",
+  "version": "0.1.16",
   "description": "Prisma adapter for Moleculer DB service",
   "main": "index.js",
   "types": "./index.d.ts",
@@ -26,7 +26,7 @@
     "type": "git",
     "url": "git@github.com:moleculerjs/moleculer-addons.git"
   },
-  "homepage": "https://github.com/moleculerjs/moleculer-addons/tree/master/packages/moleculer-db-adapter-prisma#readme",
+  "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db-adapter-prisma#readme",
   "author": "MoleculerJS",
   "license": "MIT",
   "peerDependencies": {
