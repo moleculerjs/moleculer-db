@@ -36,7 +36,6 @@
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
     "moleculer": "^0.14.22",
-    "mongoose": "^5.12.10",
     "nodemon": "^2.0.19",
     "mongoose": "^6.2.10",
     "npm-check": "^5.9.2"
