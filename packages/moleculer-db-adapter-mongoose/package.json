@@ -25,7 +25,7 @@
   "license": "MIT",
   "peerDependencies": {
     "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0",
-    "mongoose": "^5.6.3"
+    "mongoose": "^6.2.10"
   },
   "devDependencies": {
     "benchmarkify": "^3.0.0",
@@ -38,6 +38,7 @@
     "moleculer": "^0.14.22",
     "mongoose": "^5.12.10",
     "nodemon": "^2.0.19",
+    "mongoose": "^6.2.10",
     "npm-check": "^5.9.2"
   },
   "jest": {
