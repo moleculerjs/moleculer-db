@@ -8,7 +8,7 @@
 
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
-const { ServiceSchemaError } = require("moleculer").Errors;
+const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
 
@@ -89,7 +89,7 @@ class MongooseDbAdapter {
 			
 		return conn.then(_result => {
 			const result = _result || conn;
-			this.conn = this.isPromise(conn)? result: conn;
+			this.conn =  conn;
 		
 
 			if(this.model)
@@ -335,7 +335,7 @@ class MongooseDbAdapter {
 					const searchQuery = {
 						$or: params.searchFields.map(f => (
 							{
-								[f]: new RegExp(params.search, "i")
+								[f]: new RegExp(_.escapeRegExp(params.search), "i")
 							}
 						))
 					};
@@ -448,17 +448,7 @@ class MongooseDbAdapter {
 	}
 
 
-	isPromise(p) {
-		if (
-			typeof p === "object" &&
-    typeof p.then === "function" &&
-    typeof p.catch === "function"
-		) {
-			return true;
-		}
 
-		return false;
-	}
 }
 
 module.exports = MongooseDbAdapter;
