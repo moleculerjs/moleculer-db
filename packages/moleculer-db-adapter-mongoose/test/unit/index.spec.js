@@ -129,7 +129,12 @@ describe("Test MongooseStoreAdapter", () => {
 
 	describe("Test connect", () => {
 		beforeEach(()=>{
-			mongoose.connect = jest.fn(() => Promise.resolve({ connection: {...fakeDb, db: fakeDb} , model: jest.fn(() => fakeModel) }));
+			mongoose.connection.readyState = mongoose.connection.states.disconnected;
+			mongoose.connect = jest.fn(() => {
+				mongoose.connection.readyState = mongoose.connection.states.connected;
+				return Promise.resolve({ connection: { ...fakeDb,db: fakeDb }, model: jest.fn(() => fakeModel) });
+			});
+			
 		});
 
 		it("call connect with uri", () => {
@@ -208,6 +213,7 @@ describe("Test MongooseStoreAdapter", () => {
 			adapter.init(broker, service);
 
 			mongoose.createConnection = jest.fn(() => {
+				mongoose.connection.readyState = mongoose.connection.states.connected;
 				return {
 					connection: {db: fakeDb , ...fakeDb},
 					model: jest.fn(() => fakeModel)

@@ -91,7 +91,14 @@ class MongooseDbAdapter {
 			const result = _result || conn;
 			this.conn =  conn;
 		
-
+			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
+				throw new MoleculerError(
+					`MongoDB connection failed . Status is "${
+						mongoose.connection.states[mongoose.connection._readyState]
+					}"`
+				);
+			}
+			
 			if(this.model)
 				this.model = _result.model(this.model["modelName"],this.model["schema"]);
 
@@ -101,6 +108,9 @@ class MongooseDbAdapter {
 			else
 				this.db = result.db;
 
+			if (!this.db) {
+				throw new MoleculerError("MongoDB connection failed to get DB object");
+			}
 		
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 	
