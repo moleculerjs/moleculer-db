@@ -8,12 +8,11 @@
 
 const _ 		= require("lodash");
 const Promise	= require("bluebird");
-const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
+const { ServiceSchemaError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
-mongoose.set("useNewUrlParser", true);
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
+
+mongoose.set("strictQuery", true);
 
 class MongooseDbAdapter {
 
@@ -27,7 +26,6 @@ class MongooseDbAdapter {
 	constructor(uri, opts) {
 		this.uri = uri;
 		this.opts = opts;
-		mongoose.Promise = Promise;
 	}
 
 	/**
@@ -69,6 +67,7 @@ class MongooseDbAdapter {
 		let conn;
 
 		if (this.model) {
+		
 			/* istanbul ignore next */
 			if (mongoose.connection.readyState == 1) {
 				this.db = mongoose.connection;
@@ -78,38 +77,41 @@ class MongooseDbAdapter {
 			} else {
 				conn = mongoose.connect(this.uri, this.opts);
 			}
+	
 		} else if (this.schema) {
-			conn = mongoose.createConnection(this.uri, this.opts);
-			this.model = conn.model(this.modelName, this.schema);
-		}
+			
+			conn = new Promise(resolve =>{
+				const 	c = mongoose.createConnection(this.uri, this.opts);
+				this.model = c.model(this.modelName, this.schema);
+				resolve(c);
+			});}
 
+			
 		return conn.then(_result => {
 			const result = _result || conn;
-			this.conn = conn;
+			this.conn = this.isPromise(conn)? result: conn;
+		
 
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
-				throw new MoleculerError(
-					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
-					}"`
-				);
-			}
+			if(this.model)
+				this.model = _result.model(this.model["modelName"],this.model["schema"]);
+
 
 			if (result.connection)
 				this.db = result.connection.db;
 			else
 				this.db = result.db;
 
-			if (!this.db) {
-				throw new MoleculerError("MongoDB connection failed to get DB object");
-			}
+		
 			this.service.logger.info("MongoDB adapter has connected successfully.");
+	
 
-			/* istanbul ignore next */
-			this.db.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
-			this.db.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+			/* istanbul ignore next */ 
+			result.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			result.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
+			result.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+
 		});
+		
 	}
 
 	/**
@@ -216,6 +218,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	insert(entity) {
+
 		const item = new this.model(entity);
 		return item.save();
 	}
@@ -332,7 +335,7 @@ class MongooseDbAdapter {
 					const searchQuery = {
 						$or: params.searchFields.map(f => (
 							{
-								[f]: new RegExp(_.escapeRegExp(params.search), "i")
+								[f]: new RegExp(params.search, "i")
 							}
 						))
 					};
@@ -442,6 +445,19 @@ class MongooseDbAdapter {
 		if(id && id.toString)
 			return id.toString();
 		return id;
+	}
+
+
+	isPromise(p) {
+		if (
+			typeof p === "object" &&
+    typeof p.then === "function" &&
+    typeof p.catch === "function"
+		) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
