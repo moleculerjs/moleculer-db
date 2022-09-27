@@ -1,6 +1,6 @@
 "use strict";
 if (process.versions.node.split(".")[0] < 14) {
-	console.log("Skipping Prisma tests because node version is too low");
+	console.log("Skipping Mongoose tests because node version is too low");
 	it("Skipping Mongoose tests because node version is too low", () => {});
 } else {
 	const { ServiceBroker } = require("moleculer");

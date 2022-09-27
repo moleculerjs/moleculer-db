@@ -35,7 +35,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install dependencies
-      run: npm run setup-no-prisma
+      run: npm run setup-no-old-node
       if: ${{ matrix.node-version == '10.x' || matrix.node-version == '12.x' }}
 
     - name: Install dependencies
