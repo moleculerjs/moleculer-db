@@ -32,12 +32,19 @@ module.exports = {
 		$package: {
 			name: pkg.name,
 			version: pkg.version,
-			repo: pkg.repository ? pkg.repository.url : null
-		}
+			repo: pkg.repository ? pkg.repository.url : null,
+		},
 	},
 
 	// Store adapter (NeDB adapter is the default)
 	adapter: null,
+
+	/**
+	 * @typedef tenantStrategy
+	 * @property {function} [getAdapterHash] return hash for caching adapter
+	 * @property {function} [getAdapter] return adapter which can tenant specific db adapter
+	 */
+	tenantStrategy: null,
 
 	/**
 	 * Default settings
@@ -94,7 +101,16 @@ module.exports = {
 		 */
 		find: {
 			cache: {
-				keys: ["populate", "fields", "limit", "offset", "sort", "search", "searchFields", "query"]
+				keys: [
+					"populate",
+					"fields",
+					"limit",
+					"offset",
+					"sort",
+					"search",
+					"searchFields",
+					"query",
+				],
 			},
 			params: {
 				populate: [
@@ -105,8 +121,20 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				limit: { type: "number", integer: true, min: 0, optional: true, convert: true },
-				offset: { type: "number", integer: true, min: 0, optional: true, convert: true },
+				limit: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true,
+				},
+				offset: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true,
+				},
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
 				searchFields: [
@@ -116,12 +144,13 @@ module.exports = {
 				query: [
 					{ type: "object", optional: true },
 					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "any" },
 				],
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				return this._find(ctx, params);
-			}
+			},
 		},
 
 		/**
@@ -138,7 +167,7 @@ module.exports = {
 		 */
 		count: {
 			cache: {
-				keys: ["search", "searchFields", "query"]
+				keys: ["search", "searchFields", "query"],
 			},
 			params: {
 				search: { type: "string", optional: true },
@@ -154,7 +183,7 @@ module.exports = {
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				return this._count(ctx, params);
-			}
+			},
 		},
 
 		/**
@@ -176,7 +205,16 @@ module.exports = {
 		 */
 		list: {
 			cache: {
-				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
+				keys: [
+					"populate",
+					"fields",
+					"page",
+					"pageSize",
+					"sort",
+					"search",
+					"searchFields",
+					"query",
+				],
 			},
 			rest: "GET /",
 			params: {
@@ -188,8 +226,20 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				page: { type: "number", integer: true, min: 1, optional: true, convert: true },
-				pageSize: { type: "number", integer: true, min: 0, optional: true, convert: true },
+				page: {
+					type: "number",
+					integer: true,
+					min: 1,
+					optional: true,
+					convert: true,
+				},
+				pageSize: {
+					type: "number",
+					integer: true,
+					min: 0,
+					optional: true,
+					convert: true,
+				},
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
 				searchFields: [
@@ -199,12 +249,13 @@ module.exports = {
 				query: [
 					{ type: "object", optional: true },
 					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "any" },
 				],
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				return this._list(ctx, params);
-			}
+			},
 		},
 
 		/**
@@ -220,7 +271,7 @@ module.exports = {
 			rest: "POST /",
 			handler(ctx) {
 				return this._create(ctx, ctx.params);
-			}
+			},
 		},
 
 		/**
@@ -236,11 +287,11 @@ module.exports = {
 		insert: {
 			params: {
 				entity: { type: "object", optional: true },
-				entities: { type: "array", optional: true }
+				entities: { type: "array", optional: true },
 			},
 			handler(ctx) {
 				return this._insert(ctx, ctx.params);
-			}
+			},
 		},
 
 		/**
@@ -260,15 +311,11 @@ module.exports = {
 		 */
 		get: {
 			cache: {
-				keys: ["id", "populate", "fields", "mapping"]
+				keys: ["id", "populate", "fields", "mapping"],
 			},
 			rest: "GET /:id",
 			params: {
-				id: [
-					{ type: "string" },
-					{ type: "number" },
-					{ type: "array" }
-				],
+				id: [{ type: "string" }, { type: "number" }, { type: "array" }],
 				populate: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
@@ -277,13 +324,12 @@ module.exports = {
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
-				mapping: { type: "boolean", optional: true }
+				mapping: { type: "boolean", optional: true },
 			},
 			handler(ctx) {
 				let params = this.sanitizeParams(ctx, ctx.params);
 				return this._get(ctx, params);
-
-			}
+			},
 		},
 
 		/**
@@ -300,11 +346,11 @@ module.exports = {
 		update: {
 			rest: "PUT /:id",
 			params: {
-				id: { type: "any" }
+				id: { type: "any" },
 			},
 			handler(ctx) {
 				return this._update(ctx, ctx.params);
-			}
+			},
 		},
 
 		/**
@@ -320,42 +366,124 @@ module.exports = {
 		remove: {
 			rest: "DELETE /:id",
 			params: {
-				id: { type: "any" }
+				id: { type: "any" },
 			},
 			handler(ctx) {
 				return this._remove(ctx, ctx.params);
-			}
-		}
+			},
+		},
 	},
 
 	/**
 	 * Methods
 	 */
 	methods: {
+		/**
+		 * get adapter based on ctx, if not ctx given it will use the default adapter
+		 * if ctx and tenant stratergy are present it will call getAdapter and getAdapterHash
+		 * @param {Context} ctx
+		 */
+		getAdapter(ctx) {
+			const useTenantStrategy = this.tenantStrategy && ctx;
+			const hash = useTenantStrategy
+				? this.tenantStrategy.getAdapterHash(ctx)
+				: "default";
+
+			if (this.adapters[hash]) {
+				return Promise.resolve(this.adapters[hash]);
+			}
+
+			this.adapters[hash] = useTenantStrategy
+				? this.tenantStrategy.getAdapter(ctx)
+				: this.adapter;
+			this.adapters[hash].init(this.broker, this);
+
+			// if default no need to connect because connect will be called on started method
+			if (hash === "default") {
+				return this.adapters[hash];
+			}
+
+			return this.connect({
+				hash: hash,
+				adapter: this.adapters[hash],
+			}).then(() => this.adapters[hash]);
+		},
 
 		/**
 		 * Connect to database.
+		 * @param {object} [adapterWithHash]
+		 * @param {string} [adapterWithHash.hash]
+		 * @param {object} [adapterWithHash.adapter]
 		 */
-		connect() {
-			return this.adapter.connect().then(() => {
-				// Call an 'afterConnected' handler in schema
-				if (_.isFunction(this.schema.afterConnected)) {
-					try {
-						return this.schema.afterConnected.call(this);
-					} catch(err) {
-						/* istanbul ignore next */
-						this.logger.error("afterConnected error!", err);
-					}
-				}
-			});
+		connect(adapterWithHash) {
+			const adapters = adapterWithHash
+				? { [adapterWithHash.hash]: adapterWithHash.adapter }
+				: this.adapters;
+
+			return Promise.all(
+				Object.keys(adapters).map((adapterHash) => {
+					return new Promise((resolve) => {
+						const connecting = (adapter, hash) => {
+							return adapter
+								.connect()
+								.then(resolve)
+								.then(() => {
+									// Call an 'afterConnected' handler in schema
+									if (
+										_.isFunction(this.schema.afterConnected)
+									) {
+										try {
+											return this.schema.afterConnected.call(
+												this
+											);
+										} catch (err) {
+											/* istanbul ignore next */
+											this.logger.error(
+												"adapter hash:",
+												hash
+											);
+											this.logger.error(
+												"afterConnected error!",
+												err
+											);
+										}
+									}
+								})
+								.catch((err) => {
+									setTimeout(() => {
+										this.logger.error(
+											"adapter hash:",
+											hash
+										);
+										this.logger.error(
+											"Connection error!",
+											err
+										);
+										this.logger.warn("Reconnecting...");
+										connecting(adapter, hash);
+									}, 1000);
+								});
+						};
+
+						connecting(adapters[adapterHash], adapterHash);
+					});
+				})
+			);
 		},
 
 		/**
 		 * Disconnect from database.
 		 */
 		disconnect() {
-			if (_.isFunction(this.adapter.disconnect))
-				return this.adapter.disconnect();
+			const adapters = _.values(this.adapters);
+			// clear adapters cache
+			this.adapters = {};
+			return Promise.all(
+				adapters.map((_adapter) => {
+					if (_.isFunction(_adapter.disconnect))
+						return _adapter.disconnect();
+				})
+			);
 		},
 
 		/**
@@ -371,41 +499,37 @@ module.exports = {
 			let p = Object.assign({}, params);
 
 			// Convert from string to number
-			if (typeof(p.limit) === "string")
-				p.limit = Number(p.limit);
-			if (typeof(p.offset) === "string")
-				p.offset = Number(p.offset);
-			if (typeof(p.page) === "string")
-				p.page = Number(p.page);
-			if (typeof(p.pageSize) === "string")
-				p.pageSize = Number(p.pageSize);
+			if (typeof p.limit === "string") p.limit = Number(p.limit);
+			if (typeof p.offset === "string") p.offset = Number(p.offset);
+			if (typeof p.page === "string") p.page = Number(p.page);
+			if (typeof p.pageSize === "string") p.pageSize = Number(p.pageSize);
 			// Convert from string to POJO
-			if (typeof(p.query) === "string")
-				p.query = JSON.parse(p.query);
+			if (typeof p.query === "string") p.query = JSON.parse(p.query);
 
-			if (typeof(p.sort) === "string")
+			if (typeof p.sort === "string")
 				p.sort = p.sort.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.fields) === "string")
+			if (typeof p.fields === "string")
 				p.fields = p.fields.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.populate) === "string")
+			if (typeof p.populate === "string")
 				p.populate = p.populate.replace(/,/g, " ").split(" ");
 
-			if (typeof(p.searchFields) === "string")
+			if (typeof p.searchFields === "string")
 				p.searchFields = p.searchFields.replace(/,/g, " ").split(" ");
 
 			if (ctx.action.name.endsWith(".list")) {
 				// Default `pageSize`
-				if (!p.pageSize)
-					p.pageSize = this.settings.pageSize;
+				if (!p.pageSize) p.pageSize = this.settings.pageSize;
 
 				// Default `page`
-				if (!p.page)
-					p.page = 1;
+				if (!p.page) p.page = 1;
 
 				// Limit the `pageSize`
-				if (this.settings.maxPageSize > 0 && p.pageSize > this.settings.maxPageSize)
+				if (
+					this.settings.maxPageSize > 0 &&
+					p.pageSize > this.settings.maxPageSize
+				)
 					p.pageSize = this.settings.maxPageSize;
 
 				// Calculate the limit & offset from page & pageSize
@@ -425,17 +549,23 @@ module.exports = {
 		 * @methods
 		 * @param {any|Array<any>} id - ID or IDs.
 		 * @param {Boolean?} decoding - Need to decode IDs.
+		 * @param {Context} ctx
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
-		getById(id, decoding) {
-			return Promise.resolve()
-				.then(() => {
-					if (_.isArray(id)) {
-						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id);
-					} else {
-						return this.adapter.findById(decoding ? this.decodeID(id) : id);
-					}
-				});
+		getById(id, decoding, ctx) {
+			return Promise.resolve().then(() => {
+				if (_.isArray(id)) {
+					return this.getAdapter(ctx).then((adapter) =>
+						adapter.findByIds(
+							decoding ? id.map((id) => this.decodeID(id)) : id
+						)
+					);
+				} else {
+					return this.getAdapter(ctx).then((adapter) =>
+						adapter.findById(decoding ? this.decodeID(id) : id)
+					);
+				}
+			});
 		},
 
 		/**
@@ -463,7 +593,9 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		clearCache() {
-			this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
+			this.broker[this.settings.cacheCleanEventType](
+				`cache.clean.${this.fullName}`
+			);
 			if (this.broker.cacher)
 				return this.broker.cacher.clean(`${this.fullName}.**`);
 			return Promise.resolve();
@@ -483,45 +615,76 @@ module.exports = {
 				if (_.isObject(docs)) {
 					isDoc = true;
 					docs = [docs];
-				}
-				else
-					return Promise.resolve(docs);
+				} else return Promise.resolve(docs);
 			}
 
-			return Promise.resolve(docs)
+			return (
+				Promise.resolve(docs)
 
-				// Convert entity to JS object
-				.then(docs => docs.map(doc => this.adapter.entityToObject(doc)))
+					// Convert entity to JS object
+					.then((docs) =>
+						Promise.all(
+							docs.map((doc) =>
+								this.getAdapter(ctx).then((adapter) =>
+									adapter.entityToObject(doc)
+								)
+							)
+						)
+					)
 
-				// Encode IDs
-				.then(docs => docs.map(doc => {
-					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
-					return doc;
-				}))
-				// Apply idField
-				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
-				// Populate
-				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
+					// Encode IDs
+					.then((docs) =>
+						docs.map((doc) => {
+							doc[this.settings.idField] = this.encodeID(
+								doc[this.settings.idField]
+							);
+							return doc;
+						})
+					)
+					// Apply idField
+					.then((docs) =>
+						Promise.all(
+							docs.map((doc) =>
+								this.getAdapter(ctx).then((adapter) =>
+									adapter.afterRetrieveTransformID(
+										doc,
+										this.settings.idField
+									)
+								)
+							)
+						)
+					)
+					// Populate
+					.then((json) =>
+						ctx && params.populate
+							? this.populateDocs(ctx, json, params.populate)
+							: json
+					)
 
-			// TODO onTransformHook
+					// TODO onTransformHook
 
-				// Filter fields
-				.then(json => {
-					let fields = ctx && params.fields ? params.fields : this.settings.fields;
+					// Filter fields
+					.then((json) => {
+						let fields =
+							ctx && params.fields
+								? params.fields
+								: this.settings.fields;
 
-					// Compatibility with < 0.4
-					/* istanbul ignore next */
-					if (_.isString(fields))
-						fields = fields.split(/\s+/);
+						// Compatibility with < 0.4
+						/* istanbul ignore next */
+						if (_.isString(fields)) fields = fields.split(/\s+/);
 
-					// Authorize the requested fields
-					const authFields = this.authorizeFields(fields);
+						// Authorize the requested fields
+						const authFields = this.authorizeFields(fields);
 
-					return json.map(item => this.filterFields(item, authFields));
-				})
+						return json.map((item) =>
+							this.filterFields(item, authFields)
+						);
+					})
 
-				// Return
-				.then(json => isDoc ? json[0] : json);
+					// Return
+					.then((json) => (isDoc ? json[0] : json))
+			);
 		},
 
 		/**
@@ -535,10 +698,9 @@ module.exports = {
 			// Apply field filter (support nested paths)
 			if (Array.isArray(fields)) {
 				let res = {};
-				fields.forEach(n => {
+				fields.forEach((n) => {
 					const v = _.get(doc, n);
-					if (v !== undefined)
-						_.set(res, n, v);
+					if (v !== undefined) _.set(res, n, v);
 				});
 				return res;
 			}
@@ -556,7 +718,7 @@ module.exports = {
 			if (this.settings.fields && this.settings.fields.length > 0) {
 				let res = [];
 				if (Array.isArray(fields) && fields.length > 0) {
-					fields.forEach(f => {
+					fields.forEach((f) => {
 						if (this.settings.fields.indexOf(f) !== -1) {
 							res.push(f);
 							return;
@@ -566,14 +728,20 @@ module.exports = {
 							let parts = f.split(".");
 							while (parts.length > 1) {
 								parts.pop();
-								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
+								if (
+									this.settings.fields.indexOf(
+										parts.join(".")
+									) !== -1
+								) {
 									res.push(f);
 									break;
 								}
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(prop => prop.indexOf(f + ".") !== -1);
+						let nestedFields = this.settings.fields.filter(
+							(prop) => prop.indexOf(f + ".") !== -1
+						);
 						if (nestedFields.length > 0) {
 							res = res.concat(nestedFields);
 						}
@@ -595,29 +763,31 @@ module.exports = {
 		 * @returns	{Promise}
 		 */
 		populateDocs(ctx, docs, populateFields) {
-			if (!this.settings.populates || !Array.isArray(populateFields) || populateFields.length == 0)
+			if (
+				!this.settings.populates ||
+				!Array.isArray(populateFields) ||
+				populateFields.length == 0
+			)
 				return Promise.resolve(docs);
 
-			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
+			if (docs == null || (!_.isObject(docs) && !Array.isArray(docs)))
 				return Promise.resolve(docs);
 
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, field) => {
-
-				if (populateFields.indexOf(field) === -1)
-					return; // skip
+				if (populateFields.indexOf(field) === -1) return; // skip
 
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
 					rule = {
-						handler: Promise.method(rule)
+						handler: Promise.method(rule),
 					};
 				}
 
 				// If string, convert to object
 				if (_.isString(rule)) {
 					rule = {
-						action: rule
+						action: rule,
 					};
 				}
 
@@ -626,13 +796,19 @@ module.exports = {
 				let arr = Array.isArray(docs) ? docs : [docs];
 
 				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => _.get(doc, rule.field)))));
+				let idList = _.uniq(
+					_.flattenDeep(
+						_.compact(arr.map((doc) => _.get(doc, rule.field)))
+					)
+				);
 				// Replace the received models according to IDs in the original docs
 				const resultTransform = (populatedDocs) => {
-					arr.forEach(doc => {
+					arr.forEach((doc) => {
 						let id = _.get(doc, rule.field);
 						if (_.isArray(id)) {
-							let models = _.compact(id.map(id => populatedDocs[id]));
+							let models = _.compact(
+								id.map((id) => populatedDocs[id])
+							);
 							_.set(doc, field, models);
 						} else {
 							_.set(doc, field, populatedDocs[id]);
@@ -641,16 +817,23 @@ module.exports = {
 				};
 
 				if (rule.handler) {
-					promises.push(rule.handler.call(this, idList, arr, rule, ctx));
+					promises.push(
+						rule.handler.call(this, idList, arr, rule, ctx)
+					);
 				} else if (idList.length > 0) {
 					// Call the target action & collect the promises
-					const params = Object.assign({
-						id: idList,
-						mapping: true,
-						populate: rule.populate
-					}, rule.params || {});
+					const params = Object.assign(
+						{
+							id: idList,
+							mapping: true,
+							populate: rule.populate,
+						},
+						rule.params || {}
+					);
 
-					promises.push(ctx.call(rule.action, params).then(resultTransform));
+					promises.push(
+						ctx.call(rule.action, params).then(resultTransform)
+					);
 				}
 			});
 
@@ -668,7 +851,11 @@ module.exports = {
 				return Promise.resolve(entity);
 
 			let entities = Array.isArray(entity) ? entity : [entity];
-			return Promise.all(entities.map(entity => this.settings.entityValidator.call(this, entity))).then(() => entity);
+			return Promise.all(
+				entities.map((entity) =>
+					this.settings.entityValidator.call(this, entity)
+				)
+			).then(() => entity);
 		},
 
 		/**
@@ -704,8 +891,11 @@ module.exports = {
 		 * @returns {Array<Object>} List of found entities.
 		 */
 		_find(ctx, params) {
-			return this.adapter.find(params)
-				.then(docs => this.transformDocuments(ctx, params, docs));
+			return this.getAdapter(ctx).then((adapter) =>
+				adapter
+					.find(params)
+					.then((docs) => this.transformDocuments(ctx, params, docs))
+			);
 		},
 
 		/**
@@ -720,11 +910,11 @@ module.exports = {
 		 */
 		_count(ctx, params) {
 			// Remove pagination params
-			if (params && params.limit)
-				params.limit = null;
-			if (params && params.offset)
-				params.offset = null;
-			return this.adapter.count(params);
+			if (params && params.limit) params.limit = null;
+			if (params && params.offset) params.offset = null;
+			return this.getAdapter(ctx).then((adapter) =>
+				adapter.count(params)
+			);
 		},
 
 		/**
@@ -740,24 +930,26 @@ module.exports = {
 		_list(ctx, params) {
 			let countParams = Object.assign({}, params);
 			// Remove pagination params
-			if (countParams && countParams.limit)
-				countParams.limit = null;
-			if (countParams && countParams.offset)
-				countParams.offset = null;
+			if (countParams && countParams.limit) countParams.limit = null;
+			if (countParams && countParams.offset) countParams.offset = null;
 			if (params.limit == null) {
-				if (this.settings.limit > 0 && params.pageSize > this.settings.limit)
+				if (
+					this.settings.limit > 0 &&
+					params.pageSize > this.settings.limit
+				)
 					params.limit = this.settings.limit;
-				else
-					params.limit = params.pageSize;
+				else params.limit = params.pageSize;
 			}
 			return Promise.all([
 				// Get rows
-				this.adapter.find(params),
+				this.getAdapter(ctx).then((adapter) => adapter.find(params)),
 				// Get count of all rows
-				this.adapter.count(countParams)
-			]).then(res => {
-				return this.transformDocuments(ctx, params, res[0])
-					.then(docs => {
+				this.getAdapter(ctx).then((adapter) =>
+					adapter.count(countParams)
+				),
+			]).then((res) => {
+				return this.transformDocuments(ctx, params, res[0]).then(
+					(docs) => {
 						return {
 							// Rows
 							rows: docs,
@@ -768,9 +960,12 @@ module.exports = {
 							// Page size
 							pageSize: params.pageSize,
 							// Total pages
-							totalPages: Math.floor((res[1] + params.pageSize - 1) / params.pageSize)
+							totalPages: Math.floor(
+								(res[1] + params.pageSize - 1) / params.pageSize
+							),
 						};
-					});
+					}
+				);
 			});
 		},
 
@@ -786,12 +981,29 @@ module.exports = {
 		 */
 		_create(ctx, params) {
 			let entity = params;
-			return this.validateEntity(entity)
-				// Apply idField
-				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-				.then(entity => this.adapter.insert(entity))
-				.then(doc => this.transformDocuments(ctx, {}, doc))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+			return (
+				this.validateEntity(entity)
+					// Apply idField
+					.then((entity) =>
+						this.getAdapter(ctx).then((adapter) =>
+							adapter.beforeSaveTransformID(
+								entity,
+								this.settings.idField
+							)
+						)
+					)
+					.then((entity) =>
+						this.getAdapter(ctx).then((adapter) =>
+							adapter.insert(entity)
+						)
+					)
+					.then((doc) => this.transformDocuments(ctx, {}, doc))
+					.then((json) =>
+						this.entityChanged("created", json, ctx).then(
+							() => json
+						)
+					)
+			);
 		},
 
 		/**
@@ -808,25 +1020,60 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
-						return this.validateEntity(params.entities)
-							// Apply idField
-							.then(entities => {
-								if (this.settings.idField === "_id")
-									return entities;
-								return entities.map(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField));
-							})
-							.then(entities => this.adapter.insertMany(entities));
+						return (
+							this.validateEntity(params.entities)
+								// Apply idField
+								.then((entities) => {
+									if (this.settings.idField === "_id")
+										return entities;
+									return Promise.all(
+										entities.map((entity) =>
+											this.getAdapter(ctx).then(
+												(adapter) =>
+													adapter.beforeSaveTransformID(
+														entity,
+														this.settings.idField
+													)
+											)
+										)
+									);
+								})
+								.then((entities) =>
+									this.getAdapter(ctx).then((adapter) =>
+										adapter.insertMany(entities)
+									)
+								)
+						);
+					} else if (params.entity) {
+						return (
+							this.validateEntity(params.entity)
+								// Apply idField
+								.then((entity) =>
+									this.getAdapter(ctx).then((adapter) =>
+										adapter.beforeSaveTransformID(
+											entity,
+											this.settings.idField
+										)
+									)
+								)
+								.then((entity) =>
+									this.getAdapter(ctx).then((adapter) =>
+										adapter.insert(entity)
+									)
+								)
+						);
 					}
-					else if (params.entity) {
-						return this.validateEntity(params.entity)
-							// Apply idField
-							.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-							.then(entity => this.adapter.insert(entity));
-					}
-					return Promise.reject(new MoleculerClientError("Invalid request! The 'params' must contain 'entity' or 'entities'!", 400));
+					return Promise.reject(
+						new MoleculerClientError(
+							"Invalid request! The 'params' must contain 'entity' or 'entities'!",
+							400
+						)
+					);
 				})
-				.then(docs => this.transformDocuments(ctx, {}, docs))
-				.then(json => this.entityChanged("created", json, ctx).then(() => json));
+				.then((docs) => this.transformDocuments(ctx, {}, docs))
+				.then((json) =>
+					this.entityChanged("created", json, ctx).then(() => json)
+				);
 		},
 
 		/**
@@ -844,27 +1091,38 @@ module.exports = {
 		_get(ctx, params) {
 			let id = params.id;
 			let origDoc;
-			return this.getById(id, true)
-				.then(doc => {
+			return this.getById(id, true, ctx)
+				.then((doc) => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
 					origDoc = doc;
 					return this.transformDocuments(ctx, params, doc);
 				})
-				.then(json => {
+				.then((json) => {
 					if (_.isArray(json) && params.mapping === true) {
-						let res = {};
-						json.forEach((doc, i) => {
-							const id = this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField];
-							res[id] = doc;
-						});
-						return res;
+						return Promise.all(
+							json.map((doc, i) =>
+								this.getAdapter(ctx).then((adapter) => {
+									const id = adapter.afterRetrieveTransformID(
+										origDoc[i],
+										this.settings.idField
+									)[this.settings.idField];
+
+									return { [id]: doc };
+								})
+							)
+						).reduce((a, b) => ({ ...a, ...b }), {});
 					} else if (_.isObject(json) && params.mapping === true) {
-						let res = {};
-						const id = this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField];
-						res[id] = json;
-						return res;
+						return this.getAdapter(ctx).then((adapter) => {
+							const id = adapter.afterRetrieveTransformID(
+								origDoc,
+								this.settings.idField
+							)[this.settings.idField];
+
+							return { [id]: json };
+						});
 					}
+
 					return json;
 				});
 		},
@@ -885,22 +1143,25 @@ module.exports = {
 			let id;
 			let sets = {};
 			// Convert fields from params to "$set" update object
-			Object.keys(params).forEach(prop => {
+			Object.keys(params).forEach((prop) => {
 				if (prop == "id" || prop == this.settings.idField)
 					id = this.decodeID(params[prop]);
-				else
-					sets[prop] = params[prop];
+				else sets[prop] = params[prop];
 			});
 
 			if (this.settings.useDotNotation)
 				sets = flatten(sets, { safe: true });
 
-			return this.adapter.updateById(id, { "$set": sets })
-				.then(doc => {
+			return this.getAdapter(ctx)
+				.then((adapter) => adapter.updateById(id, { $set: sets }))
+				.then((doc) => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("updated", json, ctx).then(() => json));
+					return this.transformDocuments(ctx, {}, doc).then((json) =>
+						this.entityChanged("updated", json, ctx).then(
+							() => json
+						)
+					);
 				});
 		},
 
@@ -916,14 +1177,20 @@ module.exports = {
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
-				.then(doc => {
+			return this.getAdapter(ctx)
+				.then((adapter) => adapter.removeById(id))
+				.then((doc) => {
 					if (!doc)
-						return Promise.reject(new EntityNotFoundError(params.id));
-					return this.transformDocuments(ctx, {}, doc)
-						.then(json => this.entityChanged("removed", json, ctx).then(() => json));
+						return Promise.reject(
+							new EntityNotFoundError(params.id)
+						);
+					return this.transformDocuments(ctx, {}, doc).then((json) =>
+						this.entityChanged("removed", json, ctx).then(
+							() => json
+						)
+					);
 				});
-		}
+		},
 	},
 
 	/**
@@ -935,60 +1202,59 @@ module.exports = {
 			this.settings.fields = this.settings.fields.split(" ");
 		}
 
-		if (!this.schema.adapter)
+		this.adapters = {};
+		this.adapter = this.schema.adapter;
+		this.tenantStrategy = this.schema.tenantStrategy;
+
+		if (!this.adapter && !this.tenantStrategy) {
 			this.adapter = new MemoryAdapter();
-		else
-			this.adapter = this.schema.adapter;
-
-		this.adapter.init(this.broker, this);
-
-		// Transform entity validation schema to checker function
-		if (this.broker.validator && _.isObject(this.settings.entityValidator) && !_.isFunction(this.settings.entityValidator)) {
-			const check = this.broker.validator.compile(this.settings.entityValidator);
-			this.settings.entityValidator = async entity => {
-				let res = check(entity);
-				if (check.async === true || (res.then) instanceof Function) res = await res;
-				if (res === true)
-					return Promise.resolve();
-				else
-					return Promise.reject(new ValidationError("Entity validation error!", null, res));
-			};
 		}
 
+		if (this.adapter) {
+			// this will init the default adapter
+			this.getAdapter();
+		}
+
+		// Transform entity validation schema to checker function
+		if (
+			this.broker.validator &&
+			_.isObject(this.settings.entityValidator) &&
+			!_.isFunction(this.settings.entityValidator)
+		) {
+			const check = this.broker.validator.compile(
+				this.settings.entityValidator
+			);
+			this.settings.entityValidator = async (entity) => {
+				let res = check(entity);
+				if (check.async === true || res.then instanceof Function)
+					res = await res;
+				if (res === true) return Promise.resolve();
+				else
+					return Promise.reject(
+						new ValidationError(
+							"Entity validation error!",
+							null,
+							res
+						)
+					);
+			};
+		}
 	},
 
 	/**
 	 * Service started lifecycle event handler
 	 */
 	started() {
-		if (this.adapter) {
-			return new Promise(resolve => {
-				let connecting = () => {
-					this.connect().then(resolve).catch(err => {
-						this.logger.error("Connection error!", err);
-						setTimeout(() => {
-							this.logger.warn("Reconnecting...");
-							connecting();
-						}, 1000);
-					});
-				};
-
-				connecting();
-			});
-		}
-
-		/* istanbul ignore next */
-		return Promise.reject(new Error("Please set the store adapter in schema!"));
+		return this.connect();
 	},
 
 	/**
 	 * Service stopped lifecycle event handler
 	 */
 	stopped() {
-		if (this.adapter)
-			return this.disconnect();
+		return this.disconnect();
 	},
 
 	// Export Memory Adapter class
-	MemoryAdapter
+	MemoryAdapter,
 };
