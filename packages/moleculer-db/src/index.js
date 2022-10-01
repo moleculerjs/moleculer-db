@@ -383,10 +383,11 @@ module.exports = {
 		 * if ctx and tenant stratergy are present it will call getAdapter and getAdapterHash
 		 * @param {Context} ctx
 		 */
-		getAdapter(ctx) {
+		async getAdapter(ctx) {
 			const useTenantStrategy = this.tenantStrategy && ctx;
+
 			const hash = useTenantStrategy
-				? this.tenantStrategy.getAdapterHash(ctx)
+				? await this.tenantStrategy.getAdapterHash.call(this, ctx)
 				: "default";
 
 			if (this.adapters[hash]) {
@@ -394,9 +395,15 @@ module.exports = {
 			}
 
 			this.adapters[hash] = useTenantStrategy
-				? this.tenantStrategy.getAdapter(ctx)
+				? await this.tenantStrategy.getAdapter.call(this, ctx)
 				: this.adapter;
 			this.adapters[hash].init(this.broker, this);
+
+			this.logger.debug(
+				"Register new adapter",
+				hash,
+				this.adapters[hash]
+			);
 
 			// if default no need to connect because connect will be called on started method
 			if (hash === "default") {

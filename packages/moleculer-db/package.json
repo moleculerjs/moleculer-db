@@ -1,6 +1,6 @@
 {
-  "name": "moleculer-db",
-  "version": "0.8.19",
+  "name": "n2o-moleculer-db",
+  "version": "0.8.24",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/moleculerjs/moleculer-db.git"
+    "url": "git+https://github.com/moleculerjs/moleculer-db.git"
   },
   "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db#readme",
   "author": "MoleculerJS",
@@ -55,5 +55,12 @@
     "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.21"
+  },
+  "bugs": {
+    "url": "https://github.com/moleculerjs/moleculer-db/issues"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
   }
 }
