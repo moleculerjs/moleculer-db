@@ -1,7 +1,7 @@
 declare module "moleculer-db-adapter-mongoose" {
 	import { Service, ServiceBroker } from "moleculer";
 	import {
-		ConnectionOptions,
+		ConnectOptions ,
 		Document,
 		Query as DocumentQuery, //reff: https://github.com/Automattic/mongoose/issues/10036#issuecomment-803144616
 		Model,
@@ -27,6 +27,8 @@ declare module "moleculer-db-adapter-mongoose" {
 		searchFields?: string[]; // never used?
 	}
 
+
+
 	/**
 	 * Parameters to {@link MongooseDbAdapter.createCursor}
 	 */
@@ -41,7 +43,7 @@ declare module "moleculer-db-adapter-mongoose" {
 
 	class MongooseDbAdapter<TDocument extends Document> {
 		uri: string;
-		opts?: ConnectionOptions;
+		opts?: ConnectOptions;
 		broker: ServiceBroker;
 		service: Service;
 		model: Model<TDocument>;
@@ -52,7 +54,7 @@ declare module "moleculer-db-adapter-mongoose" {
 		/**
 		 * Creates an instance of MongooseDbAdapter.
 		 */
-		constructor(uri: string, opts?: ConnectionOptions);
+		constructor(uri: string, opts?: ConnectOptions);
 		/**
 		 * Initialize adapter
 		 */
