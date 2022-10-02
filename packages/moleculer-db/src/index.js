@@ -399,11 +399,7 @@ module.exports = {
 				: this.adapter;
 			this.adapters[hash].init(this.broker, this);
 
-			this.logger.debug(
-				"Register new adapter",
-				hash,
-				this.adapters[hash]
-			);
+			this.logger.debug("Register new adapter", hash);
 
 			// if default no need to connect because connect will be called on started method
 			if (hash === "default") {
