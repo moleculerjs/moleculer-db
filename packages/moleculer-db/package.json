@@ -1,5 +1,5 @@
 {
-  "name": "n2o-moleculer-db",
+  "name": "tenancy-moleculer-db",
   "version": "0.8.25",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",

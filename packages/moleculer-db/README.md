@@ -18,7 +18,7 @@ Moleculer service to store entities in database.
 # Install
 
 ```bash
-$ npm install moleculer-db --save
+$ npm install tenancy-moleculer-db --save
 ```
 
 # Usage
@@ -27,7 +27,7 @@ $ npm install moleculer-db --save
 "use strict";
 
 const { ServiceBroker } = require("moleculer");
-const DbService = require("moleculer-db");
+const DbService = require("tenancy-moleculer-db");
 
 const broker = new ServiceBroker();
 
@@ -644,7 +644,7 @@ broker.createService({
 Naturally you can extend this service with your custom actions.
 
 ```js
-const DbService = require("moleculer-db");
+const DbService = require("tenancy-moleculer-db");
 
 module.exports = {
     name: "posts",
@@ -678,7 +678,7 @@ module.exports = {
 According to moleculer [documentation](https://moleculer.services/docs/0.14/services.html#Merge-algorithm) you can disable an action when override it with `false`
 
 ```js
-const DbService = require("moleculer-db");
+const DbService = require("tenancy-moleculer-db");
 
 module.exports = {
     name: "posts",
@@ -690,6 +690,33 @@ module.exports = {
     }
 }
 ```
+
+# Support Multiple Tenancy
+Copyright by [mailaneel](https://github.com/mailaneel): https://github.com/moleculerjs/moleculer-db/pull/5
+
+
+```js
+const DbService = require("tenancy-moleculer-db");
+
+const getHash = (ctx) => ctx.meta.tenantId
+
+module.exports = {
+    name: 'posts',
+    mixins: [DbService],
+    tenantStrategy: {
+        getAdapterHash: getHash,
+        getAdapter: (ctx) => {
+            return new MongooseAdapter({
+                    schema: RoleSchema,
+                    modelName: 'Role',
+                    uri: `${process.env.MONGO_URI_1}/${getHash(ctx)}`,
+                    opts: Object.assign({}, { useMongoClient: true })
+            })
+        }
+    }
+}
+```
+
 # Test
 ```
 $ npm test
@@ -708,3 +735,4 @@ The project is available under the [MIT license](https://tldrlegal.com/license/m
 Copyright (c) 2016-2022 MoleculerJS
 
 [![@moleculerjs](https://img.shields.io/badge/github-moleculerjs-green.svg)](https://github.com/moleculerjs) [![@MoleculerJS](https://img.shields.io/badge/twitter-MoleculerJS-blue.svg)](https://twitter.com/MoleculerJS)
+
