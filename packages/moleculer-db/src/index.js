@@ -848,7 +848,7 @@ module.exports = {
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					origDoc = doc;
+					origDoc = _.isArray(doc) ? doc.map(d=>{return{...d}}) : {...doc};
 					return this.transformDocuments(ctx, params, doc);
 				})
 				.then(json => {

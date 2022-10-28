@@ -77,11 +77,24 @@ describe("Test CRUD methods with idField", () => {
 			.then(res => expect(res).toEqual(posts[1]));
 	});
 
+	it("should return with the entity mapped by ID", () => {
+		return broker.call("posts.get", { id: posts[1].myID, mapping:true })
+			.then(res => expect(res[posts[1].myID]).toEqual(posts[1]));
+	});
+
 	it("should return with multiple entity by IDs", () => {
 		return broker.call("posts.get", { id: [posts[2].myID, posts[0].myID] })
 			.then(res => {
 				expect(res[0]).toEqual(posts[2]);
 				expect(res[1]).toEqual(posts[0]);
+			});
+	});
+
+	it("should return with multiple entities mapped by IDs", () => {
+		return broker.call("posts.get", { id: [posts[2].myID, posts[0].myID], mapping: true })
+			.then(res => {
+				expect(res[posts[2].myID]).toEqual(posts[2]);
+				expect(res[posts[0].myID]).toEqual(posts[0]);
 			});
 	});
 
