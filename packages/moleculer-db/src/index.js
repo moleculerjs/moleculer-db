@@ -844,28 +844,33 @@ module.exports = {
 		_get(ctx, params) {
 			let id = params.id;
 			let origDoc;
+			let shouldMapping = params.mapping === true;
 			return this.getById(id, true)
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					origDoc = _.isArray(doc) ? doc.map(d=>{return{...d}}) : {...doc};
+
+					if (shouldMapping)
+						origDoc = _.isArray(doc) ? doc.map(d => _.cloneDeep(d)) : _.cloneDeep(doc);
+					else
+						origDoc = doc;
+
 					return this.transformDocuments(ctx, params, doc);
 				})
 				.then(json => {
-					if (_.isArray(json) && params.mapping === true) {
-						let res = {};
+					if (params.mapping !== true) return json;
+
+					let res = {};
+					if (_.isArray(json)) {
 						json.forEach((doc, i) => {
 							const id = this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField];
 							res[id] = doc;
 						});
-						return res;
-					} else if (_.isObject(json) && params.mapping === true) {
-						let res = {};
+					} else if (_.isObject(json)) {
 						const id = this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField];
 						res[id] = json;
-						return res;
 					}
-					return json;
+					return res;
 				});
 		},
 
