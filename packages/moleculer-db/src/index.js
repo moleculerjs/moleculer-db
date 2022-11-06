@@ -493,13 +493,13 @@ module.exports = {
 				// Convert entity to JS object
 				.then(docs => docs.map(doc => this.adapter.entityToObject(doc)))
 
+				// Apply idField
+				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Encode IDs
 				.then(docs => docs.map(doc => {
 					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
 					return doc;
 				}))
-				// Apply idField
-				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Populate
 				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
 
@@ -863,11 +863,11 @@ module.exports = {
 					let res = {};
 					if (_.isArray(json)) {
 						json.forEach((doc, i) => {
-							const id = this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField];
+							const id = this.encodeID(this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField]);
 							res[id] = doc;
 						});
 					} else if (_.isObject(json)) {
-						const id = this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField];
+						const id = this.encodeID(this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField]);
 						res[id] = json;
 					}
 					return res;
