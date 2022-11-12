@@ -332,6 +332,9 @@ describe("Test entityChanged method", () => {
 	const service = broker.createService(DbService, {
 		name: "store",
 		settings: {},
+		beforeEntityCreate: jest.fn(() => Promise.resolve()),
+		beforeEntityUpdate: jest.fn(() => Promise.resolve()),
+		beforeEntityRemove: jest.fn(() => Promise.resolve()),
 		entityCreated: jest.fn(),
 		entityUpdated: jest.fn(),
 		entityRemoved: jest.fn(),
@@ -341,6 +344,27 @@ describe("Test entityChanged method", () => {
 
 	let ctx = {};
 	let doc = { id: 5 };
+
+	it("should call `beforeEntityCreate` event", () => {
+		return service.beforeEntityChange("create", {}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityCreate).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityCreate).toHaveBeenCalledWith({}, ctx);
+		});
+	});
+
+	it("should call `beforeEntityUpdate` event", () => {
+		return service.beforeEntityChange("update",  {}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityUpdate).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityUpdate).toHaveBeenCalledWith({}, ctx);
+		});
+	});
+
+	it("should call `beforeEntityRemove` event", () => {
+		return service.beforeEntityChange("remove",{}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityRemove).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityRemove).toHaveBeenCalledWith({}, ctx);
+		});
+	});
 
 	it("should call `entityCreated` event", () => {
 		return service.entityChanged("created", doc, ctx).catch(protectReject).then(() => {
@@ -1015,7 +1039,7 @@ describe("Test validateEntity method", () => {
 				expect(err.data[0].type).toBe("required");
 				expect(err.data[0].field).toBe("id");
 			});
-		})
+		});
 
 	});
 
