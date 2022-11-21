@@ -41,7 +41,20 @@ describe("Test populates feature", () => {
 	broker.createService(DbService, {
 		name: "users",
 		settings: {
-			fields: ["_id", "username", "name"]
+			fields: ["_id", "group", "username", "name"],
+			populates: {
+				group: {
+					action: "groups.get"
+				},
+			}
+		}
+	});
+
+	// Load my service
+	broker.createService(DbService, {
+		name: "groups",
+		settings: {
+			fields: ["_id", "name"],
 		}
 	});
 
@@ -57,24 +70,37 @@ describe("Test populates feature", () => {
 		{ username: "walter", name: "Walter", password: "H31s3nb3rg" }
 	];
 
+	let groups = [
+		{ name: "groupA" },
+		{ name: "groupB" },
+		{ name: "groupC" }
+	];
+
 	beforeAll(() => {
 		return broker.start().then(() => {
-			return broker.call("users.insert", { entities: users }).then(res => {
-				res.forEach((e, i) => users[i]._id = e._id);
+			return broker.call("groups.insert", { entities: groups }).then(res => {
+				res.forEach((e, i) => groups[i]._id = e._id);
 
-				posts[0].author = res[2]._id;
-				posts[0].reviewerId = res[0]._id;
-				posts[1].author = res[0]._id;
-				posts[1].reviewerId = res[0]._id;
-				posts[2].author = res[1]._id;
-				posts[2].reviewerId = res[0]._id;
+				users[0].group = res[0]._id;
+				users[1].group = res[1]._id;
+				users[2].group = res[2]._id;
 
-
-				return broker.call("posts.insert", { entities: posts }).then(res => {
-					res.forEach((e, i) => posts[i]._id = e._id);
+				return broker.call("users.insert", { entities: users }).then(res => {
+					res.forEach((e, i) => users[i]._id = e._id);
+	
+					posts[0].author = res[2]._id;
+					posts[0].reviewerId = res[0]._id;
+					posts[1].author = res[0]._id;
+					posts[1].reviewerId = res[0]._id;
+					posts[2].author = res[1]._id;
+					posts[2].reviewerId = res[0]._id;
+	
+	
+					return broker.call("posts.insert", { entities: posts }).then(res => {
+						res.forEach((e, i) => posts[i]._id = e._id);
+					});
 				});
 			});
-
 		});
 	});
 
@@ -88,7 +114,7 @@ describe("Test populates feature", () => {
 		return broker.call("posts.get", { id: posts[0]._id, populate: ["author"] }).catch(protectReject).then(res => {
 			expect(res).toEqual({
 				"_id": posts[0]._id,
-				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter"},
+				"author": {"_id": users[2]._id, "name": "Walter", group:groups[2]._id, "username": "walter"},
 				"content": "This is the content",
 				"title": "My first post",
 				"reviewerId": users[0]._id
@@ -124,9 +150,22 @@ describe("Test populates feature", () => {
 		return broker.call("posts.get", { id: posts[0]._id, populate: ["author","reviewer"] }).catch(protectReject).then(res => {
 			expect(res).toEqual({
 				"_id": posts[0]._id,
-				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter"},
+				"author": {"_id": users[2]._id, group:groups[2]._id, "name": "Walter", "username": "walter"},
 				"reviewerId":users[0]._id,
-				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username},
+				"reviewer": {"_id": users[0]._id, group:groups[0]._id, "name": users[0].name, "username":users[0].username},
+				"content": "This is the content",
+				"title": "My first post"
+			});
+		});
+	});
+
+	it("should deeply populate groups", () => {
+		return broker.call("posts.get", { id: posts[0]._id, populate: ["author.group","reviewer.group"] }).catch(protectReject).then(res => {
+			expect(res).toEqual({
+				"_id": posts[0]._id,
+				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter", group:{"_id": groups[2]._id, "name": "groupC"}},
+				"reviewerId":users[0]._id,
+				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
 				"content": "This is the content",
 				"title": "My first post"
 			});

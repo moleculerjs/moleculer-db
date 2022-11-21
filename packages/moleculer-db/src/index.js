@@ -601,10 +601,17 @@ module.exports = {
 			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
 				return Promise.resolve(docs);
 
+			const groupedPopulateFields = _.groupBy(
+				populateFields,
+				(populateField)=>Object.keys(this.settings.populates).find(
+					(populatesField)=>populateField === populatesField || populateField.startsWith(populatesField + ".")
+				)
+			);
+	
 			let promises = [];
-			_.forIn(this.settings.populates, (rule, field) => {
+			_.forIn(this.settings.populates, (rule, populatesField) => {
 
-				if (populateFields.indexOf(field) === -1)
+				if (Object.keys(groupedPopulateFields).indexOf(populatesField) === -1)
 					return; // skip
 
 				// if the rule is a function, save as a custom handler
@@ -621,7 +628,7 @@ module.exports = {
 					};
 				}
 
-				if (rule.field === undefined) rule.field = field;
+				if (rule.field === undefined) rule.field = populatesField;
 
 				let arr = Array.isArray(docs) ? docs : [docs];
 
@@ -633,9 +640,9 @@ module.exports = {
 						let id = _.get(doc, rule.field);
 						if (_.isArray(id)) {
 							let models = _.compact(id.map(id => populatedDocs[id]));
-							_.set(doc, field, models);
+							_.set(doc, populatesField, models);
 						} else {
-							_.set(doc, field, populatedDocs[id]);
+							_.set(doc, populatesField, populatedDocs[id]);
 						}
 					});
 				};
@@ -647,8 +654,15 @@ module.exports = {
 					const params = Object.assign({
 						id: idList,
 						mapping: true,
-						populate: rule.populate
+						populate: [
+							...groupedPopulateFields[populatesField]
+								.map((populateField)=>populateField.slice(populatesField.length + 1)) //+1 to also remove any leading "."
+								.filter(field=>field!==""),
+							...(rule.populate ? rule.populate : [])
+						]
 					}, rule.params || {});
+
+					if (params.populate.length === 0 ) {delete params.populate;}
 
 					promises.push(ctx.call(rule.action, params).then(resultTransform));
 				}
