@@ -159,11 +159,24 @@ describe("Test populates feature", () => {
 		});
 	});
 
-	it("should deeply populate groups", () => {
-		return broker.call("posts.get", { id: posts[0]._id, populate: ["author.group","reviewer.group"] }).catch(protectReject).then(res => {
+	it("should deeply populate all groups", () => {
+		return broker.call("posts.get", { id: posts[0]._id, populate: ["author.group","reviewer.group", "title.invalid"] }).catch(protectReject).then(res => {
 			expect(res).toEqual({
 				"_id": posts[0]._id,
 				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter", group:{"_id": groups[2]._id, "name": "groupC"}},
+				"reviewerId":users[0]._id,
+				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
+				"content": "This is the content",
+				"title": "My first post"
+			});
+		});
+	});
+
+	it("should deeply populate one group", () => {
+		return broker.call("posts.get", { id: posts[0]._id, populate: ["author.invalid","reviewer.group", "title.invalid"] }).catch(protectReject).then(res => {
+			expect(res).toEqual({
+				"_id": posts[0]._id,
+				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter", group:groups[2]._id},
 				"reviewerId":users[0]._id,
 				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
 				"content": "This is the content",

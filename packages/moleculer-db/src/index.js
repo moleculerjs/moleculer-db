@@ -603,10 +603,17 @@ module.exports = {
 
 			const groupedPopulateFields = _.groupBy(
 				populateFields,
-				(populateField)=>Object.keys(this.settings.populates).find(
-					(populatesField)=>populateField === populatesField || populateField.startsWith(populatesField + ".")
-				)
+				(populateField)=> {
+					let key = Object.keys(this.settings.populates).find(
+						(populatesField)=>populateField === populatesField || populateField.startsWith(populatesField + ".")
+					);
+
+					if (key) return key;
+					return "_invalid";
+				}
 			);
+
+			delete groupedPopulateFields["_invalid"];
 	
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, populatesField) => {
