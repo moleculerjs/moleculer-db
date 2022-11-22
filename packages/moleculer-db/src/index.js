@@ -601,6 +601,10 @@ module.exports = {
 			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
 				return Promise.resolve(docs);
 
+			/* Group populateFields by populatesFields for deep population.
+			(e.g. if "post" in populates and populateFields = ["post.author", "post.reviewer", "otherField"])
+			then they would be grouped together: { post: ["post.author", "post.reviewer"], otherField:["otherField"]}
+			*/
 			const groupedPopulateFields = _.groupBy(
 				populateFields,
 				(populateField)=> {
@@ -613,7 +617,7 @@ module.exports = {
 				}
 			);
 
-			delete groupedPopulateFields["_invalid"];
+			delete groupedPopulateFields["_invalid"]; // Removes all fields not in this.settings.populates
 	
 			let promises = [];
 			_.forIn(this.settings.populates, (rule, populatesField) => {
@@ -662,9 +666,10 @@ module.exports = {
 						id: idList,
 						mapping: true,
 						populate: [
+							// Transform "post.author" into "author" to pass to next populating service
 							...groupedPopulateFields[populatesField]
 								.map((populateField)=>populateField.slice(populatesField.length + 1)) //+1 to also remove any leading "."
-								.filter(field=>field!==""),
+								.filter(field=>field!==""), 
 							...(rule.populate ? rule.populate : [])
 						]
 					}, rule.params || {});

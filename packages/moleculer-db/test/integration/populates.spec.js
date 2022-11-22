@@ -24,8 +24,9 @@ describe("Test populates feature", () => {
 		name: "posts",
 		adapter: new Adapter(),
 		settings: {
-			fields: ["_id", "title", "content", "author", "reviewer", "reviewerId"],
+			fields: ["_id", "title", "content", "author", "reviewer", "reviewerId", "liked"],
 			populates: {
+				"liked.by": "users.get",
 				author: {
 					action: "users.get"
 				},
@@ -90,10 +91,13 @@ describe("Test populates feature", () => {
 	
 					posts[0].author = res[2]._id;
 					posts[0].reviewerId = res[0]._id;
+					posts[0].liked = {by: res[0]._id};
 					posts[1].author = res[0]._id;
 					posts[1].reviewerId = res[0]._id;
+					posts[1].liked = {by: res[0]._id};
 					posts[2].author = res[1]._id;
 					posts[2].reviewerId = res[0]._id;
+					posts[2].liked = {by: res[0]._id};
 	
 	
 					return broker.call("posts.insert", { entities: posts }).then(res => {
@@ -117,7 +121,8 @@ describe("Test populates feature", () => {
 				"author": {"_id": users[2]._id, "name": "Walter", group:groups[2]._id, "username": "walter"},
 				"content": "This is the content",
 				"title": "My first post",
-				"reviewerId": users[0]._id
+				"reviewerId": users[0]._id,
+				"liked": {by: users[0]._id}
 			});
 		});
 	});
@@ -154,22 +159,32 @@ describe("Test populates feature", () => {
 				"reviewerId":users[0]._id,
 				"reviewer": {"_id": users[0]._id, group:groups[0]._id, "name": users[0].name, "username":users[0].username},
 				"content": "This is the content",
-				"title": "My first post"
+				"title": "My first post",
+				"liked": {by: users[0]._id}
 			});
 		});
 	});
 
 	it("should deeply populate all groups", () => {
-		return broker.call("posts.get", { id: posts[0]._id, populate: ["author.group","reviewer.group", "title.invalid"] }).catch(protectReject).then(res => {
-			expect(res).toEqual({
-				"_id": posts[0]._id,
-				"author": {"_id": users[2]._id, "name": "Walter", "username": "walter", group:{"_id": groups[2]._id, "name": "groupC"}},
-				"reviewerId":users[0]._id,
-				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
-				"content": "This is the content",
-				"title": "My first post"
+		return broker
+			.call(
+				"posts.get",
+				{
+					id: posts[0]._id,
+					populate: ["author.group","reviewer.group", "liked.by.group", "title.invalid"] 
+				})
+			.catch(protectReject)
+			.then(res => {
+				expect(res).toEqual({
+					"_id": posts[0]._id,
+					"author": {"_id": users[2]._id, "name": "Walter", "username": "walter", group:{"_id": groups[2]._id, "name": "groupC"}},
+					"reviewerId":users[0]._id,
+					"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
+					"content": "This is the content",
+					"title": "My first post",
+					"liked": {by: {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}}}
+				});
 			});
-		});
 	});
 
 	it("should deeply populate one group", () => {
@@ -180,7 +195,8 @@ describe("Test populates feature", () => {
 				"reviewerId":users[0]._id,
 				"reviewer": {"_id": users[0]._id, "name": users[0].name, "username":users[0].username, group:{"_id": groups[0]._id, "name": "groupA"}},
 				"content": "This is the content",
-				"title": "My first post"
+				"title": "My first post",
+				"liked": {by: users[0]._id}
 			});
 		});
 	});
