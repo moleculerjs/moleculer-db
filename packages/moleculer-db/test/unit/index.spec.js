@@ -1015,7 +1015,7 @@ describe("Test validateEntity method", () => {
 				expect(err.data[0].type).toBe("required");
 				expect(err.data[0].field).toBe("id");
 			});
-		})
+		});
 
 	});
 
