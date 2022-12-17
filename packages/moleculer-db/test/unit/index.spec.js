@@ -655,7 +655,7 @@ describe("Test authorizeFields method", () => {
 			expect(res).toEqual(["id", "name", "bio.body.height", "bio.body.hair.color"]);
 		});
 
-		it("should remove empty", () => {
+		it("should return empty", () => {
 			const res = service.authorizeFields(["carrier"]);
 			expect(res).toEqual([]);
 		});
