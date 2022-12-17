@@ -439,6 +439,23 @@ module.exports = {
 		},
 
 		/**
+		 * Call before entity lifecycle events
+		 *
+		 * @methods
+		 * @param {String} type
+		 * @param {Object} entity
+		 * @param {Context} ctx
+		 * @returns {Promise}
+		 */
+		beforeEntityChange(type, entity, ctx) {
+			const eventName = `beforeEntity${_.capitalize(type)}`;
+			if (this.schema[eventName] == null) {
+				return Promise.resolve(entity);
+			}
+			return Promise.resolve(this.schema[eventName].call(this, entity, ctx));
+		},
+
+		/**
 		 * Clear the cache & call entity lifecycle events
 		 *
 		 * @methods
@@ -812,10 +829,15 @@ module.exports = {
 		 */
 		_create(ctx, params) {
 			let entity = params;
-			return this.validateEntity(entity)
+			return this.beforeEntityChange("create", entity, ctx)
+				.then((entity)=>this.validateEntity(entity))
 				// Apply idField
-				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-				.then(entity => this.adapter.insert(entity))
+				.then(entity => 
+					this.adapter.beforeSaveTransformID(entity, this.settings.idField)
+				)
+				.then(entity => 
+					this.adapter.insert(entity)
+				)
 				.then(doc => this.transformDocuments(ctx, {}, doc))
 				.then(json => this.entityChanged("created", json, ctx).then(() => json));
 		},
@@ -834,7 +856,9 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
-						return this.validateEntity(params.entities)
+						return Promise.all(params.entities.map(entity => this.beforeEntityChange("create", entity, ctx)))
+							.then(entities=>this.validateEntity(entities))
+							.then(entities => Promise.all(entities.map(entity => this.beforeEntityChange("create", entity, ctx))))
 							// Apply idField
 							.then(entities => {
 								if (this.settings.idField === "_id")
@@ -844,7 +868,8 @@ module.exports = {
 							.then(entities => this.adapter.insertMany(entities));
 					}
 					else if (params.entity) {
-						return this.validateEntity(params.entity)
+						return this.beforeEntityChange("create", params.entity, ctx)
+							.then(entity=>this.validateEntity(entity))
 							// Apply idField
 							.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 							.then(entity => this.adapter.insert(entity));
@@ -914,19 +939,25 @@ module.exports = {
 		 */
 		_update(ctx, params) {
 			let id;
-			let sets = {};
-			// Convert fields from params to "$set" update object
-			Object.keys(params).forEach(prop => {
-				if (prop == "id" || prop == this.settings.idField)
-					id = this.decodeID(params[prop]);
-				else
-					sets[prop] = params[prop];
-			});
+			
+			return Promise.resolve()
+				.then(()=>this.beforeEntityChange("update", params, ctx))
+				.then((params)=>{
+					let sets = {};
+					// Convert fields from params to "$set" update object
+					Object.keys(params).forEach(prop => {
+						if (prop == "id" || prop == this.settings.idField)
+							id = this.decodeID(params[prop]);
+						else
+							sets[prop] = params[prop];
+					});
 
-			if (this.settings.useDotNotation)
-				sets = flatten(sets, { safe: true });
+					if (this.settings.useDotNotation)
+						sets = flatten(sets, { safe: true });
 
-			return this.adapter.updateById(id, { "$set": sets })
+					return sets;
+				})
+				.then((sets)=>this.adapter.updateById(id, { "$set": sets }))
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
@@ -947,7 +978,9 @@ module.exports = {
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
+			return Promise.resolve()
+				.then(()=>this.beforeEntityChange("remove", params, ctx))
+				.then(()=>this.adapter.removeById(id))
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(params.id));
