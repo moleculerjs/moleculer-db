@@ -3,7 +3,6 @@ declare module "moleculer-db-adapter-mongo" {
 
 	import { CountOptions, CursorOptions, DbAdapter, FilterOptions, QueryOptions } from "moleculer-db";
 	import { Collection } from "mongodb";
-
 	export default class MongoDbAdapter implements DbAdapter {
 		collection: Collection;
 		constructor(opts: object | string);
@@ -64,7 +63,7 @@ declare module "moleculer-db-adapter-mongo" {
 		 * @returns {Promise}
 		 * @memberof DbAdapter
 		 */
-		findById(id: any): Promise<object>;
+		findById(id: unknown): Promise<object>;
 
 		/**
 		 * Find all entites by IDs
@@ -160,7 +159,7 @@ declare module "moleculer-db-adapter-mongo" {
 		 * @returns {Object}
 		 * @memberof DbAdapter
 		 */
-		entityToObject(entity: any): object;
+		entityToObject(entity: unknown): object;
 
 		/**
 		 * Add filters to query
