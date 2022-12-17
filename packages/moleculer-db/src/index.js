@@ -585,7 +585,7 @@ module.exports = {
 								parts.pop();
 								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
 									allowedFields.push(askedField);
-									break;
+									return;
 								}
 							}
 						}
