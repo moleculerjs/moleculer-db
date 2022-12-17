@@ -590,7 +590,7 @@ module.exports = {
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(settingField => settingField.indexOf(askedField + ".") !== -1);
+						let nestedFields = this.settings.fields.filter(settingField => settingField.startsWith(askedField + "."));
 						if (nestedFields.length > 0) {
 							allowedFields = allowedFields.concat(nestedFields);
 						}
