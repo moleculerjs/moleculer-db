@@ -1,3 +1,13 @@
+<a name="0.8.19"></a>
+# 0.8.19 (2022-12-17)
+
+## Changes
+- Fix bug - populate not working - idField mapped to undefined [#327](https://github.com/moleculerjs/moleculer-db/pull/327)
+- moleculer-db-adapter-mongoose crashing if in state "connecting" fix [#329](https://github.com/moleculerjs/moleculer-db/pull/329)
+- Recursive deep populate [#331](https://github.com/moleculerjs/moleculer-db/pull/331)
+- beforeEntity(Change|Update|Remove) lifecycle events [#330](https://github.com/moleculerjs/moleculer-db/pull/330)
+- fix authorize fields unsafe check [#335](https://github.com/moleculerjs/moleculer-db/pull/335)
+ 
 --------------------------------------------------
 <a name="0.8.18"></a>
 # 0.8.18 (2022-05-25)
