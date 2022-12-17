@@ -601,29 +601,29 @@ module.exports = {
 			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
 				return Promise.resolve(docs);
 
+			const settingPopulateFields = Object.keys(this.settings.populates);
+
 			/* Group populateFields by populatesFields for deep population.
 			(e.g. if "post" in populates and populateFields = ["post.author", "post.reviewer", "otherField"])
 			then they would be grouped together: { post: ["post.author", "post.reviewer"], otherField:["otherField"]}
 			*/
-			const groupedPopulateFields = _.groupBy(
-				populateFields,
-				(populateField)=> {
-					let key = Object.keys(this.settings.populates).find(
-						(populatesField)=>populateField === populatesField || populateField.startsWith(populatesField + ".")
-					);
-
-					if (key) return key;
-					return "_invalid";
+			const groupedPopulateFields = populateFields.reduce((obj, populateField) => {
+				const settingPopulateField = settingPopulateFields.find(settingPopulateField => settingPopulateField === populateField || populateField.startsWith(settingPopulateField + "."));
+				if (settingPopulateField != null) {
+					if (obj[settingPopulateField] == null) {
+						obj[settingPopulateField] = [populateField];
+					} else {
+						obj[settingPopulateField].push(populateField);
+					}
 				}
-			);
+				return obj;
+			}, {});
 
-			delete groupedPopulateFields["_invalid"]; // Removes all fields not in this.settings.populates
-	
 			let promises = [];
-			_.forIn(this.settings.populates, (rule, populatesField) => {
-
-				if (Object.keys(groupedPopulateFields).indexOf(populatesField) === -1)
-					return; // skip
+			for (const populatesField of settingPopulateFields) {
+				let rule = this.settings.populates[populatesField];
+				if (groupedPopulateFields[populatesField] == null)
+					continue; // skip
 
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
@@ -632,7 +632,7 @@ module.exports = {
 					};
 				}
 
-				// If string, convert to object
+				// If the rule is string, convert to object
 				if (_.isString(rule)) {
 					rule = {
 						action: rule
@@ -669,7 +669,7 @@ module.exports = {
 							// Transform "post.author" into "author" to pass to next populating service
 							...groupedPopulateFields[populatesField]
 								.map((populateField)=>populateField.slice(populatesField.length + 1)) //+1 to also remove any leading "."
-								.filter(field=>field!==""), 
+								.filter(field=>field!==""),
 							...(rule.populate ? rule.populate : [])
 						]
 					}, rule.params || {});
@@ -678,7 +678,7 @@ module.exports = {
 
 					promises.push(ctx.call(rule.action, params).then(resultTransform));
 				}
-			});
+			}
 
 			return Promise.all(promises).then(() => docs);
 		},
