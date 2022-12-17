@@ -566,41 +566,41 @@ module.exports = {
 		/**
 		 * Authorize the required field list. Remove fields which is not exist in the `this.settings.fields`
 		 *
-		 * @param {Array} fields
+		 * @param {Array} askedFields
 		 * @returns {Array}
 		 */
-		authorizeFields(fields) {
+		authorizeFields(askedFields) {
 			if (this.settings.fields && this.settings.fields.length > 0) {
-				let res = [];
-				if (Array.isArray(fields) && fields.length > 0) {
-					fields.forEach(f => {
-						if (this.settings.fields.indexOf(f) !== -1) {
-							res.push(f);
+				let allowedFields = [];
+				if (Array.isArray(askedFields) && askedFields.length > 0) {
+					askedFields.forEach(askedField => {
+						if (this.settings.fields.indexOf(askedField) !== -1) {
+							allowedFields.push(askedField);
 							return;
 						}
 
-						if (f.indexOf(".") !== -1) {
-							let parts = f.split(".");
+						if (askedField.indexOf(".") !== -1) {
+							let parts = askedField.split(".");
 							while (parts.length > 1) {
 								parts.pop();
 								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
-									res.push(f);
-									break;
+									allowedFields.push(askedField);
+									return;
 								}
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(prop => prop.indexOf(f + ".") !== -1);
+						let nestedFields = this.settings.fields.filter(settingField => settingField.startsWith(askedField + "."));
 						if (nestedFields.length > 0) {
-							res = res.concat(nestedFields);
+							allowedFields = allowedFields.concat(nestedFields);
 						}
 					});
 					//return _.intersection(f, this.settings.fields);
 				}
-				return res;
+				return allowedFields;
 			}
 
-			return fields;
+			return askedFields;
 		},
 
 		/**
@@ -832,10 +832,10 @@ module.exports = {
 			return this.beforeEntityChange("create", entity, ctx)
 				.then((entity)=>this.validateEntity(entity))
 				// Apply idField
-				.then(entity => 
+				.then(entity =>
 					this.adapter.beforeSaveTransformID(entity, this.settings.idField)
 				)
-				.then(entity => 
+				.then(entity =>
 					this.adapter.insert(entity)
 				)
 				.then(doc => this.transformDocuments(ctx, {}, doc))
@@ -939,7 +939,7 @@ module.exports = {
 		 */
 		_update(ctx, params) {
 			let id;
-			
+
 			return Promise.resolve()
 				.then(()=>this.beforeEntityChange("update", params, ctx))
 				.then((params)=>{

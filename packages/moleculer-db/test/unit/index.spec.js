@@ -636,7 +636,7 @@ describe("Test authorizeFields method", () => {
 			name: "store",
 			adapter: mockAdapter,
 			settings: {
-				fields: ["id", "name", "address", "bio.body"]
+				fields: ["id", "name", "address", "bio.body", "mobile.carrier.name"]
 			}
 		});
 
@@ -653,6 +653,11 @@ describe("Test authorizeFields method", () => {
 		it("should remove the disabled bio fields", () => {
 			const res = service.authorizeFields(["id", "name", "bio.body.height", "bio.male", "bio.dob.year", "bio.body.hair.color"]);
 			expect(res).toEqual(["id", "name", "bio.body.height", "bio.body.hair.color"]);
+		});
+
+		it("should return empty", () => {
+			const res = service.authorizeFields(["carrier"]);
+			expect(res).toEqual([]);
 		});
 	});
 
