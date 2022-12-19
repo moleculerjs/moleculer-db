@@ -13,6 +13,7 @@ const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
 const pkg = require("../package.json");
+const { deepGet } = require("./utils");
 
 /**
  * Service mixin to access database entities
@@ -553,9 +554,8 @@ module.exports = {
 			if (Array.isArray(fields)) {
 				let res = {};
 				fields.forEach(n => {
-					const v = _.get(doc, n);
-					if (v !== undefined)
-						_.set(res, n, v);
+					const paths = n.split(".$.");
+					deepGet(doc, paths, res);
 				});
 				return res;
 			}

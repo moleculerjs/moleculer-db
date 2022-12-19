@@ -727,6 +727,64 @@ describe("Test filterFields method", () => {
 		});
 	});
 
+	it("should filter with nested fields in array", () => {
+		const res = service.filterFields({
+			id : 1,
+			name: "Walter",
+			address: {
+				city: "Albuquerque",
+				state: "NM",
+				zip: 87111
+			},
+			cars: [
+				{id: 1, name: "BMW", model: "320i", wheels: [
+					{ placement: "front-left", id: 1},
+					{ placement: "front-right", id: 2},
+					{ placement: "behind-left", id: 3},
+					{ placement: "behind-right", id: 4},
+				]},
+				{id: 2, name: "BMW", model: "520i", wheels: [
+					{ placement: "front-left", id: 1},
+					{ placement: "front-right", id: 2},
+					{ placement: "behind-left", id: 3},
+					{ placement: "behind-right", id: 4},
+				]},
+				{id: 3, name: "AUDI", model: "Q7", wheels: [
+					{ placement: "front-left", id: 1, histories: []},
+					{ placement: "front-right", id: 2, histories: [
+						{date: "11/11/2011", message: "replace new 2011"}
+					]},
+					{ placement: "behind-left", id: 3, histories: []},
+					{ placement: "behind-right", id: 4, histories: [
+						{date: "12/12/2012", message: "replace new 2012"}
+					]},
+				]},
+			]
+		}, ["name", "cars.$.id", "cars.$.name", "cars.$.wheels.$.placement", "cars.$.wheels.$.histories.$.date", "cars.$.wheels.$.histories.$.non-existed"]);
+		expect(res).toEqual({
+			name: "Walter",
+			cars: [
+				{id: 1, name: "BMW", wheels: [
+					{ placement: "front-left" },
+					{ placement: "front-right" },
+					{ placement: "behind-left" },
+					{ placement: "behind-right" },
+				]},
+				{id: 2, name: "BMW", wheels: [
+					{ placement: "front-left" },
+					{ placement: "front-right" },
+					{ placement: "behind-left" },
+					{ placement: "behind-right" },
+				]},
+				{id: 3, name: "AUDI", wheels: [
+					{ placement: "front-left", histories: [] },
+					{ placement: "front-right", histories: [{date: "11/11/2011"}] },
+					{ placement: "behind-left", histories: [] },
+					{ placement: "behind-right", histories: [{date: "12/12/2012"}] },
+				]},
+			]
+		});
+	});
 });
 
 describe("Test populateDocs method", () => {
