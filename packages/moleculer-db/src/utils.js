@@ -10,7 +10,7 @@ function deepGet(doc, fieldPaths, res, i = 0) {
 					const resVal = _.get(res, path, []);
 					_.set(res, path, doc.map((item, index) => {
 						const obj = resVal[index] || {};
-						deepGet(item, [].concat(fieldPaths), obj, i);
+						deepGet(item, fieldPaths, obj, i);
 						return obj;
 					}));
 				} else {
