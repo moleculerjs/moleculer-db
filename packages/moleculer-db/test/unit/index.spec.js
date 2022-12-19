@@ -684,16 +684,6 @@ describe("Test authorizeFields method", () => {
 });
 
 describe("Test filterFields method", () => {
-	const doc = {
-		id : 1,
-		name: "Walter",
-		address: {
-			city: "Albuquerque",
-			state: "NM",
-			zip: 87111
-		}
-	};
-
 	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
 		name: "store",
@@ -703,39 +693,46 @@ describe("Test filterFields method", () => {
 		}
 	});
 
-	it("should not touch the doc", () => {
-		const res = service.filterFields(doc);
-		expect(res).toBe(doc);
-	});
-
-	it("should filter the fields", () => {
-		const res = service.filterFields(doc, ["name", "address"]);
-		expect(res).toEqual({
-			name: "Walter",
-			address: doc.address
-		});
-	});
-
-	it("should filter with nested fields", () => {
-		const res = service.filterFields(doc, ["name", "address.city", "address.zip"]);
-		expect(res).toEqual({
-			name: "Walter",
-			address: {
-				city: "Albuquerque",
-				zip: 87111
-			}
-		});
-	});
-
-	it("should filter with nested fields in array", () => {
-		const res = service.filterFields({
+	describe("filter with object", () => {
+		const doc = {
 			id : 1,
 			name: "Walter",
 			address: {
 				city: "Albuquerque",
 				state: "NM",
 				zip: 87111
-			},
+			}
+		};
+
+		it("should not touch the doc", () => {
+			const res = service.filterFields(doc);
+			expect(res).toBe(doc);
+		});
+
+		it("should filter the fields", () => {
+			const res = service.filterFields(doc, ["name", "address"]);
+			expect(res).toEqual({
+				name: "Walter",
+				address: doc.address
+			});
+		});
+
+		it("should filter with nested fields", () => {
+			const res = service.filterFields(doc, ["name", "address.city", "address.zip"]);
+			expect(res).toEqual({
+				name: "Walter",
+				address: {
+					city: "Albuquerque",
+					zip: 87111
+				}
+			});
+		});
+	});
+
+	describe("filter with array", () => {
+		const doc = {
+			id : 1,
+			name: "Walter",
 			cars: [
 				{id: 1, name: "BMW", model: "320i", wheels: [
 					{ placement: "front-left", id: 1},
@@ -759,30 +756,59 @@ describe("Test filterFields method", () => {
 						{date: "12/12/2012", message: "replace new 2012"}
 					]},
 				]},
-			]
-		}, ["name", "cars.$.id", "cars.$.name", "cars.$.wheels.$.placement", "cars.$.wheels.$.histories.$.date", "cars.$.wheels.$.histories.$.non-existed"]);
-		expect(res).toEqual({
-			name: "Walter",
-			cars: [
-				{id: 1, name: "BMW", wheels: [
-					{ placement: "front-left" },
-					{ placement: "front-right" },
-					{ placement: "behind-left" },
-					{ placement: "behind-right" },
-				]},
-				{id: 2, name: "BMW", wheels: [
-					{ placement: "front-left" },
-					{ placement: "front-right" },
-					{ placement: "behind-left" },
-					{ placement: "behind-right" },
-				]},
-				{id: 3, name: "AUDI", wheels: [
-					{ placement: "front-left", histories: [] },
-					{ placement: "front-right", histories: [{date: "11/11/2011"}] },
-					{ placement: "behind-left", histories: [] },
-					{ placement: "behind-right", histories: [{date: "12/12/2012"}] },
-				]},
-			]
+			],
+			models: {
+				id: 1,
+				desc: "not an array",
+				items: [
+					{id: 0},
+					{id: 1},
+					{id: 2},
+				]
+			}
+		};
+		it("should filter with nested fields in array", () => {
+			const res = service.filterFields(doc, ["name", "cars.$.id", "cars.$.name", "cars.$.wheels.$.placement", "cars.$.wheels.$.histories.$.date", "cars.$.wheels.$.histories.$.non-existed"]);
+			expect(res).toEqual({
+				name: "Walter",
+				cars: [
+					{id: 1, name: "BMW", wheels: [
+						{ placement: "front-left" },
+						{ placement: "front-right" },
+						{ placement: "behind-left" },
+						{ placement: "behind-right" },
+					]},
+					{id: 2, name: "BMW", wheels: [
+						{ placement: "front-left" },
+						{ placement: "front-right" },
+						{ placement: "behind-left" },
+						{ placement: "behind-right" },
+					]},
+					{id: 3, name: "AUDI", wheels: [
+						{ placement: "front-left", histories: [] },
+						{ placement: "front-right", histories: [{date: "11/11/2011"}] },
+						{ placement: "behind-left", histories: [] },
+						{ placement: "behind-right", histories: [{date: "12/12/2012"}] },
+					]},
+				]
+			});
+		});
+		it("test .$. with object", () => {
+			const res = service.filterFields(doc, ["models.$.desc", "name"]);
+			expect(res).toEqual({
+				name: "Walter",
+			});
+		});
+		it("test .[INDEX]", () => {
+			const res = service.filterFields(doc, ["name", "models.items.0.id"]);
+			expect(res).toEqual({
+				name: "Walter",
+				models: {
+					items: [
+						{id: 0},
+					]
+				},
+			});
 		});
 	});
 });
