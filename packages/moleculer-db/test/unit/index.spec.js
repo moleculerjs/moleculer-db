@@ -878,6 +878,20 @@ describe("Test filterFields method", () => {
 				const res = service.filterFields(doc, ["a.2.b.$.c.1.e"]);
 				expect(res).toEqual({a: { 2: { b: [{c: [undefined, {e: 6}]}] } }});
 			});
+			describe("multiple fields", function () {
+				it("should overwrite", () => {
+					const res = service.filterFields(doc, ["a.2.b", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: doc.a["2"].b } }});
+				});
+				it("should merge", () => {
+					const res = service.filterFields(doc, ["a.2.b.$.c.1.d", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: [{c: [undefined, {d: 5, e: 6}]}] } }});
+				});
+				it("should pass", () => {
+					const res = service.filterFields(doc, ["a.2.b.$.c.$.d", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: [{c: [{d: 3}, {d: 5, e: 6}]}] } }});
+				});
+			});
 		});
 	});
 });
