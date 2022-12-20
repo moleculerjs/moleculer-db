@@ -1,5 +1,5 @@
 "use strict";
-if (process.versions.node.split(".")[0] < 14) {
+if (process.versions.node.split(".")[0] < 12) {
 	console.log("Skipping Mongoose tests because node version is too low");
 	it("Skipping Mongoose tests because node version is too low", () => {});
 } else {
