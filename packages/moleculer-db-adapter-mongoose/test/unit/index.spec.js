@@ -139,13 +139,12 @@ if (process.versions.node.split(".")[0] < 14) {
 			beforeEach(() => {
 				mongoose.connection.readyState =
 					mongoose.connection.states.disconnected;
-				mongoose.connect = jest.fn(() => {
-					mongoose.connection.readyState =
-						mongoose.connection.states.connected;
-					return Promise.resolve({
-						connection: { ...fakeDb, db: fakeDb },
-						model: jest.fn(() => fakeModel),
-					});
+				mongoose.createConnection = jest.fn(() => {
+					return {
+						...fakeDb,
+						db: fakeDb,
+						readyState: mongoose.connection.states.connected,
+					};
 				});
 			});
 
@@ -153,14 +152,14 @@ if (process.versions.node.split(".")[0] < 14) {
 				fakeDb.on.mockClear();
 
 				adapter.opts = undefined;
-				adapter.model = jest.fn(() => fakeModel);
+				adapter.model = fakeModel;
 
 				return adapter
 					.connect()
 					.catch(protectReject)
 					.then(() => {
-						expect(mongoose.connect).toHaveBeenCalledTimes(1);
-						expect(mongoose.connect).toHaveBeenCalledWith(
+						expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
+						expect(mongoose.createConnection).toHaveBeenCalledWith(
 							"mongodb://localhost",
 							undefined
 						);
@@ -190,8 +189,8 @@ if (process.versions.node.split(".")[0] < 14) {
 					.connect()
 					.catch(protectReject)
 					.then(() => {
-						expect(mongoose.connect).toHaveBeenCalledTimes(1);
-						expect(mongoose.connect).toHaveBeenCalledWith(
+						expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
+						expect(mongoose.createConnection).toHaveBeenCalledWith(
 							adapter.uri,
 							adapter.opts
 						);
@@ -250,8 +249,9 @@ if (process.versions.node.split(".")[0] < 14) {
 					mongoose.connection.readyState =
 						mongoose.connection.states.connected;
 					return {
-						connection: { db: fakeDb, ...fakeDb },
-						model: jest.fn(() => fakeModel),
+						db: fakeDb,
+						...fakeDb,
+						readyState: mongoose.connection.states.connected
 					};
 				});
 
