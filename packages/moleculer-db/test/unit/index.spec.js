@@ -893,6 +893,47 @@ describe("Test filterFields method", () => {
 				});
 			});
 		});
+		describe("Object with key '$'", function () {
+			const doc = {
+				$: [
+					{
+						a: {
+							$: {
+								b: [
+									{c: 1, d: 2},
+									{c: 3, d: 4},
+								]
+							}
+						}
+					},
+					{
+						a: {
+							$: {
+								b: [
+									{c: 5, d: 6},
+									{c: 7, d: 8},
+								]
+							}
+						}
+					},
+				]
+			};
+			it("should handleable $", () => {
+				const res = service.filterFields(doc, ["$.$.a.$.b.$.c"]);
+				expect(res).toEqual({
+					$: [
+						{a: { $: { b: [
+							{ c: 1 },
+							{ c: 3 },
+						]}}},
+						{a: { $: { b: [
+							{ c: 5 },
+							{ c: 7 },
+						]}}}
+					]
+				});
+			});
+		});
 	});
 });
 
