@@ -800,6 +800,47 @@ describe("Test filterFields method", () => {
 
 });
 
+describe("Test excludeFields method", () => {
+	const doc = {
+		id : 1,
+		name: "Walter",
+		address: {
+			city: "Albuquerque",
+			state: "NM",
+			zip: 87111
+		}
+	};
+
+	const broker = new ServiceBroker({ logger: false, validation: false });
+	const service = broker.createService(DbService, {
+		name: "store",
+	});
+
+	it("should not touch the doc", () => {
+		const res = service.excludeFields(doc);
+		expect(res).toBe(doc);
+	});
+
+	it("should exclude fields", () => {
+		const res = service.excludeFields(doc, ["address"]);
+		expect(res).toEqual({
+			id: 1,
+			name: "Walter",
+		});
+	});
+
+	it("should work with nested fields", () => {
+		const res = service.excludeFields(doc, ["name", "address.city", "address.zip"]);
+		expect(res).toEqual({
+			id : 1,
+			address: {
+				state: "NM",
+			}
+		});
+	});
+
+});
+
 describe("Test populateDocs method", () => {
 	const RATES = ["No rate", "Poor", "Acceptable", "Average", "Good", "Excellent"];
 	const docs = [{ id: 1, author: 3, rate: 4 }, { id: 2, author: 5, comments: [8, 3, 8], rate: 0 }, { id: 3, author: 8, rate: 5 }];
