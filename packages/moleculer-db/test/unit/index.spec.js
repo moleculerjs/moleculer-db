@@ -446,6 +446,11 @@ describe("Test sanitizeParams method", () => {
 		expect(res).toEqual({ fields: ["name", "votes", "author"] });
 	});
 
+	it("should convert excludeFields to array", () => {
+		const res = service.sanitizeParams(ctx, { excludeFields: "name votes author" });
+		expect(res).toEqual({ excludeFields: ["name", "votes", "author"] });
+	});
+
 	it("should convert populate to array", () => {
 		const res = service.sanitizeParams(ctx, { populate: "author voters" });
 		expect(res).toEqual({ populate: ["author", "voters"] });

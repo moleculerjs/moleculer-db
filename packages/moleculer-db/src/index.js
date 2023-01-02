@@ -407,6 +407,9 @@ module.exports = {
 			if (typeof(p.fields) === "string")
 				p.fields = p.fields.replace(/,/g, " ").split(" ");
 
+			if (typeof(p.excludeFields) === "string")
+				p.excludeFields = p.excludeFields.split(/[,\s]+/);
+
 			if (typeof(p.populate) === "string")
 				p.populate = p.populate.replace(/,/g, " ").split(" ");
 
