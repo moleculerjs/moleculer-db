@@ -384,16 +384,16 @@ module.exports = {
 				p.query = JSON.parse(p.query);
 
 			if (typeof(p.sort) === "string")
-				p.sort = p.sort.replace(/,/g, " ").split(" ");
+				p.sort = p.sort.split(/[,\s]+/);
 
 			if (typeof(p.fields) === "string")
-				p.fields = p.fields.replace(/,/g, " ").split(" ");
+				p.fields = p.fields.split(/[,\s]+/);
 
 			if (typeof(p.populate) === "string")
-				p.populate = p.populate.replace(/,/g, " ").split(" ");
+				p.populate = p.populate.split(/[,\s]+/);
 
 			if (typeof(p.searchFields) === "string")
-				p.searchFields = p.searchFields.replace(/,/g, " ").split(" ");
+				p.searchFields = p.searchFields.split(/[,\s]+/);
 
 			if (ctx.action.name.endsWith(".list")) {
 				// Default `pageSize`
@@ -998,7 +998,7 @@ module.exports = {
 	created() {
 		// Compatibility with < 0.4
 		if (_.isString(this.settings.fields)) {
-			this.settings.fields = this.settings.fields.split(" ");
+			this.settings.fields = this.settings.fields.split(/\s+/);
 		}
 
 		if (!this.schema.adapter)
