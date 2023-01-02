@@ -524,17 +524,19 @@ module.exports = {
 
 				// Filter fields
 				.then(json => {
-					let fields = ctx && params.fields ? params.fields : this.settings.fields;
+					if (ctx && params.fields) {
+						const fields = _.isString(params.fields)
+							// Compatibility with < 0.4
+							/* istanbul ignore next */
+							? params.fields.split(/\s+/)
+							: params.fields;
+						// Authorize the requested fields
+						const authFields = this.authorizeFields(fields);
 
-					// Compatibility with < 0.4
-					/* istanbul ignore next */
-					if (_.isString(fields))
-						fields = fields.split(/\s+/);
-
-					// Authorize the requested fields
-					const authFields = this.authorizeFields(fields);
-
-					return json.map(item => this.filterFields(item, authFields));
+						return json.map(item => this.filterFields(item, authFields));
+					} else {
+						return json.map(item => this.filterFields(item, this.settings.fields));
+					}
 				})
 
 				// Return
