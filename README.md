@@ -18,7 +18,7 @@
 | [moleculer-db-adapter-mongo](/packages/moleculer-db-adapter-mongo#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongo.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongo) | MongoDB native adapter for Moleculer DB service. |
 | [moleculer-db-adapter-mongoose](/packages/moleculer-db-adapter-mongoose#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-mongoose.svg)](https://www.npmjs.com/package/moleculer-db-adapter-mongoose) | Mongoose adapter for Moleculer DB service |
 | [moleculer-db-adapter-sequelize](/packages/moleculer-db-adapter-sequelize#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-sequelize.svg)](https://www.npmjs.com/package/moleculer-db-adapter-sequelize) | SQL adapter (Postgres, MySQL, SQLite & MSSQL) for Moleculer DB service |
-| [moleculer-db-adapter-prisma](/packages/moleculer-db-adapter-prisma#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-prisma.svg)](https://www.npmjs.com/package/moleculer-db-adapter-prisma) | Prisma adapter for Moleculer DB service |
+| [moleculer-db-adapter-prisma](https://github.com/noluckjustskill/moleculer-db-adapter-prisma#readme) | [![NPM version](https://img.shields.io/npm/v/moleculer-db-adapter-prisma.svg)](https://www.npmjs.com/package/moleculer-db-adapter-prisma) | Prisma adapter for Moleculer DB service |
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 # Contribution
