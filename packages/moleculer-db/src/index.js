@@ -427,13 +427,13 @@ module.exports = {
 		 * @param {Boolean?} decoding - Need to decode IDs.
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
-		getById(id, decoding) {
+		getById(id, populate, decoding) {
 			return Promise.resolve()
 				.then(() => {
 					if (_.isArray(id)) {
-						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id);
+						return this.adapter.findByIds(decoding ? id.map(id => this.decodeID(id)) : id, populate);
 					} else {
-						return this.adapter.findById(decoding ? this.decodeID(id) : id);
+						return this.adapter.findById(decoding ? this.decodeID(id) : id, populate);
 					}
 				});
 		},
@@ -896,9 +896,10 @@ module.exports = {
 		 */
 		_get(ctx, params) {
 			let id = params.id;
+			let populate = params.populate;
 			let origDoc;
 			let shouldMapping = params.mapping === true;
-			return this.getById(id, true)
+			return this.getById(id, populate, true)
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));

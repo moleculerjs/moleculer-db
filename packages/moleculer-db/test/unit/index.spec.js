@@ -85,7 +85,7 @@ describe("Test DbService actions", () => {
 			expect(service.sanitizeParams).toHaveBeenCalledWith(expect.any(Context), p);
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
-			expect(service.getById).toHaveBeenCalledWith(5, true);
+			expect(service.getById).toHaveBeenCalledWith(5, undefined, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, doc);
@@ -122,7 +122,7 @@ describe("Test DbService actions", () => {
 			});
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
-			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], true);
+			expect(service.getById).toHaveBeenCalledWith([5, 3, 8], undefined, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
@@ -152,7 +152,7 @@ describe("Test DbService actions", () => {
 			});
 
 			expect(service.getById).toHaveBeenCalledTimes(1);
-			expect(service.getById).toHaveBeenCalledWith(5, true);
+			expect(service.getById).toHaveBeenCalledWith(5, undefined, true);
 
 			expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 			expect(service.transformDocuments).toHaveBeenCalledWith(expect.any(Context), p, docs);
@@ -280,21 +280,21 @@ describe("Test DbService methods", () => {
 				expect(service.decodeID).toHaveBeenCalledTimes(0);
 
 				expect(adapter.findById).toHaveBeenCalledTimes(1);
-				expect(adapter.findById).toHaveBeenCalledWith(5);
+				expect(adapter.findById).toHaveBeenCalledWith(5, undefined);
 			}).catch(protectReject);
 		});
 
 		it("call with one ID and encoding", () => {
 			adapter.findById.mockClear();
 
-			return service.getById(5, true).then(res => {
+			return service.getById(5, "field", true).then(res => {
 				expect(res).toBe(doc);
 
 				expect(service.decodeID).toHaveBeenCalledTimes(1);
 				expect(service.decodeID).toHaveBeenCalledWith(5);
 
 				expect(adapter.findById).toHaveBeenCalledTimes(1);
-				expect(adapter.findById).toHaveBeenCalledWith(5);
+				expect(adapter.findById).toHaveBeenCalledWith(5, "field");
 			}).catch(protectReject);
 		});
 
@@ -303,7 +303,7 @@ describe("Test DbService methods", () => {
 			service.decodeID.mockClear();
 			adapter.findByIds.mockClear();
 
-			return service.getById([5, 3, 8], true).then(res => {
+			return service.getById([5, 3, 8], ["field"], true).then(res => {
 				expect(res).toBe(docs);
 
 				expect(service.decodeID).toHaveBeenCalledTimes(3);
@@ -312,7 +312,7 @@ describe("Test DbService methods", () => {
 				expect(service.decodeID).toHaveBeenCalledWith(8);
 
 				expect(adapter.findByIds).toHaveBeenCalledTimes(1);
-				expect(adapter.findByIds).toHaveBeenCalledWith([5, 3, 8]);
+				expect(adapter.findByIds).toHaveBeenCalledWith([5, 3, 8], ["field"]);
 
 			}).catch(protectReject);
 		});
