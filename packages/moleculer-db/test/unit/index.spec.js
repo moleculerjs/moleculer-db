@@ -51,6 +51,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
@@ -445,6 +446,11 @@ describe("Test sanitizeParams method", () => {
 		expect(res).toEqual({ fields: ["name", "votes", "author"] });
 	});
 
+	it("should convert excludeFields to array", () => {
+		const res = service.sanitizeParams(ctx, { excludeFields: "name votes author" });
+		expect(res).toEqual({ excludeFields: ["name", "votes", "author"] });
+	});
+
 	it("should convert populate to array", () => {
 		const res = service.sanitizeParams(ctx, { populate: "author voters" });
 		expect(res).toEqual({ populate: ["author", "voters"] });
@@ -613,6 +619,76 @@ describe("Test transformDocuments method", () => {
 		});
 	});
 
+	describe("Test excludeFields", () => {
+		describe("Test with object", function () {
+			const docs = { _id : 2, a: { b: 6, c: 7, d: { e: { f: 8 }, g: 9} } };
+
+			const broker = new ServiceBroker({ logger: false, validation: false });
+			const service = broker.createService(DbService, {
+				name: "store",
+				adapter: mockAdapter
+			});
+
+			it("should return expected - fields", () => {
+				const ctx = { params: { fields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({a: { c: 7 }});
+				});
+			});
+
+			it("should return expected - excludeFields", () => {
+				const ctx = { params: { excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"_id": 2,
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields - deep", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.d.e.f"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"c": 7,
+							"d": {
+								"e": {},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+		});
+	});
+
 });
 
 describe("Test authorizeFields method", () => {
@@ -723,6 +799,47 @@ describe("Test filterFields method", () => {
 			address: {
 				city: "Albuquerque",
 				zip: 87111
+			}
+		});
+	});
+
+});
+
+describe("Test excludeFields method", () => {
+	const doc = {
+		id : 1,
+		name: "Walter",
+		address: {
+			city: "Albuquerque",
+			state: "NM",
+			zip: 87111
+		}
+	};
+
+	const broker = new ServiceBroker({ logger: false, validation: false });
+	const service = broker.createService(DbService, {
+		name: "store",
+	});
+
+	it("should not touch the doc", () => {
+		const res = service.excludeFields(doc);
+		expect(res).toBe(doc);
+	});
+
+	it("should exclude fields", () => {
+		const res = service.excludeFields(doc, ["address"]);
+		expect(res).toEqual({
+			id: 1,
+			name: "Walter",
+		});
+	});
+
+	it("should work with nested fields", () => {
+		const res = service.excludeFields(doc, ["name", "address.city", "address.zip"]);
+		expect(res).toEqual({
+			id : 1,
+			address: {
+				state: "NM",
 			}
 		});
 	});
