@@ -424,7 +424,8 @@ module.exports = {
 		 *
 		 * @methods
 		 * @param {any|Array<any>} id - ID or IDs.
-		 * @param {Boolean?} decoding - Need to decode IDs.
+		 * @param {String|Array<String>|undefined} populate - Field list for populate.
+		 * @param {Boolean|undefined} decoding - Need to decode IDs.
 		 * @returns {Object|Array<Object>} Found entity(ies).
 		 */
 		getById(id, populate, decoding) {
