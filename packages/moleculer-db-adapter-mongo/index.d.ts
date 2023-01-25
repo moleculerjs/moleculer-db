@@ -5,7 +5,7 @@ declare module "moleculer-db-adapter-mongo" {
 	import { Collection } from "mongodb";
 	export default class MongoDbAdapter implements DbAdapter {
 		collection: Collection;
-		constructor(opts: object | string);
+		constructor(uri: string, opts?: object | string, dbName?: string);
 
 		/**
 		 * Initialize adapter
