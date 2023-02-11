@@ -1,3 +1,13 @@
+<a name="0.8.22"></a>
+# 0.8.22 (2023-02-11)
+
+## Changes
+- if param.fields is null, use this.settings.fields directly [#340](https://github.com/moleculerjs/moleculer-db/pull/340)
+- split improve [#339](https://github.com/moleculerjs/moleculer-db/pull/339)
+- new settings.excludeFields feature to exclude fields [#341](https://github.com/moleculerjs/moleculer-db/pull/341)
+ 
+--------------------------------------------------
+
 <a name="0.8.21"></a>
 # 0.8.21 (2022-12-17)
 

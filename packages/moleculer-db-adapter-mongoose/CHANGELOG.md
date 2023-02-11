@@ -1,3 +1,18 @@
+<a name="0.9.2"></a>
+# 0.9.2 (2023-02-11)
+
+## Changes
+- fix constructor signature of MongoDB adapter in TypeScript [#346](https://github.com/moleculerjs/moleculer-db/pull/346)
+- update mongoose to 6.9.0 [#347](https://github.com/moleculerjs/moleculer-db/pull/347)
+
+--------------------------------------------------
+<a name="0.9.0"></a>
+# 0.9.0 (2022-10-23)
+
+## Changes
+support mongoose@6.x.x by @devalexandre in [#324](https://github.com/moleculerjs/moleculer-db/pull/324)
+
+--------------------------------------------------
 <a name="0.8.9"></a>
 # 0.8.9 (2020-11-16)
 
