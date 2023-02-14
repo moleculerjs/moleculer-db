@@ -98,7 +98,7 @@ module.exports = {
 		 */
 		find: {
 			cache: {
-				keys: ["populate", "fields", "limit", "offset", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "limit", "offset", "sort", "search", "searchFields", "query"]
 			},
 			params: {
 				populate: [
@@ -185,7 +185,7 @@ module.exports = {
 		 */
 		list: {
 			cache: {
-				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "page", "pageSize", "sort", "search", "searchFields", "query"]
 			},
 			rest: "GET /",
 			params: {
@@ -274,7 +274,7 @@ module.exports = {
 		 */
 		get: {
 			cache: {
-				keys: ["id", "populate", "fields", "mapping"]
+				keys: ["id", "populate", "fields", "excludeFields", "mapping"]
 			},
 			rest: "GET /:id",
 			params: {
