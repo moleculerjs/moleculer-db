@@ -1,3 +1,11 @@
+<a name="0.8.23"></a>
+# 0.8.23 (2023-02-19)
+
+## Changes
+- fix issues with exclude fields [#349](https://github.com/moleculerjs/moleculer-db/pull/349) [#350](https://github.com/moleculerjs/moleculer-db/pull/350)
+ 
+--------------------------------------------------
+
 <a name="0.8.22"></a>
 # 0.8.22 (2023-02-11)
 
