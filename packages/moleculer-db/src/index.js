@@ -562,11 +562,12 @@ module.exports = {
 
 				// Filter excludeFields
 				.then(json => {
-					const excludeFields = (ctx && params.excludeFields)
+					const askedExcludeFields = (ctx && params.excludeFields)
 						? _.isString(params.excludeFields)
 							? params.excludeFields.split(/\s+/)
 							: params.excludeFields
-						: this.settings.excludeFields;
+						: [];
+					const excludeFields = askedExcludeFields.concat(this.settings.excludeFields || []);
 
 					if (Array.isArray(excludeFields) && excludeFields.length > 0) {
 						return json.map(doc => {
