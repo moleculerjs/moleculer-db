@@ -310,17 +310,37 @@ class MongooseDbAdapter {
 	 * Convert DB entity to JSON object
 	 *
 	 * @param {any} entity
+	 * @param {Context} ctx - moleculer context
 	 * @returns {Object}
 	 * @memberof MongooseDbAdapter
 	 */
-	entityToObject(entity) {
-		let json = entity.toJSON();
-		if (entity._id && entity._id.toHexString) {
-			json._id = entity._id.toHexString();
-		} else if (entity._id && entity._id.toString) {
-			json._id = entity._id.toString();
-		}
-		return json;
+	entityToObject(entity, ctx) {
+		const fieldsToPopulate = _.get(ctx, "params.populate", []);
+		const virtualFields = Object.values(_.get(this, "model.schema.virtuals", {}))
+			.reduce((acc, virtual) => _.get(virtual, "options.ref") ? [...acc, virtual.path] : acc, []);
+		const virtualsToPopulate = _.intersection(fieldsToPopulate, virtualFields);
+		const options = {skipInvalidIds: true, lean: true};
+		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options}));
+
+		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
+			.then(entity => {
+				const json = entity.toJSON();
+
+				if (entity._id && entity._id.toHexString) {
+					json._id = entity._id.toHexString();
+				} else if (entity._id && entity._id.toString) {
+					json._id = entity._id.toString();
+				}
+
+				if (virtualsToPopulate.length > 0) {
+					for(const field of virtualsToPopulate) {
+						const virtual = json[field];
+						json[field] = Array.isArray(virtual) ? virtual.map(m => m._id) : virtual._id;
+					}
+				}
+
+				return json;
+			});
 	}
 
 	/**
