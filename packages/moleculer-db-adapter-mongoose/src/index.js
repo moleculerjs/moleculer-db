@@ -320,7 +320,8 @@ class MongooseDbAdapter {
 			.reduce((acc, virtual) => _.get(virtual, "options.ref") ? [...acc, virtual.path] : acc, []);
 		const virtualsToPopulate = _.intersection(fieldsToPopulate, virtualFields);
 		const options = {skipInvalidIds: true, lean: true};
-		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options}));
+		const transform = (doc) => doc._id;
+		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options, transform}));
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
@@ -330,13 +331,6 @@ class MongooseDbAdapter {
 					json._id = entity._id.toHexString();
 				} else if (entity._id && entity._id.toString) {
 					json._id = entity._id.toString();
-				}
-
-				if (virtualsToPopulate.length > 0) {
-					for(const field of virtualsToPopulate) {
-						const virtual = json[field];
-						json[field] = Array.isArray(virtual) ? virtual.map(m => m._id) : virtual._id;
-					}
 				}
 
 				return json;
