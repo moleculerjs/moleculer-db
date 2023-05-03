@@ -1,6 +1,5 @@
 "use strict";
 
-const mongoose = require("mongoose");
 const { ServiceBroker } = require("moleculer");
 const DbService = require("../../../moleculer-db/src");
 const MongooseStoreAdapter = require("../../src");
@@ -21,7 +20,6 @@ describe("Test virtuals population feature", () => {
 			adapter: new MongooseStoreAdapter("mongodb://localhost"),
 			model: Post.Model,
 			settings: {
-				fields: ["_id", "title", "content", "votes", "author"],
 				populates: {
 					author: "users.get",
 				},
@@ -34,7 +32,6 @@ describe("Test virtuals population feature", () => {
 			adapter: new MongooseStoreAdapter("mongodb://localhost"),
 			model: User.Model,
 			settings: {
-				fields: ["_id", "firstName", "lastName"],
 				populates: {
 					posts: "posts.get",
 					lastPost: "posts.get",
