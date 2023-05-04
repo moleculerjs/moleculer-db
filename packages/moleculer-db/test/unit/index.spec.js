@@ -541,7 +541,7 @@ describe("Test transformDocuments method", () => {
 				expect(res).toBe(doc);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(1);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc, ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(1);
 				expect(service.encodeID).toHaveBeenCalledWith(doc._id);
@@ -565,7 +565,7 @@ describe("Test transformDocuments method", () => {
 				expect(res).toBe(doc);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(1);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc, ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(1);
 				expect(service.encodeID).toHaveBeenCalledWith(doc._id);
@@ -602,8 +602,8 @@ describe("Test transformDocuments method", () => {
 				expect(res).toEqual(docs);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(2);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[0]);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[1]);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[0], ctx);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[1], ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(2);
 				expect(service.encodeID).toHaveBeenCalledWith(docs[0]._id);
