@@ -9,7 +9,7 @@ Mongoose adapter for Moleculer DB service
 ## Install
 
 ```bash
-$ npm install moleculer-db moleculer-db-adapter-mongoose mongoose@5.8.11 --save
+$ npm install moleculer-db moleculer-db-adapter-mongoose mongoose@6.5.4 --save
 ```
 
 ## Usage
