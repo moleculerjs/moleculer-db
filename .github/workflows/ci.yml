@@ -35,8 +35,12 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install dependencies
-      run: npm run setup-no-old-node
-      if: ${{ matrix.node-version == '10.x' || matrix.node-version == '12.x' }}
+      run: npm install && lerna bootstrap --ignore moleculer-db-adapter-prisma --ignore moleculer-db-adapter-mongoose
+      if: ${{ matrix.node-version == '10.x' }}
+
+    - name: Install dependencies
+      run: npm install && lerna bootstrap --ignore moleculer-db-adapter-prisma
+      if: ${{ matrix.node-version == '12.x' }}
 
     - name: Install dependencies
       run: npm run setup
