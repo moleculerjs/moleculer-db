@@ -69,7 +69,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			model: fakeModel,
 		});
 
-		const uri = "mongodb://localhost";
+		const uri = "mongodb://127.0.0.1";
 		const opts = {};
 		const adapter = new MongooseStoreAdapter(uri, opts);
 
@@ -161,7 +161,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					.then(() => {
 						expect(mongoose.connect).toHaveBeenCalledTimes(1);
 						expect(mongoose.connect).toHaveBeenCalledWith(
-							"mongodb://localhost",
+							"mongodb://127.0.0.1",
 							undefined
 						);
 
@@ -658,18 +658,18 @@ if (process.versions.node.split(".")[0] < 14) {
 				});
 		});
 
-		it("call doc.toJSON", () => {
+		it("call doc.toJSON", async () => {
 			doc.toJSON.mockClear();
 			doc._id.toHexString.mockClear();
-			adapter.entityToObject(doc);
+			await adapter.entityToObject(doc);
 			expect(doc.toJSON).toHaveBeenCalledTimes(1);
 			expect(doc._id.toHexString).toHaveBeenCalledTimes(1);
 		});
 
-		it("call entityToObject on doc without ObjectID", () => {
+		it("call entityToObject on doc without ObjectID", async () => {
 			docIdString.toJSON.mockClear();
 			docIdString._id.toString.mockClear();
-			adapter.entityToObject(docIdString);
+			await adapter.entityToObject(docIdString);
 			expect(docIdString.toJSON).toHaveBeenCalledTimes(1);
 			expect(docIdString._id.toString).toHaveBeenCalledTimes(1);
 		});

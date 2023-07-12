@@ -19,7 +19,7 @@ let users = [];
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongooseAdapter("mongodb://127.0.0.1/moleculer-db-demo"),
 	//dependencies: ["users"],
 	model: Post,
 	settings: {
@@ -54,7 +54,7 @@ broker.createService(StoreService, {
 // Load my service
 broker.createService(StoreService, {
 	name: "users",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo"),
+	adapter: new MongooseAdapter("mongodb://127.0.0.1/moleculer-db-demo"),
 	model: User,
 	settings: {
 		fields: ["_id", "username", "fullName", "email"]

@@ -17,7 +17,8 @@ let PostSchema = new Schema({
 		default: 0
 	},
 	author: {
-		type: Schema.ObjectId
+		type: Schema.ObjectId,
+		ref: "User"
 	}
 
 }, {

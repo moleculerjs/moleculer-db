@@ -15,7 +15,7 @@ let broker = new ServiceBroker({
 broker.createService({
 	name: "users",
 	mixins: [DbService],
-	adapter: new MongoDBAdapter("mongodb://localhost/search-test"),
+	adapter: new MongoDBAdapter("mongodb://127.0.0.1/search-test"),
 	collection: "users",
 
 	methods: {

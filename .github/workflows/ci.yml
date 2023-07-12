@@ -43,4 +43,12 @@ jobs:
       if: ${{ matrix.node-version != '10.x' && matrix.node-version != '12.x' }}
 
     - name: Execute unit tests
-      run: npm test
+      run: npm run test:unit
+
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.9.0
+      with:
+        mongodb-version: 4.4
+
+    - name: Execute integration tests
+      run: npm run test:integration

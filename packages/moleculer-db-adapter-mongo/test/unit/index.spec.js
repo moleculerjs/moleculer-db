@@ -58,7 +58,7 @@ describe("Test MongoDbAdapter", () => {
 		collection: "posts"
 	});
 
-	const uri = "mongodb://localhost";
+	const uri = "mongodb://127.0.0.1";
 	const opts = {};
 	const adapter = new MongoDbAdapter(uri, opts, "db-name");
 
@@ -109,7 +109,7 @@ describe("Test MongoDbAdapter", () => {
 		adapter.dbName = undefined;
 		return adapter.connect().catch(protectReject).then(() => {
 			expect(MongoClient).toHaveBeenCalledTimes(1);
-			expect(MongoClient).toHaveBeenCalledWith("mongodb://localhost", undefined);
+			expect(MongoClient).toHaveBeenCalledWith("mongodb://127.0.0.1", undefined);
 
 			expect(adapter.client).toBe(fakeConn);
 			expect(adapter.client.connect).toHaveBeenCalledTimes(1);
