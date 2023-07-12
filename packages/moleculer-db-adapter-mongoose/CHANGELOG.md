@@ -62,7 +62,7 @@ $ npm install moleculer-db moleculer-db-adapter-mongoose mongoose --save
 
 **Example with connection URI**
 ```js
-new MongooseAdapter("mongodb://localhost/moleculer-db")
+new MongooseAdapter("mongodb://127.0.0.1/moleculer-db")
 ```
 
 **Example with URI and options**

@@ -16,7 +16,7 @@ let adapter;
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongooseAdapter("mongodb://localhost/moleculer-db-demo",{
+	adapter: new MongooseAdapter("mongodb://127.0.0.1/moleculer-db-demo",{
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}),

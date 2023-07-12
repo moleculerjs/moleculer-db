@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon examples/index.js",
     "ci": "jest --watch",
-    "test": "jest --coverage",
+    "test:unit": "jest --testMatch \"**/unit/**/*.spec.js\" --coverage",
+    "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand --coverage",
     "lint": "eslint --ext=.js src test",
     "deps": "npm-check -u",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

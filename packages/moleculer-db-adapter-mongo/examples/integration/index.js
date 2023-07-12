@@ -15,7 +15,7 @@ let broker = new ServiceBroker({
 // Load my service
 broker.createService(StoreService, {
 	name: "posts",
-	adapter: new MongoAdapter("mongodb://localhost/moleculer-db-demo", { useNewUrlParser: true }),
+	adapter: new MongoAdapter("mongodb://127.0.0.1/moleculer-db-demo", { useNewUrlParser: true }),
 	collection: "posts",
 	settings: {
 		fields: ["_id", "title", "content", "votes", "status", "updatedAt"]

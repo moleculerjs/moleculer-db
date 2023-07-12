@@ -8,7 +8,6 @@
     "clean": "lerna clean",
     "dev": "nodemon dev.js",
     "demo": "node dev.js",
-    "test": "jest --coverage",
     "test:unit": "jest --testMatch \"**/unit/**/*.spec.js\" --coverage",
     "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand --coverage",
     "ci": "jest --watch",

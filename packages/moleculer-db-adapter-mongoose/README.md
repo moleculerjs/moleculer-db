@@ -28,7 +28,7 @@ const broker = new ServiceBroker();
 broker.createService({
     name: "posts",
     mixins: [DbService],
-    adapter: new MongooseAdapter("mongodb://localhost/moleculer-demo"),
+    adapter: new MongooseAdapter("mongodb://127.0.0.1/moleculer-demo"),
     model: mongoose.model("Post", mongoose.Schema({
         title: { type: String },
         content: { type: String },
@@ -53,7 +53,7 @@ broker.start()
 
 **Example with connection URI**
 ```js
-new MongooseAdapter("mongodb://localhost/moleculer-db")
+new MongooseAdapter("mongodb://127.0.0.1/moleculer-db")
 ```
 
 **Example with URI and options**

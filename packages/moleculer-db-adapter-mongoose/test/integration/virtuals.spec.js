@@ -21,7 +21,7 @@ if (process.versions.node.split(".")[0] < 14) {
 		// Load posts service
 			broker.createService(DbService, {
 				name: "posts",
-				adapter: new MongooseStoreAdapter("mongodb://localhost:27017"),
+				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 				model: Post.Model,
 				settings: {
 					populates: {
@@ -33,7 +33,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			// Load users service
 			broker.createService(DbService, {
 				name: "users",
-				adapter: new MongooseStoreAdapter("mongodb://localhost:27017"),
+				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 				model: User.Model,
 				settings: {
 					populates: {
