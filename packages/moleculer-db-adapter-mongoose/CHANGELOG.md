@@ -1,3 +1,10 @@
+<a name="0.9.3"></a>
+# 0.9.3 (2023-07-15)
+
+## Changes
+- support virtual field population in mongoose adapter [#354](https://github.com/moleculerjs/moleculer-db/pull/354)
+
+--------------------------------------------------
 <a name="0.9.2"></a>
 # 0.9.2 (2023-02-11)
 
