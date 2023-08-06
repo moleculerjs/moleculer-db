@@ -925,7 +925,6 @@ module.exports = {
 					if (Array.isArray(params.entities)) {
 						return Promise.all(params.entities.map(entity => this.beforeEntityChange("create", entity, ctx)))
 							.then(entities=>this.validateEntity(entities))
-							.then(entities => Promise.all(entities.map(entity => this.beforeEntityChange("create", entity, ctx))))
 							// Apply idField
 							.then(entities => {
 								if (this.settings.idField === "_id")

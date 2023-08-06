@@ -164,7 +164,7 @@ describe("Test DbService methods", () => {
 			service.transformDocuments.mockClear();
 
 			const p = {
-				entity: {}
+				entity: {id: 1}
 			};
 
 			service.beforeEntityChange = jest.fn(() => Promise.resolve(p.entity));
@@ -185,7 +185,7 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
 				expect(service.beforeEntityChange).toHaveBeenCalledTimes(1);
-				expect(service.beforeEntityChange).toHaveBeenCalledWith("create", {}, Context);
+				expect(service.beforeEntityChange).toHaveBeenCalledWith("create", { id: 1}, Context);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context);
@@ -193,7 +193,7 @@ describe("Test DbService methods", () => {
 		});
 
 		it("should call adapter.insertMany", () => {
-			adapter.insert.mockClear();
+			adapter.insertMany.mockClear();
 			service.transformDocuments.mockClear();
 			const p = {
 				entities: []
@@ -216,6 +216,36 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
 
 				expect(service.beforeEntityChange).toHaveBeenCalledTimes(0); //since entities array is empty
+
+				expect(service.entityChanged).toHaveBeenCalledTimes(1);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
+			});
+		});
+
+		it("should call adapter.insertMany with many entities", () => {
+			adapter.insertMany.mockClear();
+			service.transformDocuments.mockClear();
+			const p = {
+				entities: [{ id: 1}, { id: 2}, { id: 3}]
+			};
+			service.beforeEntityChange = jest.fn((type, entity) => Promise.resolve(entity));
+			service.entityChanged = jest.fn(() => Promise.resolve());
+			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
+
+			return service._insert(Context, p).catch(protectReject).then(res => {
+				expect(res).toEqual(docs);
+
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(3);
+
+				expect(service.validateEntity).toHaveBeenCalledTimes(1);
+				expect(service.validateEntity).toHaveBeenCalledWith(p.entities);
+
+				expect(adapter.insertMany).toHaveBeenCalledTimes(1);
+				expect(adapter.insertMany).toHaveBeenCalledWith(p.entities);
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
