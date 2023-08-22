@@ -76,7 +76,6 @@ class MongooseDbAdapter {
 			} else {
 				conn = mongoose.connect(this.uri, this.opts);
 			}
-
 		} else if (this.schema) {
 			conn = new Promise(resolve =>{
 				const 	c = mongoose.createConnection(this.uri, this.opts);
@@ -85,7 +84,6 @@ class MongooseDbAdapter {
 			});
 		}
 
-		// console.log(conn);
 		return conn.then(() => {
 			this.conn = mongoose.connection;
 
@@ -97,8 +95,9 @@ class MongooseDbAdapter {
 				);
 			}
 
-			if(this.model)
+			if(this.model) {
 				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
+			}
 
 			this.db = mongoose.connection.db;
 
