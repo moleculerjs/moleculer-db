@@ -142,11 +142,15 @@ if (process.versions.node.split(".")[0] < 14) {
 				mongoose.connect = jest.fn(() => {
 					mongoose.connection.readyState =
 						mongoose.connection.states.connected;
-					return Promise.resolve({
-						connection: { ...fakeDb, db: fakeDb },
-						model: jest.fn(() => fakeModel),
-					});
+					return Promise.resolve();
 				});
+
+				mongoose.model = jest.fn(() => fakeModel);
+
+				Object.entries(fakeDb).forEach(([k, v]) => {
+					mongoose.connection[k] = v;
+				});
+				mongoose.connection.db = fakeDb;
 			});
 
 			it("call connect with uri", () => {
