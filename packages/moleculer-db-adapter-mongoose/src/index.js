@@ -72,7 +72,7 @@ class MongooseDbAdapter {
 				this.db = mongoose.connection;
 				return Promise.resolve();
 			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection.$initialConnection;
+				conn = mongoose.connection.asPromise();
 			} else {
 				conn = mongoose.connect(this.uri, this.opts);
 			}
