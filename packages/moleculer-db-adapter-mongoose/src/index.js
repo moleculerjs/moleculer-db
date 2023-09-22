@@ -64,49 +64,26 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let conn;
+		return mongoose.createConnection(this.uri, this.opts).asPromise().then(conn => {
+            this.conn = conn;
 
-		if (this.model) {
-
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = Promise.resolve(mongoose.connection);
-			} else {
-				conn = mongoose.connect(this.uri, this.opts);
-			}
-
-		} else if (this.schema) {
-			conn = new Promise(resolve =>{
-				const 	c = mongoose.createConnection(this.uri, this.opts);
-				this.model = c.model(this.modelName, this.schema);
-				resolve(c);
-			});
-		}
-
-
-		return conn.then(_result => {
-			const result = _result || conn;
-			this.conn =  conn;
-
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
+			if (this.conn.readyState !== mongoose.connection.states.connected) {
 				throw new MoleculerError(
 					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
+						mongoose.states[this.conn._readyState]
 					}"`
 				);
 			}
 
-			if(this.model)
-				this.model = _result.model(this.model["modelName"],this.model["schema"]);
 
+			if(this.model) {
+				this.model = this.conn.model(this.model["modelName"],this.model["schema"]);
+			}
+			if(this.schema) {
+				this.model = this.conn.model(this.modelName, this.schema);
+			}
 
-			if (result.connection)
-				this.db = result.connection.db;
-			else
-				this.db = result.db;
+			this.db = this.conn.db;
 
 			if (!this.db) {
 				throw new MoleculerError("MongoDB connection failed to get DB object");
@@ -114,14 +91,11 @@ class MongooseDbAdapter {
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
-
 			/* istanbul ignore next */
-			result.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			result.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			result.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
-
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
-
 	}
 
 	/**
@@ -132,15 +106,13 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	disconnect() {
-		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
-				this.conn.close(resolve);
-			} else {
-				mongoose.connection.close(resolve);
-			}
-		});
+		if (this.db && this.db.close) {
+			return this.db.close();
+		} else if (this.conn && this.conn.close) {
+			return this.conn.close();
+		} else {
+			return mongoose.connection.close();
+		}
 	}
 
 	/**
@@ -203,7 +175,7 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	 * Get count of filtered entites
+	 * Get count of filtered entities
 	 *
 	 * Available filter props:
 	 *  - search

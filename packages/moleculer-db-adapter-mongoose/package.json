@@ -26,7 +26,7 @@
   "license": "MIT",
   "peerDependencies": {
     "moleculer": "^0.12.0 || ^0.13.0 || ^0.14.0",
-    "mongoose": "^6.5.4"
+    "mongoose": "^7.5.2"
   },
   "devDependencies": {
     "benchmarkify": "^3.0.0",
