@@ -47,9 +47,9 @@ if (process.versions.node.split(".")[0] < 14) {
 			findOne: jest.fn(() => query()),
 			findById: jest.fn(() => query()),
 			create: jest.fn(() => Promise.resolve()),
-			updateMany: jest.fn(() => Promise.resolve({ n: 2 })),
+			updateMany: jest.fn(() => Promise.resolve({ modifiedCount: 2 })),
 			findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
-			deleteMany: jest.fn(() => Promise.resolve({ n: 2 })),
+			deleteMany: jest.fn(() => Promise.resolve({ deletedCount: 2 })),
 			findByIdAndRemove: jest.fn(() => Promise.resolve()),
 		}
 	);
