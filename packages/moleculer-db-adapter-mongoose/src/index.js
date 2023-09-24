@@ -67,17 +67,15 @@ class MongooseDbAdapter {
 		let conn;
 
 		if (this.model) {
-
 			/* istanbul ignore next */
 			if (mongoose.connection.readyState == 1) {
 				this.db = mongoose.connection;
 				return Promise.resolve();
 			} else if (mongoose.connection.readyState == 2) {
-				conn = Promise.resolve(mongoose.connection);
+				conn = mongoose.connection.asPromise();
 			} else {
 				conn = mongoose.connect(this.uri, this.opts);
 			}
-
 		} else if (this.schema) {
 			conn = new Promise(resolve =>{
 				const 	c = mongoose.createConnection(this.uri, this.opts);
@@ -86,10 +84,8 @@ class MongooseDbAdapter {
 			});
 		}
 
-
-		return conn.then(_result => {
-			const result = _result || conn;
-			this.conn =  conn;
+		return conn.then(() => {
+			this.conn = mongoose.connection;
 
 			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
 				throw new MoleculerError(
@@ -99,14 +95,11 @@ class MongooseDbAdapter {
 				);
 			}
 
-			if(this.model)
-				this.model = _result.model(this.model["modelName"],this.model["schema"]);
+			if(this.model) {
+				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
+			}
 
-
-			if (result.connection)
-				this.db = result.connection.db;
-			else
-				this.db = result.db;
+			this.db = mongoose.connection.db;
 
 			if (!this.db) {
 				throw new MoleculerError("MongoDB connection failed to get DB object");
@@ -116,12 +109,11 @@ class MongooseDbAdapter {
 
 
 			/* istanbul ignore next */
-			result.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			result.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			result.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+			mongoose.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			mongoose.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
+			mongoose.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 
 		});
-
 	}
 
 	/**
@@ -255,7 +247,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	updateMany(query, update) {
-		return this.model.updateMany(query, update, { multi: true, "new": true }).then(res => res.n);
+		return this.model.updateMany(query, update, { multi: true, "new": true }).then(res => {
+			return res.modifiedCount;
+		});
 	}
 
 	/**
@@ -280,7 +274,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	removeMany(query) {
-		return this.model.deleteMany(query).then(res => res.n);
+		return this.model.deleteMany(query).then(res => {
+			return res.deletedCount;
+		});
 	}
 
 	/**
@@ -303,7 +299,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	clear() {
-		return this.model.deleteMany({}).then(res => res.n);
+		return this.model.deleteMany({}).then(res => res.deletedCount);
 	}
 
 	/**

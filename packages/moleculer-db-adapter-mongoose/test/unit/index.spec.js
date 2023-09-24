@@ -47,9 +47,9 @@ if (process.versions.node.split(".")[0] < 14) {
 			findOne: jest.fn(() => query()),
 			findById: jest.fn(() => query()),
 			create: jest.fn(() => Promise.resolve()),
-			updateMany: jest.fn(() => Promise.resolve({ n: 2 })),
+			updateMany: jest.fn(() => Promise.resolve({ modifiedCount: 2 })),
 			findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
-			deleteMany: jest.fn(() => Promise.resolve({ n: 2 })),
+			deleteMany: jest.fn(() => Promise.resolve({ deletedCount: 2 })),
 			findByIdAndRemove: jest.fn(() => Promise.resolve()),
 		}
 	);
@@ -142,11 +142,15 @@ if (process.versions.node.split(".")[0] < 14) {
 				mongoose.connect = jest.fn(() => {
 					mongoose.connection.readyState =
 						mongoose.connection.states.connected;
-					return Promise.resolve({
-						connection: { ...fakeDb, db: fakeDb },
-						model: jest.fn(() => fakeModel),
-					});
+					return Promise.resolve();
 				});
+
+				mongoose.model = jest.fn(() => fakeModel);
+
+				Object.entries(fakeDb).forEach(([k, v]) => {
+					mongoose.connection[k] = v;
+				});
+				mongoose.connection.db = fakeDb;
 			});
 
 			it("call connect with uri", () => {
