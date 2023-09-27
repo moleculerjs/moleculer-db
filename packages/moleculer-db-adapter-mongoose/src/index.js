@@ -11,21 +11,25 @@ const Promise	= require("bluebird");
 const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
-
 mongoose.set("strictQuery", true);
 
 class MongooseDbAdapter {
 
 	/**
 	 * Creates an instance of MongooseDbAdapter.
-	 * @param {String} uri
-	 * @param {Object?} opts
+	 *
+	 * @param {String} uri - The connection URI for the MongoDB server.
+	 * @param {Object} [mongooseOpts] - Optional mongoose options.
+	 * @param {Object} [opts] - Optional additional options.
+	 * @param {boolean} [opts.replaceVirtualsRefById=true] - Flag indicating whether to replace virtual fields with their referenced document's ID.
+	 * 														 Discussed here : https://github.com/moleculerjs/moleculer-db/pull/354#issuecomment-1736853966
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(uri, opts) {
+	constructor(uri, mongooseOpts, opts = { replaceVirtualsRefById: true }) {
 		this.uri = uri;
-		this.opts = opts;
+		this.mongooseOpts = mongooseOpts;
+		this.opts = opts
 	}
 
 	/**
@@ -41,6 +45,12 @@ class MongooseDbAdapter {
 		this.service = service;
 
 		if (this.service.schema.model) {
+			/**
+			 * using model here is not a problem because we will dismantle it, and re-create a model with the correct connection later
+			 * note : when creating models before the DB, they're linked to the default connection, and not the current one
+			 * @link https://mongoosejs.com/docs/connections.html#multiple_connections
+			 * @type {Mongoose.Model}
+			 */
 			this.model = this.service.schema.model;
 		} else if (this.service.schema.schema) {
 			if (!this.service.schema.modelName) {
@@ -64,7 +74,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		return mongoose.createConnection(this.uri, this.opts).asPromise().then(conn => {
+		return mongoose.createConnection(this.uri, this.mongooseOpts).asPromise().then(conn => {
             this.conn = conn;
 
 			if (this.conn.readyState !== mongoose.connection.states.connected) {
@@ -291,22 +301,49 @@ class MongooseDbAdapter {
 		const virtualFields = Object.values(_.get(this, "model.schema.virtuals", {}))
 			.reduce((acc, virtual) => _.get(virtual, "options.ref") ? [...acc, virtual.path] : acc, []);
 		const virtualsToPopulate = _.intersection(fieldsToPopulate, virtualFields);
-		const options = {skipInvalidIds: true, lean: true};
-		const transform = (doc) => doc._id;
-		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options, transform}));
+
+		const populate = []
+		if(!this.opts.replaceVirtualsRefById) {
+			const options = {skipInvalidIds: true, lean: true};
+			const transform = (doc) => doc._id;
+			virtualsToPopulate.map(path => ({path, select: "_id", options, transform})).forEach(v => populate.push(v));
+		}
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
 				const json = entity.toJSON();
 
-				if (entity._id && entity._id.toHexString) {
-					json._id = entity._id.toHexString();
-				} else if (entity._id && entity._id.toString) {
-					json._id = entity._id.toString();
+				json._id = this.convertObjectIdToString(entity._id);
+
+				if(this.opts.replaceVirtualsRefById && virtualsToPopulate.length > 0) {
+					virtualsToPopulate
+						.map((fieldName) => [fieldName, _.get(this, "model.schema.virtuals", {})[fieldName]])
+						.filter(([, virtual]) => !!virtual)
+						.forEach(([field, virtual]) => {
+							json[field] = this.convertObjectIdToString(entity[virtual.options.localField])
+						})
 				}
+
 
 				return json;
 			});
+	}
+
+
+	/**
+	 * Converts an object id to a string representation.
+	 *
+	 * @param {Object} _id - The object id to convert.
+	 * @return {string|Object} The string representation of the object id. (or the object in case we fail to convert it)
+	 */
+	convertObjectIdToString(_id) {
+		if (_id && _id.toHexString) {
+			return _id.toHexString();
+		} else if (_id && _id.toString) {
+			return _id.toString();
+		}
+
+		return _id
 	}
 
 	/**

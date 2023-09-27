@@ -7,8 +7,8 @@ if (process.versions.node.split(".")[0] < 14) {
 	const { ServiceBroker } = require("moleculer");
 	const DbService = require("../../../moleculer-db/src");
 	const MongooseStoreAdapter = require("../../src");
-	const User = require("../models/users");
-	const Post = require("../models/posts");
+	const UserModel = require("../models/users");
+	const PostModel = require("../models/posts");
 
 	describe("Test virtuals population feature", () => {
 	// Create broker
@@ -17,12 +17,28 @@ if (process.versions.node.split(".")[0] < 14) {
 			logLevel: "error",
 		});
 
+		const getAdapter = () => new MongooseStoreAdapter("mongodb://127.0.0.1:27017", {}, { replaceVirtualsRefById: true })
+		let Post;
+		let User;
+
+
 		beforeAll(async () => {
-		// Load posts service
+			//initialize models
+			const adapter = getAdapter();
+			adapter.service = {
+				logger: {
+					info: jest.fn()
+				}
+			}
+			await adapter.connect();
+			Post = PostModel.getModel(adapter.conn);
+			User = UserModel.getModel(adapter.conn);
+
+			// Load posts service
 			broker.createService(DbService, {
 				name: "posts",
-				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
-				model: Post.Model,
+				adapter: getAdapter(),
+				model: PostModel.Model,
 				settings: {
 					populates: {
 						author: "users.get",
@@ -33,8 +49,8 @@ if (process.versions.node.split(".")[0] < 14) {
 			// Load users service
 			broker.createService(DbService, {
 				name: "users",
-				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
-				model: User.Model,
+				adapter: getAdapter(),
+				model: UserModel.Model,
 				settings: {
 					populates: {
 						posts: "posts.get",
@@ -51,27 +67,27 @@ if (process.versions.node.split(".")[0] < 14) {
 		});
 
 		beforeEach(async () => {
-		// clean collection for replayability
-			await Post.Model.deleteMany({});
-			await User.Model.deleteMany({});
+			// clean collection for replayability
+			await Post.deleteMany({});
+			await User.deleteMany({});
 		});
 
 		it("Should populate virtuals", async () => {
-			const _user = await User.Model.create({
+			const _user = await User.create({
 				firstName: "John",
-				lastName: "Doe",
+				lastName: "Doe"
 			});
 
-			const _post1 = await Post.Model.create({
+			const _post1 = await Post.create({
 				title: "post_1",
 				content: "content 1",
 				author: _user._id,
 			});
 
-			const _post2 = await Post.Model.create({
+			const _post2 = await Post.create({
 				title: "post_2",
 				content: "content 2",
-				author: _user._id,
+				author: _user._id
 			});
 
 			const user = await broker.call("users.get", {

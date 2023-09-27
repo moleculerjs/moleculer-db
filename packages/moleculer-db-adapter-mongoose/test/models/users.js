@@ -13,7 +13,7 @@ const UserSchema = new Schema(
 			type: String,
 			required: true,
 			trim: true,
-		},
+		}
 	},
 	{
 		timestamps: true,
@@ -55,6 +55,7 @@ const UserSchema = new Schema(
 );
 
 module.exports = {
+	getModel: (connection) => connection.model("User", UserSchema),
 	Model: model("User", UserSchema),
 	Schema: UserSchema,
 };
