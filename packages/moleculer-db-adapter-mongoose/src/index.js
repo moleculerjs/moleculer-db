@@ -313,11 +313,17 @@ class MongooseDbAdapter {
 	entityToObject(entity, ctx) {
 		const fieldsToPopulate = _.get(ctx, "params.populate", []);
 		const virtualFields = Object.values(_.get(this, "model.schema.virtuals", {}))
-			.reduce((acc, virtual) => _.get(virtual, "options.ref") ? [...acc, virtual.path] : acc, []);
-		const virtualsToPopulate = _.intersection(fieldsToPopulate, virtualFields);
+			.reduce((acc, virtual) => {
+				const hasRef = !!(_.get(virtual, "options.ref") || _.get(virtual, "options.refPath"));
+				const hasMatch = !!_.get(virtual, "options.match");
+				if (hasRef) acc[virtual.path] = hasMatch;
+				return acc;
+			}, {});
+		const virtualsToPopulate = _.intersection(fieldsToPopulate, Object.keys(virtualFields));
 		const options = {skipInvalidIds: true, lean: true};
 		const transform = (doc) => doc._id;
-		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options, transform}));
+		const populate = virtualsToPopulate.map(path =>
+			_.get(virtualFields, path) ? {path, options, transform} : {path, select: "_id", options, transform});
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
