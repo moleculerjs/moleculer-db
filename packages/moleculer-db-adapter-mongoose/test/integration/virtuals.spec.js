@@ -11,92 +11,178 @@ if (process.versions.node.split(".")[0] < 14) {
 	const Post = require("../models/posts");
 
 	describe("Test virtuals population feature", () => {
-	// Create broker
-		const broker = new ServiceBroker({
-			logger: console,
-			logLevel: "error",
-		});
-
-		beforeAll(async () => {
-		// Load posts service
-			broker.createService(DbService, {
-				name: "posts",
-				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
-				model: Post.Model,
-				settings: {
-					populates: {
-						author: "users.get",
-					},
-				},
-			});
-
-			// Load users service
-			broker.createService(DbService, {
-				name: "users",
-				adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
-				model: User.Model,
-				settings: {
-					populates: {
-						posts: "posts.get",
-						lastPost: "posts.get",
-						lastPostWithVotes: "posts.get",
-					},
-				},
-			});
-
-			await broker.start();
-		});
-
-		afterAll(async () => {
-			await broker.stop();
-		});
 
 		beforeEach(async () => {
-		// clean collection for replayability
+			// clean collection for replayability
 			await Post.Model.deleteMany({});
 			await User.Model.deleteMany({});
 		});
 
-		it("Should populate virtuals", async () => {
-			const _user = await User.Model.create({
-				firstName: "John",
-				lastName: "Doe",
+		describe("Test virtuals population feature", () => {
+
+			// Create broker
+			const broker = new ServiceBroker({
+				logger: console,
+				logLevel: "error",
 			});
 
-			const _post1 = await Post.Model.create({
-				title: "post_1",
-				content: "content 1",
-				author: _user._id,
+			beforeAll(async () => {
+				// Load posts service
+				broker.createService(DbService, {
+					name: "posts",
+					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
+					model: Post.Model,
+					settings: {
+						populates: {
+							author: "users.get",
+						},
+					},
+				});
+
+				// Load users service
+				broker.createService(DbService, {
+					name: "users",
+					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
+					model: User.Model,
+					settings: {
+						populates: {
+							posts: "posts.get",
+							lastPost: "posts.get",
+							lastPostWithVotes: "posts.get",
+						},
+					},
+				});
+
+				await broker.start();
 			});
 
-			const _post2 = await Post.Model.create({
-				title: "post_2",
-				content: "content 2",
-				author: _user._id,
-				votes: 2,
+			afterAll(async () => {
+				await broker.stop();
 			});
 
-			const user = await broker.call("users.get", {
-				id: _user.id,
-				populate: ["posts", "postCount", "lastPost", "lastPostWithVotes"],
+			it("Should populate virtuals", async () => {
+				const _user = await User.Model.create({
+					firstName: "John",
+					lastName: "Doe",
+				});
+
+				const _post1 = await Post.Model.create({
+					title: "post_1",
+					content: "content 1",
+					author: _user._id,
+				});
+
+				const _post2 = await Post.Model.create({
+					title: "post_2",
+					content: "content 2",
+					author: _user._id,
+					votes: 2,
+				});
+
+				const user = await broker.call("users.get", {
+					id: _user.id,
+					populate: ["posts", "postCount", "lastPost", "lastPostWithVotes"],
+				});
+
+				expect(user).toHaveProperty("firstName", "John");
+				expect(user).toHaveProperty("lastName", "Doe");
+				// virtual function without populate
+				expect(user).toHaveProperty("fullName", "John Doe");
+				// virtual populate with refPath and count option
+				expect(user).toHaveProperty("postCount", 2);
+				// virtual populate with ref
+				expect(user).toHaveProperty("posts");
+				expect(user.posts).toHaveLength(2);
+				expect(user.posts.map((p) => p._id)).toEqual([_post2.id, _post1.id]);
+				// virtual populate with justOne option set to "true"
+				expect(user).toHaveProperty("lastPost");
+				expect(user.lastPost).toHaveProperty("_id", _post2.id);
+				// virtual populate with match clause
+				expect(user).toHaveProperty("lastPostWithVotes");
+				expect(user.lastPostWithVotes).toHaveProperty("_id", _post2.id);
+			});
+		});
+
+		describe("Test disabling virtuals population feature", () => {
+
+			// Create broker
+			const broker = new ServiceBroker({
+				logger: console,
+				logLevel: "error",
 			});
 
-			expect(user).toHaveProperty("firstName", "John");
-			expect(user).toHaveProperty("lastName", "Doe");
-			// virtual function without populate
-			expect(user).toHaveProperty("fullName", "John Doe");
-			// virtual populate with refPath and count option
-			expect(user).toHaveProperty("postCount", 2);
-			// virtual populate with ref
-			expect(user).toHaveProperty("posts");
-			expect(user.posts).toHaveLength(2);
-			expect(user.posts.map((p) => p._id)).toEqual([_post2.id, _post1.id]);
-			// virtual populate with justOne option set to "true"
-			expect(user).toHaveProperty("lastPost");
-			expect(user.lastPost).toHaveProperty("_id", _post2.id);
-			// virtual populate with match clause
-			expect(user).toHaveProperty("lastPostWithVotes");
-			expect(user.lastPostWithVotes).toHaveProperty("_id", _post2.id);
+			beforeAll(async () => {
+				// Load posts service
+				broker.createService(DbService, {
+					name: "posts",
+					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
+					model: Post.Model,
+					settings: {
+						populates: {
+							author: "users.get",
+						},
+					},
+				});
+
+				// Load users service
+				broker.createService(DbService, {
+					name: "users",
+					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
+					model: User.Model,
+					settings: {
+						populates: {
+							posts: "posts.get",
+							lastPost: "posts.get",
+							lastPostWithVotes: "posts.get",
+						},
+						virtuals: false,
+					},
+				});
+
+				await broker.start();
+			});
+
+			afterAll(async () => {
+				await broker.stop();
+			});
+
+			it("Should not populate virtuals", async () => {
+				const _user = await User.Model.create({
+					firstName: "John",
+					lastName: "Doe",
+				});
+
+				const _post1 = await Post.Model.create({
+					title: "post_1",
+					content: "content 1",
+					author: _user._id,
+				});
+
+				const _post2 = await Post.Model.create({
+					title: "post_2",
+					content: "content 2",
+					author: _user._id,
+					votes: 2,
+				});
+
+				const user = await broker.call("users.get", {
+					id: _user.id,
+					populate: ["posts", "postCount", "lastPost", "lastPostWithVotes"],
+				});
+
+				expect(user).toHaveProperty("firstName", "John");
+				expect(user).toHaveProperty("lastName", "Doe");
+				// virtual function without populate
+				expect(user).toHaveProperty("fullName", "John Doe");
+				// virtual populate with refPath and count option
+				expect(user).not.toHaveProperty("postCount");
+				// virtual populate with ref
+				expect(user).not.toHaveProperty("posts");
+				// virtual populate with justOne option set to "true"
+				expect(user).not.toHaveProperty("lastPost");
+				// virtual populate with match clause
+				expect(user).not.toHaveProperty("lastPostWithVotes");
+			});
 		});
 	});
 }

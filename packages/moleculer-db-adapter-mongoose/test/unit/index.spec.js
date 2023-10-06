@@ -733,5 +733,193 @@ if (process.versions.node.split(".")[0] < 14) {
 			expect(res.myID).toEqual(undefined);
 			expect(res._id).toEqual(entry._id);
 		});
+
+		describe("getVirtualPopulateQuery", () => {
+			describe("stop conditions", () => {
+				it("should return [] when settings.virtuals is false", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						settings: { virtuals: false},
+						model: { schema: { virtuals: { aVirtual: {}}}},
+					});
+					adapter.init(broker, service);
+					const ctx = { service };
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toEqual([]);
+				});
+
+				it("should return [] when params.populate is undefined", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						model: { schema: { virtuals: { aVirtual: {}}}},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: {}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toEqual([]);
+				});
+
+				it("should return [] when params.populate is empty", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						model: { schema: { virtuals: { aVirtual: {}}}},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: { populate: []}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toEqual([]);
+				});
+
+				it("should return [] when model.schema.virtuals is empty", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						model: { schema: { virtuals: {}}},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: { populate: []}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toEqual([]);
+				});
+
+				it("should return [] when params.populate and model.schema.virtuals does not intersect", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						model: { schema: { virtuals: { aVirtual: {}}}},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: { populate: ["notaVirtual"]}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toEqual([]);
+				});
+			});
+
+			describe("default populate params overrides", () => {
+				it("should return a populate with default params", () => {
+					const adapter = new MongooseStoreAdapter();
+					const service = broker.createService({
+						name: "store",
+						model: {
+							schema: {
+								virtuals: {
+									firstVirtual: {
+										options: { ref: "Foo"}
+									},
+									secondVirtual: {
+										options: { refPath: "ref"}
+									},
+									thirdVirtual: {
+										options: { ref: "Bar", match: { text: "baz" }}
+									},
+									fourthVirtual: {},
+									fifthVirtual: {
+										options: { ref: "Foo"}
+									},
+								}
+							}
+						},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual", "fourthVirtual"]}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toHaveLength(3);
+
+					const [pop1, pop2, pop3] = res;
+
+					expect(pop1).toHaveProperty("path", "firstVirtual");
+					expect(pop1).toHaveProperty("select", "_id");
+					expect(pop1).toHaveProperty("options");
+					expect(pop1.options).toHaveProperty("skipInvalidIds", true);
+					expect(pop1.options).toHaveProperty("lean", true);
+
+					expect(pop2).toHaveProperty("path", "secondVirtual");
+					expect(pop2).toHaveProperty("select", "_id");
+					expect(pop2).toHaveProperty("options");
+					expect(pop2.options).toHaveProperty("skipInvalidIds", true);
+					expect(pop2.options).toHaveProperty("lean", true);
+
+					expect(pop3).toHaveProperty("path", "thirdVirtual");
+					expect(pop3).toHaveProperty("select", undefined);
+					expect(pop3).toHaveProperty("options");
+					expect(pop3.options).toHaveProperty("skipInvalidIds", true);
+					expect(pop3.options).toHaveProperty("lean", true);
+				});
+
+				it("should return a populate with overridden default params", () => {
+					const adapter = new MongooseStoreAdapter();
+					const identity = (doc) => doc;
+					const service = broker.createService({
+						name: "store",
+						settings: {
+							virtuals: {
+								firstVirtual: {
+									select: "_id foo bar"
+								},
+								secondVirtual: {
+									options: { skipInvalidIds: false, limit: 4}
+								},
+								thirdVirtual: {
+									select: "foo bar baz",
+									options: { lean: false},
+									transform: identity,
+								}
+							}
+						},
+						model: {
+							schema: {
+								virtuals: {
+									firstVirtual: {
+										options: { ref: "Foo"}
+									},
+									secondVirtual: {
+										options: { refPath: "ref"}
+									},
+									thirdVirtual: {
+										options: { ref: "Bar", match: { text: "baz" }}
+									},
+								}
+							}
+						},
+					});
+					adapter.init(broker, service);
+					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual"]}};
+					const res = adapter.getVirtualPopulateQuery(ctx);
+
+					expect(res).toHaveLength(3);
+
+					const [pop1, pop2, pop3] = res;
+
+					expect(pop1).toHaveProperty("path", "firstVirtual");
+					expect(pop1).toHaveProperty("select", "_id foo bar");
+					expect(pop1).toHaveProperty("options");
+					expect(pop1.options).toHaveProperty("skipInvalidIds", true);
+					expect(pop1.options).toHaveProperty("lean", true);
+
+					expect(pop2).toHaveProperty("path", "secondVirtual");
+					expect(pop2).toHaveProperty("select", "_id");
+					expect(pop2).toHaveProperty("options");
+					expect(pop2.options).toHaveProperty("skipInvalidIds", false);
+					expect(pop2.options).toHaveProperty("limit", 4);
+					expect(pop2.options).not.toHaveProperty("lean");
+
+					expect(pop3).toHaveProperty("path", "thirdVirtual");
+					expect(pop3).toHaveProperty("select", "foo bar baz");
+					expect(pop3).toHaveProperty("options");
+					expect(pop3.options).toHaveProperty("lean", false);
+					expect(pop3.options).not.toHaveProperty("skipInvalidIds");
+					expect(pop3).toHaveProperty("transform", identity);
+				});
+			});
+		});
 	});
 }

@@ -303,6 +303,47 @@ class MongooseDbAdapter {
 	}
 
 	/**
+	 * Return proper query to populate virtuals depending on service populate params
+	 *
+	 * @param {Context} ctx - moleculer context
+	 * @returns {Object[]}
+	 * @memberof MongooseDbAdapter
+	 */
+	getVirtualPopulateQuery(ctx) {
+		const skipVirtuals = _.get(ctx, "service.settings.virtuals") === false;
+		const fieldsToPopulate = _.get(ctx, "params.populate", []);
+
+		if (skipVirtuals || fieldsToPopulate.length === 0) return [];
+
+		const virtualFields = Object.entries(_.get(this, "model.schema.virtuals", {}))
+			.reduce((acc, [path, virtual]) => {
+				const hasRef = !!(_.get(virtual, "options.ref") || _.get(virtual, "options.refPath"));
+				const hasMatch = !!_.get(virtual, "options.match");
+				if (hasRef) acc[path] = hasMatch;
+				return acc;
+			}, {});
+		const virtualsToPopulate = _.intersection(fieldsToPopulate, Object.keys(virtualFields));
+
+		if (virtualsToPopulate.length === 0) return [];
+
+		const getPathOptions = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.options`, {skipInvalidIds: true, lean: true});
+
+		const getPathTransform = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.transform`, (doc) => doc._id);
+
+		const getPathSelect = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.select`, _.get(virtualFields, path) ? undefined : "_id");
+
+		return virtualsToPopulate.map((path) => ({
+			path,
+			select: getPathSelect(path),
+			options : getPathOptions(path),
+			transform: getPathTransform(path)
+		}));
+	}
+
+	/**
 	 * Convert DB entity to JSON object
 	 *
 	 * @param {any} entity
@@ -311,19 +352,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity, ctx) {
-		const fieldsToPopulate = _.get(ctx, "params.populate", []);
-		const virtualFields = Object.values(_.get(this, "model.schema.virtuals", {}))
-			.reduce((acc, virtual) => {
-				const hasRef = !!(_.get(virtual, "options.ref") || _.get(virtual, "options.refPath"));
-				const hasMatch = !!_.get(virtual, "options.match");
-				if (hasRef) acc[virtual.path] = hasMatch;
-				return acc;
-			}, {});
-		const virtualsToPopulate = _.intersection(fieldsToPopulate, Object.keys(virtualFields));
-		const options = {skipInvalidIds: true, lean: true};
-		const transform = (doc) => doc._id;
-		const populate = virtualsToPopulate.map(path =>
-			_.get(virtualFields, path) ? {path, options, transform} : {path, select: "_id", options, transform});
+		const populate = this.getVirtualPopulateQuery(ctx);
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
