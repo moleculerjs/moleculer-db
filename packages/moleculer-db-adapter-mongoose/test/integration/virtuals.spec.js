@@ -10,7 +10,7 @@ if (process.versions.node.split(".")[0] < 14) {
 	const User = require("../models/users");
 	const Post = require("../models/posts");
 
-	describe("Test virtuals population feature", () => {
+	describe("Test virtual population feature", () => {
 
 		beforeEach(async () => {
 			// clean collection for replayability
@@ -18,7 +18,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			await User.Model.deleteMany({});
 		});
 
-		describe("Test virtuals population feature", () => {
+		describe("Test mongoose native virtual population", () => {
 
 			// Create broker
 			const broker = new ServiceBroker({
@@ -33,6 +33,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: Post.Model,
 					settings: {
+						useNativeMongooseVirtuals: true,
 						populates: {
 							author: "users.get",
 						},
@@ -45,6 +46,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: User.Model,
 					settings: {
+						useNativeMongooseVirtuals: true,
 						populates: {
 							posts: "posts.get",
 							lastPost: "posts.get",
@@ -103,7 +105,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 		});
 
-		describe("Test disabling virtuals population feature", () => {
+		describe("Test moleculer basic virtual population", () => {
 
 			// Create broker
 			const broker = new ServiceBroker({
@@ -122,6 +124,40 @@ if (process.versions.node.split(".")[0] < 14) {
 							author: "users.get",
 						},
 					},
+					actions: {
+						countFromUser:{
+							params: {id: {type: "array", items: "string"}},
+							async handler(ctx) {
+								const author = ctx.params.id[0];
+								ctx.params = { query: { author } };
+								const res = await this._count(ctx, ctx.params);
+								return {[author]: res};
+							}
+						},
+						allFromUser:{
+							params: {id: {type: "array", items: "string"}},
+							async handler(ctx) {
+								const author = ctx.params.id[0];
+								ctx.params = { query: { author }, sort: "-createdAt" };
+								const res = await this._find(ctx, ctx.params);
+								return {[author]: res};
+							}
+						},
+						lastFromUser:{
+							params: {
+								id: {type: "array", items: "string"},
+								minVoteCount: {type: "number", min: 0, optional: true}
+							},
+							async handler(ctx) {
+								const {id, minVoteCount} = ctx.params;
+								const query = { author: id };
+								if (minVoteCount) query.votes = {$gte: minVoteCount};
+								ctx.params = { query, sort: "-createdAt", limit: 1 };
+								const res = await this._find(ctx, ctx.params);
+								return {[id]: res[0]};
+							}
+						},
+					}
 				});
 
 				// Load users service
@@ -131,9 +167,15 @@ if (process.versions.node.split(".")[0] < 14) {
 					model: User.Model,
 					settings: {
 						populates: {
-							posts: "posts.get",
-							lastPost: "posts.get",
-							lastPostWithVotes: "posts.get",
+							posts: "posts.allFromUser",
+							postCount: "posts.countFromUser",
+							lastPost: "posts.lastFromUser",
+							lastPostWithVotes: {
+								action: "posts.lastFromUser",
+								params: {
+									minVoteCount: 1
+								}
+							},
 						},
 						virtuals: false,
 					},
@@ -146,7 +188,7 @@ if (process.versions.node.split(".")[0] < 14) {
 				await broker.stop();
 			});
 
-			it("Should not populate virtuals", async () => {
+			it("Should populate virtuals", async () => {
 				const _user = await User.Model.create({
 					firstName: "John",
 					lastName: "Doe",
@@ -175,13 +217,17 @@ if (process.versions.node.split(".")[0] < 14) {
 				// virtual function without populate
 				expect(user).toHaveProperty("fullName", "John Doe");
 				// virtual populate with refPath and count option
-				expect(user).not.toHaveProperty("postCount");
+				expect(user).toHaveProperty("postCount", 2);
 				// virtual populate with ref
-				expect(user).not.toHaveProperty("posts");
+				expect(user).toHaveProperty("posts");
+				expect(user.posts).toHaveLength(2);
+				expect(user.posts.map((p) => p._id)).toEqual([_post2.id, _post1.id]);
 				// virtual populate with justOne option set to "true"
-				expect(user).not.toHaveProperty("lastPost");
+				expect(user).toHaveProperty("lastPost");
+				expect(user.lastPost).toHaveProperty("_id", _post2.id);
 				// virtual populate with match clause
-				expect(user).not.toHaveProperty("lastPostWithVotes");
+				expect(user).toHaveProperty("lastPostWithVotes");
+				expect(user.lastPostWithVotes).toHaveProperty("_id", _post2.id);
 			});
 		});
 	});

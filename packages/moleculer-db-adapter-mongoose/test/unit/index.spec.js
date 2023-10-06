@@ -734,22 +734,8 @@ if (process.versions.node.split(".")[0] < 14) {
 			expect(res._id).toEqual(entry._id);
 		});
 
-		describe("getVirtualPopulateQuery", () => {
+		describe("getNativeVirtualPopulateQuery", () => {
 			describe("stop conditions", () => {
-				it("should return [] when settings.virtuals is false", () => {
-					const adapter = new MongooseStoreAdapter();
-					const service = broker.createService({
-						name: "store",
-						settings: { virtuals: false},
-						model: { schema: { virtuals: { aVirtual: {}}}},
-					});
-					adapter.init(broker, service);
-					const ctx = { service };
-					const res = adapter.getVirtualPopulateQuery(ctx);
-
-					expect(res).toEqual([]);
-				});
-
 				it("should return [] when params.populate is undefined", () => {
 					const adapter = new MongooseStoreAdapter();
 					const service = broker.createService({
@@ -758,7 +744,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: {}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toEqual([]);
 				});
@@ -771,7 +757,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: { populate: []}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toEqual([]);
 				});
@@ -784,7 +770,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: { populate: []}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toEqual([]);
 				});
@@ -797,7 +783,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: { populate: ["notaVirtual"]}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toEqual([]);
 				});
@@ -830,7 +816,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual", "fourthVirtual"]}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toHaveLength(3);
 
@@ -893,7 +879,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					});
 					adapter.init(broker, service);
 					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual"]}};
-					const res = adapter.getVirtualPopulateQuery(ctx);
+					const res = adapter.getNativeVirtualPopulateQuery(ctx);
 
 					expect(res).toHaveLength(3);
 

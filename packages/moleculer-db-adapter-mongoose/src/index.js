@@ -309,11 +309,10 @@ class MongooseDbAdapter {
 	 * @returns {Object[]}
 	 * @memberof MongooseDbAdapter
 	 */
-	getVirtualPopulateQuery(ctx) {
-		const skipVirtuals = _.get(ctx, "service.settings.virtuals") === false;
+	getNativeVirtualPopulateQuery(ctx) {
 		const fieldsToPopulate = _.get(ctx, "params.populate", []);
 
-		if (skipVirtuals || fieldsToPopulate.length === 0) return [];
+		if (fieldsToPopulate.length === 0) return [];
 
 		const virtualFields = Object.entries(_.get(this, "model.schema.virtuals", {}))
 			.reduce((acc, [path, virtual]) => {
@@ -344,6 +343,23 @@ class MongooseDbAdapter {
 	}
 
 	/**
+	 * Replace virtuals that would trigger subqueries by the localField
+	 * they target to be used later in action propagation
+	 *
+	 * @param {Context} ctx - moleculer context
+	 * @param {Object} json - the JSONified entity
+	 * @returns {Object}
+	 * @memberof MongooseDbAdapter
+	 */
+	mapVirtualsToLocalFields(ctx, json) {
+		Object.entries(_.get(this, "model.schema.virtuals", {}))
+			.forEach(([path, virtual]) => {
+				const localField = _.get(virtual, "options.localField");
+				if (localField) json[path] = json[localField];
+			});
+	}
+
+	/**
 	 * Convert DB entity to JSON object
 	 *
 	 * @param {any} entity
@@ -352,7 +368,8 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity, ctx) {
-		const populate = this.getVirtualPopulateQuery(ctx);
+		const useNativeMongooseVirtuals = _.get(ctx, "service.settings.useNativeMongooseVirtuals", false);
+		const populate = useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx) : [];
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
@@ -362,6 +379,10 @@ class MongooseDbAdapter {
 					json._id = entity._id.toHexString();
 				} else if (entity._id && entity._id.toString) {
 					json._id = entity._id.toString();
+				}
+
+				if (!useNativeMongooseVirtuals) {
+					this.mapVirtualsToLocalFields(ctx, json);
 				}
 
 				return json;
