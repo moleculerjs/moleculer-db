@@ -546,6 +546,9 @@ declare module "moleculer-db" {
 
 		// Lifecycle entity events
 		// https://moleculer.services/docs/0.14/moleculer-db.html#Lifecycle-entity-events
+		beforeEntityCreate<T = any, C extends Context<any, any> = Context<any, any>>(doc: T | Partial<T>, ctx: C): T | Partial<T> | Promise<T | Partial<T>>
+		beforeEntityUpdate<T = any, C extends Context<any, any> = Context<any, any>>(doc: T | Partial<T>, ctx: C): T | Partial<T> | Promise<T | Partial<T>>
+		beforeEntityRemove<T = any, C extends Context<any, any> = Context<any, any>>(doc: T | Partial<T>, ctx: C): T | Partial<T> | Promise<T | Partial<T>>
 		entityCreated?<T = any, C extends Context<any, any> = Context<any, any>>(docsTransformed: Partial<T>[], ctx: C, docsRaw: T[]): void | Promise<void>;
 		entityCreated?<T = any, C extends Context<any, any> = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>;
 		entityUpdated?<T = any, C extends Context<any, any> = Context<any, any>>(docTransformed: Partial<T>, ctx: C, docRaw: T): void | Promise<void>;
