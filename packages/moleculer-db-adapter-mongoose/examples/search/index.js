@@ -16,7 +16,7 @@ let broker = new ServiceBroker({
 broker.createService({
 	name: "users",
 	mixins: [DbService],
-	adapter: new MongooseDBAdapter("mongodb://localhost/search2-test"),
+	adapter: new MongooseDBAdapter("mongodb://127.0.0.1/search2-test"),
 	model: User,
 
 	methods: {

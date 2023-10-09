@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-mongo",
-  "version": "0.4.14",
+  "version": "0.4.18",
   "description": "MongoDB native adapter for Moleculer DB service.",
   "main": "index.js",
   "scripts": {
@@ -29,13 +29,13 @@
   "devDependencies": {
     "benchmarkify": "^3.0.0",
     "coveralls": "^3.1.1",
-    "eslint": "^8.0.1",
+    "eslint": "^8.21.0",
     "jest": "^27.2.5",
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.14.17",
+    "moleculer": "^0.14.22",
     "moleculer-docgen": "^0.3.0",
-    "nodemon": "^2.0.13",
+    "nodemon": "^2.0.19",
     "npm-check": "^5.9.2"
   },
   "jest": {
@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "bluebird": "^3.7.2",
-    "fakerator": "^0.3.4",
-    "mongodb": "^3.6.7"
+    "fakerator": "^0.3.6",
+    "mongodb": "^3.6.10"
   }
 }

@@ -137,10 +137,11 @@ describe("Test DbService methods", () => {
 		it("should call adapter.insert", () => {
 			adapter.insert.mockClear();
 			service.transformDocuments.mockClear();
+			const p = {};
+			service.beforeEntityChange = jest.fn(() => Promise.resolve(p));
 			service.entityChanged = jest.fn(() => Promise.resolve());
 			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
 
-			const p = {};
 
 			return service._create(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
@@ -154,6 +155,9 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, p, doc);
 
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(1);
+				expect(service.beforeEntityChange).toHaveBeenCalledWith("create", p, Context);
+
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, doc);
 			});
@@ -165,12 +169,15 @@ describe("Test DbService methods", () => {
 		it("should call adapter.insert", () => {
 			adapter.insert.mockClear();
 			service.transformDocuments.mockClear();
+
+			const p = {
+				entity: {id: 1}
+			};
+
+			service.beforeEntityChange = jest.fn(() => Promise.resolve(p.entity));
 			service.entityChanged = jest.fn(() => Promise.resolve());
 			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
 
-			const p = {
-				entity: {}
-			};
 
 			return service._insert(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
@@ -184,20 +191,24 @@ describe("Test DbService methods", () => {
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
 
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(1);
+				expect(service.beforeEntityChange).toHaveBeenCalledWith("create", { id: 1}, Context);
+
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("created", doc, Context, doc);
 			});
 		});
 
 		it("should call adapter.insertMany", () => {
-			adapter.insert.mockClear();
+			adapter.insertMany.mockClear();
 			service.transformDocuments.mockClear();
-			service.entityChanged = jest.fn(() => Promise.resolve());
-			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
-
 			const p = {
 				entities: []
 			};
+			service.beforeEntityChange = jest.fn();
+			service.entityChanged = jest.fn(() => Promise.resolve());
+			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
 
 			return service._insert(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(docs);
@@ -207,6 +218,38 @@ describe("Test DbService methods", () => {
 
 				expect(service.validateEntity).toHaveBeenCalledTimes(1);
 				expect(service.validateEntity).toHaveBeenCalledWith(p.entities);
+
+				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
+				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
+
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(0); //since entities array is empty
+
+				expect(service.entityChanged).toHaveBeenCalledTimes(1);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
+			});
+		});
+
+		it("should call adapter.insertMany with many entities", () => {
+			adapter.insertMany.mockClear();
+			service.transformDocuments.mockClear();
+			const p = {
+				entities: [{ id: 1}, { id: 2}, { id: 3}]
+			};
+			service.beforeEntityChange = jest.fn((type, entity) => Promise.resolve(entity));
+			service.entityChanged = jest.fn(() => Promise.resolve());
+			service.validateEntity = jest.fn(entity => Promise.resolve(entity));
+
+
+			return service._insert(Context, p).catch(protectReject).then(res => {
+				expect(res).toEqual(docs);
+
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(3);
+
+				expect(service.validateEntity).toHaveBeenCalledTimes(1);
+				expect(service.validateEntity).toHaveBeenCalledWith(p.entities);
+
+				expect(adapter.insertMany).toHaveBeenCalledTimes(1);
+				expect(adapter.insertMany).toHaveBeenCalledWith(p.entities);
 
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, docs);
@@ -222,14 +265,15 @@ describe("Test DbService methods", () => {
 		it("should call adapter.updateById", () => {
 			adapter.updateById.mockClear();
 			service.transformDocuments.mockClear();
-			service.entityChanged = jest.fn(() => Promise.resolve());
-			service.decodeID = jest.fn(id => id);
-
 			const p = {
 				_id: 123,
 				name: "John",
 				age: 45
 			};
+			service.beforeEntityChange = jest.fn(() => Promise.resolve(p));
+			service.entityChanged = jest.fn(() => Promise.resolve());
+			service.decodeID = jest.fn(id => id);
+
 
 			return service._update(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
@@ -242,6 +286,9 @@ describe("Test DbService methods", () => {
 
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, doc);
+
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(1);
+				expect(service.beforeEntityChange).toHaveBeenCalledWith("update", p, Context);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("updated", doc, Context, doc);
@@ -261,6 +308,8 @@ describe("Test DbService methods", () => {
 				colors: [{ name:"red" }, { name:"blue" }],
 				name: { first: "John", last: "Doe" }
 			};
+
+			service.beforeEntityChange = jest.fn(() => Promise.resolve(p));
 
 			return service._update(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(doc);
@@ -282,10 +331,11 @@ describe("Test DbService methods", () => {
 		it("should call adapter.remove", () => {
 			adapter.removeById.mockClear();
 			service.transformDocuments.mockClear();
+			const p = { id: 3 };
+			service.beforeEntityChange = jest.fn(() => Promise.resolve(p));
 			service.entityChanged = jest.fn(() => Promise.resolve());
 			service.decodeID = jest.fn(id => id);
 
-			const p = { id: 3 };
 
 			return service._remove(Context, p).catch(protectReject).then(res => {
 				expect(res).toEqual(3);
@@ -298,6 +348,9 @@ describe("Test DbService methods", () => {
 
 				expect(service.transformDocuments).toHaveBeenCalledTimes(1);
 				expect(service.transformDocuments).toHaveBeenCalledWith(Context, {}, 3);
+
+				expect(service.beforeEntityChange).toHaveBeenCalledTimes(1);
+				expect(service.beforeEntityChange).toHaveBeenCalledWith("remove", p, Context);
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
 				expect(service.entityChanged).toHaveBeenCalledWith("removed", 3, Context, 3);

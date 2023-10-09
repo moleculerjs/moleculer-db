@@ -23,7 +23,7 @@
 # 0.4.3 (2019-07-07)
 
 ## Changes
-- Add `dbName` parameter to constructor. Example: `adapter: new MongoAdapter("mongodb://localhost", { useNewUrlParser: true }, "moleculer-db-demo")`
+- Add `dbName` parameter to constructor. Example: `adapter: new MongoAdapter("mongodb://127.0.0.1", { useNewUrlParser: true }, "moleculer-db-demo")`
 
 --------------------------------------------------
 <a name="0.4.0"></a>
@@ -42,7 +42,7 @@
 
     **Example with connection URI**
     ```js
-    new MongoDBAdapter("mongodb://localhost/moleculer-db")
+    new MongoDBAdapter("mongodb://127.0.0.1/moleculer-db")
     ```
 
     **Example with connection URI & options**

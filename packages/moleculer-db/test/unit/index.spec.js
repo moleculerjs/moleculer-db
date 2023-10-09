@@ -51,6 +51,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
@@ -332,6 +333,9 @@ describe("Test entityChanged method", () => {
 	const service = broker.createService(DbService, {
 		name: "store",
 		settings: {},
+		beforeEntityCreate: jest.fn(() => Promise.resolve()),
+		beforeEntityUpdate: jest.fn(() => Promise.resolve()),
+		beforeEntityRemove: jest.fn(() => Promise.resolve()),
 		entityCreated: jest.fn(),
 		entityUpdated: jest.fn(),
 		entityRemoved: jest.fn(),
@@ -342,6 +346,27 @@ describe("Test entityChanged method", () => {
 	let ctx = {};
 	let doc = { id: 5 };
 	let docRaw = { id: 5, foo: "bar" };
+
+	it("should call `beforeEntityCreate` event", () => {
+		return service.beforeEntityChange("create", {}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityCreate).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityCreate).toHaveBeenCalledWith({}, ctx);
+		});
+	});
+
+	it("should call `beforeEntityUpdate` event", () => {
+		return service.beforeEntityChange("update",  {}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityUpdate).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityUpdate).toHaveBeenCalledWith({}, ctx);
+		});
+	});
+
+	it("should call `beforeEntityRemove` event", () => {
+		return service.beforeEntityChange("remove",{}, ctx).catch(protectReject).then(() => {
+			expect(service.schema.beforeEntityRemove).toHaveBeenCalledTimes(1);
+			expect(service.schema.beforeEntityRemove).toHaveBeenCalledWith({}, ctx);
+		});
+	});
 
 	it("should call `entityCreated` event", () => {
 		return service.entityChanged("created", doc, ctx, docRaw).catch(protectReject).then(() => {
@@ -420,6 +445,11 @@ describe("Test sanitizeParams method", () => {
 	it("should convert fields to array", () => {
 		const res = service.sanitizeParams(ctx, { fields: "name votes author" });
 		expect(res).toEqual({ fields: ["name", "votes", "author"] });
+	});
+
+	it("should convert excludeFields to array", () => {
+		const res = service.sanitizeParams(ctx, { excludeFields: "name votes author" });
+		expect(res).toEqual({ excludeFields: ["name", "votes", "author"] });
 	});
 
 	it("should convert populate to array", () => {
@@ -512,7 +542,7 @@ describe("Test transformDocuments method", () => {
 				expect(res).toBe(doc);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(1);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc, ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(1);
 				expect(service.encodeID).toHaveBeenCalledWith(doc._id);
@@ -536,7 +566,7 @@ describe("Test transformDocuments method", () => {
 				expect(res).toBe(doc);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(1);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(doc, ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(1);
 				expect(service.encodeID).toHaveBeenCalledWith(doc._id);
@@ -573,8 +603,8 @@ describe("Test transformDocuments method", () => {
 				expect(res).toEqual(docs);
 
 				expect(mockAdapter.entityToObject).toHaveBeenCalledTimes(2);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[0]);
-				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[1]);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[0], ctx);
+				expect(mockAdapter.entityToObject).toHaveBeenCalledWith(docs[1], ctx);
 
 				expect(service.encodeID).toHaveBeenCalledTimes(2);
 				expect(service.encodeID).toHaveBeenCalledWith(docs[0]._id);
@@ -587,6 +617,76 @@ describe("Test transformDocuments method", () => {
 				expect(service.filterFields).toHaveBeenCalledWith(docs[0], service.settings.fields);
 				expect(service.filterFields).toHaveBeenCalledWith(docs[1], service.settings.fields);
 			}).catch(protectReject);
+		});
+	});
+
+	describe("Test excludeFields", () => {
+		describe("Test with object", function () {
+			const docs = { _id : 2, a: { b: 6, c: 7, d: { e: { f: 8 }, g: 9} } };
+
+			const broker = new ServiceBroker({ logger: false, validation: false });
+			const service = broker.createService(DbService, {
+				name: "store",
+				adapter: mockAdapter
+			});
+
+			it("should return expected - fields", () => {
+				const ctx = { params: { fields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({a: { c: 7 }});
+				});
+			});
+
+			it("should return expected - excludeFields", () => {
+				const ctx = { params: { excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"_id": 2,
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.c"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"d": {
+								"e": {
+									"f": 8
+								},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
+
+			it("should return expected - fields & excludeFields - deep", () => {
+				const ctx = { params: { fields: ["a"], excludeFields: ["a.d.e.f"] } };
+				return service.transformDocuments(ctx, ctx.params, docs).then(res => {
+					expect(res).toStrictEqual({
+						"a": {
+							"b": 6,
+							"c": 7,
+							"d": {
+								"e": {},
+								"g": 9
+							}
+						}
+					});
+				});
+			});
 		});
 	});
 
@@ -613,7 +713,7 @@ describe("Test authorizeFields method", () => {
 			name: "store",
 			adapter: mockAdapter,
 			settings: {
-				fields: ["id", "name", "address", "bio.body"]
+				fields: ["id", "name", "address", "bio.body", "mobile.carrier.name"]
 			}
 		});
 
@@ -630,6 +730,11 @@ describe("Test authorizeFields method", () => {
 		it("should remove the disabled bio fields", () => {
 			const res = service.authorizeFields(["id", "name", "bio.body.height", "bio.male", "bio.dob.year", "bio.body.hair.color"]);
 			expect(res).toEqual(["id", "name", "bio.body.height", "bio.body.hair.color"]);
+		});
+
+		it("should return empty", () => {
+			const res = service.authorizeFields(["carrier"]);
+			expect(res).toEqual([]);
 		});
 	});
 
@@ -695,6 +800,47 @@ describe("Test filterFields method", () => {
 			address: {
 				city: "Albuquerque",
 				zip: 87111
+			}
+		});
+	});
+
+});
+
+describe("Test excludeFields method", () => {
+	const doc = {
+		id : 1,
+		name: "Walter",
+		address: {
+			city: "Albuquerque",
+			state: "NM",
+			zip: 87111
+		}
+	};
+
+	const broker = new ServiceBroker({ logger: false, validation: false });
+	const service = broker.createService(DbService, {
+		name: "store",
+	});
+
+	it("should not touch the doc", () => {
+		const res = service.excludeFields(doc);
+		expect(res).toBe(doc);
+	});
+
+	it("should exclude fields", () => {
+		const res = service.excludeFields(doc, ["address"]);
+		expect(res).toEqual({
+			id: 1,
+			name: "Walter",
+		});
+	});
+
+	it("should work with nested fields", () => {
+		const res = service.excludeFields(doc, ["name", "address.city", "address.zip"]);
+		expect(res).toEqual({
+			id : 1,
+			address: {
+				state: "NM",
 			}
 		});
 	});

@@ -49,6 +49,9 @@ module.exports = {
 		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
 		fields: null,
 
+		/** @type {Array<String>?} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
+		excludeFields: null,
+
 		/** @type {Array?} Schema for population. [Read more](#populating). */
 		populates: null,
 
@@ -83,6 +86,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} limit - Max count of rows.
 		 * @param {Number?} offset - Count of skipped rows.
 		 * @param {String?} sort - Sorted fields.
@@ -94,7 +98,7 @@ module.exports = {
 		 */
 		find: {
 			cache: {
-				keys: ["populate", "fields", "limit", "offset", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "limit", "offset", "sort", "search", "searchFields", "query"]
 			},
 			params: {
 				populate: [
@@ -102,6 +106,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -165,6 +173,7 @@ module.exports = {
 		 *
 		 * @param {String|Array<String>} populate - Populated fields.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Number?} page - Page number.
 		 * @param {Number?} pageSize - Size of a page.
 		 * @param {String?} sort - Sorted fields.
@@ -176,7 +185,7 @@ module.exports = {
 		 */
 		list: {
 			cache: {
-				keys: ["populate", "fields", "page", "pageSize", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "page", "pageSize", "sort", "search", "searchFields", "query"]
 			},
 			rest: "GET /",
 			params: {
@@ -185,6 +194,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -252,6 +265,7 @@ module.exports = {
 		 * @param {any|Array<any>} id - ID(s) of entity.
 		 * @param {String|Array<String>} populate - Field list for populate.
 		 * @param {String|Array<String>} fields - Fields filter.
+		 * @param {String|Array<String>} excludeFields - List of excluded fields.
 		 * @param {Boolean?} mapping - Convert the returned `Array` to `Object` where the key is the value of `id`.
 		 *
 		 * @returns {Object|Array<Object>} Found entity(ies).
@@ -260,7 +274,7 @@ module.exports = {
 		 */
 		get: {
 			cache: {
-				keys: ["id", "populate", "fields", "mapping"]
+				keys: ["id", "populate", "fields", "excludeFields", "mapping"]
 			},
 			rest: "GET /:id",
 			params: {
@@ -274,6 +288,10 @@ module.exports = {
 					{ type: "array", optional: true, items: "string" },
 				],
 				fields: [
+					{ type: "string", optional: true },
+					{ type: "array", optional: true, items: "string" },
+				],
+				excludeFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
 				],
@@ -299,6 +317,9 @@ module.exports = {
 		 */
 		update: {
 			rest: "PUT /:id",
+			params: {
+				id: { type: "any" }
+			},
 			handler(ctx) {
 				return this._update(ctx, ctx.params);
 			}
@@ -381,16 +402,19 @@ module.exports = {
 				p.query = JSON.parse(p.query);
 
 			if (typeof(p.sort) === "string")
-				p.sort = p.sort.replace(/,/g, " ").split(" ");
+				p.sort = p.sort.split(/[,\s]+/);
 
 			if (typeof(p.fields) === "string")
-				p.fields = p.fields.replace(/,/g, " ").split(" ");
+				p.fields = p.fields.split(/[,\s]+/);
+
+			if (typeof(p.excludeFields) === "string")
+				p.excludeFields = p.excludeFields.split(/[,\s]+/);
 
 			if (typeof(p.populate) === "string")
-				p.populate = p.populate.replace(/,/g, " ").split(" ");
+				p.populate = p.populate.split(/[,\s]+/);
 
 			if (typeof(p.searchFields) === "string")
-				p.searchFields = p.searchFields.replace(/,/g, " ").split(" ");
+				p.searchFields = p.searchFields.split(/[,\s]+/);
 
 			if (ctx.action.name.endsWith(".list")) {
 				// Default `pageSize`
@@ -433,6 +457,23 @@ module.exports = {
 						return this.adapter.findById(decoding ? this.decodeID(id) : id);
 					}
 				});
+		},
+
+		/**
+		 * Call before entity lifecycle events
+		 *
+		 * @methods
+		 * @param {String} type
+		 * @param {Object} entity
+		 * @param {Context} ctx
+		 * @returns {Promise}
+		 */
+		beforeEntityChange(type, entity, ctx) {
+			const eventName = `beforeEntity${_.capitalize(type)}`;
+			if (this.schema[eventName] == null) {
+				return Promise.resolve(entity);
+			}
+			return Promise.resolve(this.schema[eventName].call(this, entity, ctx));
 		},
 
 		/**
@@ -489,15 +530,15 @@ module.exports = {
 			return Promise.resolve(docs)
 
 				// Convert entity to JS object
-				.then(docs => docs.map(doc => this.adapter.entityToObject(doc)))
+				.then(docs => Promise.all(docs.map(doc => this.adapter.entityToObject(doc, ctx))))
 
+				// Apply idField
+				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Encode IDs
 				.then(docs => docs.map(doc => {
 					doc[this.settings.idField] = this.encodeID(doc[this.settings.idField]);
 					return doc;
 				}))
-				// Apply idField
-				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
 				// Populate
 				.then(json => (ctx && params.populate) ? this.populateDocs(ctx, json, params.populate) : json)
 
@@ -505,17 +546,37 @@ module.exports = {
 
 				// Filter fields
 				.then(json => {
-					let fields = ctx && params.fields ? params.fields : this.settings.fields;
+					if (ctx && params.fields) {
+						const fields = _.isString(params.fields)
+							// Compatibility with < 0.4
+							/* istanbul ignore next */
+							? params.fields.split(/\s+/)
+							: params.fields;
+						// Authorize the requested fields
+						const authFields = this.authorizeFields(fields);
 
-					// Compatibility with < 0.4
-					/* istanbul ignore next */
-					if (_.isString(fields))
-						fields = fields.split(/\s+/);
+						return json.map(item => this.filterFields(item, authFields));
+					} else {
+						return json.map(item => this.filterFields(item, this.settings.fields));
+					}
+				})
 
-					// Authorize the requested fields
-					const authFields = this.authorizeFields(fields);
+				// Filter excludeFields
+				.then(json => {
+					const askedExcludeFields = (ctx && params.excludeFields)
+						? _.isString(params.excludeFields)
+							? params.excludeFields.split(/\s+/)
+							: params.excludeFields
+						: [];
+					const excludeFields = askedExcludeFields.concat(this.settings.excludeFields || []);
 
-					return json.map(item => this.filterFields(item, authFields));
+					if (Array.isArray(excludeFields) && excludeFields.length > 0) {
+						return json.map(doc => {
+							return this._excludeFields(doc, excludeFields);
+						});
+					} else {
+						return json;
+					}
 				})
 
 				// Return
@@ -545,43 +606,69 @@ module.exports = {
 		},
 
 		/**
+		 * Exclude fields in the entity object
+		 *
+		 * @param {Object} 	doc
+		 * @param {Array<String>} 	fields	Exclude properties of model.
+		 * @returns	{Object}
+		 */
+		excludeFields(doc, fields) {
+			if (Array.isArray(fields) && fields.length > 0) {
+				return this._excludeFields(doc, fields);
+			}
+
+			return doc;
+		},
+
+		/**
+		 * Exclude fields in the entity object. Internal use only, must ensure `fields` is an Array
+		 */
+		_excludeFields(doc, fields) {
+			const res = _.cloneDeep(doc);
+			fields.forEach(field => {
+				_.unset(res, field);
+			});
+			return res;
+		},
+
+		/**
 		 * Authorize the required field list. Remove fields which is not exist in the `this.settings.fields`
 		 *
-		 * @param {Array} fields
+		 * @param {Array} askedFields
 		 * @returns {Array}
 		 */
-		authorizeFields(fields) {
+		authorizeFields(askedFields) {
 			if (this.settings.fields && this.settings.fields.length > 0) {
-				let res = [];
-				if (Array.isArray(fields) && fields.length > 0) {
-					fields.forEach(f => {
-						if (this.settings.fields.indexOf(f) !== -1) {
-							res.push(f);
+				let allowedFields = [];
+				if (Array.isArray(askedFields) && askedFields.length > 0) {
+					askedFields.forEach(askedField => {
+						if (this.settings.fields.indexOf(askedField) !== -1) {
+							allowedFields.push(askedField);
 							return;
 						}
 
-						if (f.indexOf(".") !== -1) {
-							let parts = f.split(".");
+						if (askedField.indexOf(".") !== -1) {
+							let parts = askedField.split(".");
 							while (parts.length > 1) {
 								parts.pop();
 								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
-									res.push(f);
-									break;
+									allowedFields.push(askedField);
+									return;
 								}
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(prop => prop.indexOf(f + ".") !== -1);
+						let nestedFields = this.settings.fields.filter(settingField => settingField.startsWith(askedField + "."));
 						if (nestedFields.length > 0) {
-							res = res.concat(nestedFields);
+							allowedFields = allowedFields.concat(nestedFields);
 						}
 					});
 					//return _.intersection(f, this.settings.fields);
 				}
-				return res;
+				return allowedFields;
 			}
 
-			return fields;
+			return askedFields;
 		},
 
 		/**
@@ -599,11 +686,29 @@ module.exports = {
 			if (docs == null || !_.isObject(docs) && !Array.isArray(docs))
 				return Promise.resolve(docs);
 
-			let promises = [];
-			_.forIn(this.settings.populates, (rule, field) => {
+			const settingPopulateFields = Object.keys(this.settings.populates);
 
-				if (populateFields.indexOf(field) === -1)
-					return; // skip
+			/* Group populateFields by populatesFields for deep population.
+			(e.g. if "post" in populates and populateFields = ["post.author", "post.reviewer", "otherField"])
+			then they would be grouped together: { post: ["post.author", "post.reviewer"], otherField:["otherField"]}
+			*/
+			const groupedPopulateFields = populateFields.reduce((obj, populateField) => {
+				const settingPopulateField = settingPopulateFields.find(settingPopulateField => settingPopulateField === populateField || populateField.startsWith(settingPopulateField + "."));
+				if (settingPopulateField != null) {
+					if (obj[settingPopulateField] == null) {
+						obj[settingPopulateField] = [populateField];
+					} else {
+						obj[settingPopulateField].push(populateField);
+					}
+				}
+				return obj;
+			}, {});
+
+			let promises = [];
+			for (const populatesField of settingPopulateFields) {
+				let rule = this.settings.populates[populatesField];
+				if (groupedPopulateFields[populatesField] == null)
+					continue; // skip
 
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
@@ -612,14 +717,14 @@ module.exports = {
 					};
 				}
 
-				// If string, convert to object
+				// If the rule is string, convert to object
 				if (_.isString(rule)) {
 					rule = {
 						action: rule
 					};
 				}
 
-				if (rule.field === undefined) rule.field = field;
+				if (rule.field === undefined) rule.field = populatesField;
 
 				let arr = Array.isArray(docs) ? docs : [docs];
 
@@ -631,9 +736,9 @@ module.exports = {
 						let id = _.get(doc, rule.field);
 						if (_.isArray(id)) {
 							let models = _.compact(id.map(id => populatedDocs[id]));
-							_.set(doc, field, models);
+							_.set(doc, populatesField, models);
 						} else {
-							_.set(doc, field, populatedDocs[id]);
+							_.set(doc, populatesField, populatedDocs[id]);
 						}
 					});
 				};
@@ -645,12 +750,20 @@ module.exports = {
 					const params = Object.assign({
 						id: idList,
 						mapping: true,
-						populate: rule.populate
+						populate: [
+							// Transform "post.author" into "author" to pass to next populating service
+							...groupedPopulateFields[populatesField]
+								.map((populateField)=>populateField.slice(populatesField.length + 1)) //+1 to also remove any leading "."
+								.filter(field=>field!==""),
+							...(rule.populate ? rule.populate : [])
+						]
 					}, rule.params || {});
+
+					if (params.populate.length === 0 ) {delete params.populate;}
 
 					promises.push(ctx.call(rule.action, params).then(resultTransform));
 				}
-			});
+			}
 
 			return Promise.all(promises).then(() => docs);
 		},
@@ -784,10 +897,15 @@ module.exports = {
 		 */
 		_create(ctx, params) {
 			let entity = params;
-			return this.validateEntity(entity)
+			return this.beforeEntityChange("create", entity, ctx)
+				.then((entity)=>this.validateEntity(entity))
 				// Apply idField
-				.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
-				.then(entity => this.adapter.insert(entity))
+				.then(entity =>
+					this.adapter.beforeSaveTransformID(entity, this.settings.idField)
+				)
+				.then(entity =>
+					this.adapter.insert(entity)
+				)
 				.then(doc => {
 					return this.transformDocuments(ctx, {}, doc)
 						.then(json => this.entityChanged("created", json, ctx, doc).then(() => json));
@@ -808,7 +926,8 @@ module.exports = {
 			return Promise.resolve()
 				.then(() => {
 					if (Array.isArray(params.entities)) {
-						return this.validateEntity(params.entities)
+						return Promise.all(params.entities.map(entity => this.beforeEntityChange("create", entity, ctx)))
+							.then(entities=>this.validateEntity(entities))
 							// Apply idField
 							.then(entities => {
 								if (this.settings.idField === "_id")
@@ -818,7 +937,8 @@ module.exports = {
 							.then(entities => this.adapter.insertMany(entities));
 					}
 					else if (params.entity) {
-						return this.validateEntity(params.entity)
+						return this.beforeEntityChange("create", params.entity, ctx)
+							.then(entity=>this.validateEntity(entity))
 							// Apply idField
 							.then(entity => this.adapter.beforeSaveTransformID(entity, this.settings.idField))
 							.then(entity => this.adapter.insert(entity));
@@ -846,28 +966,33 @@ module.exports = {
 		_get(ctx, params) {
 			let id = params.id;
 			let origDoc;
+			let shouldMapping = params.mapping === true;
 			return this.getById(id, true)
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
-					origDoc = doc;
+
+					if (shouldMapping)
+						origDoc = _.isArray(doc) ? doc.map(d => _.cloneDeep(d)) : _.cloneDeep(doc);
+					else
+						origDoc = doc;
+
 					return this.transformDocuments(ctx, params, doc);
 				})
 				.then(json => {
-					if (_.isArray(json) && params.mapping === true) {
-						let res = {};
+					if (params.mapping !== true) return json;
+
+					let res = {};
+					if (_.isArray(json)) {
 						json.forEach((doc, i) => {
-							const id = this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField];
+							const id = this.encodeID(this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField]);
 							res[id] = doc;
 						});
-						return res;
-					} else if (_.isObject(json) && params.mapping === true) {
-						let res = {};
-						const id = this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField];
+					} else if (_.isObject(json)) {
+						const id = this.encodeID(this.adapter.afterRetrieveTransformID(origDoc, this.settings.idField)[this.settings.idField]);
 						res[id] = json;
-						return res;
 					}
-					return json;
+					return res;
 				});
 		},
 
@@ -885,19 +1010,25 @@ module.exports = {
 		 */
 		_update(ctx, params) {
 			let id;
-			let sets = {};
-			// Convert fields from params to "$set" update object
-			Object.keys(params).forEach(prop => {
-				if (prop === "id" || prop === this.settings.idField)
-					id = this.decodeID(params[prop]);
-				else
-					sets[prop] = params[prop];
-			});
 
-			if (this.settings.useDotNotation)
-				sets = flatten(sets, { safe: true });
+			return Promise.resolve()
+				.then(()=>this.beforeEntityChange("update", params, ctx))
+				.then((params)=>{
+					let sets = {};
+					// Convert fields from params to "$set" update object
+					Object.keys(params).forEach(prop => {
+						if (prop === "id" || prop === this.settings.idField)
+							id = this.decodeID(params[prop]);
+						else
+							sets[prop] = params[prop];
+					});
 
-			return this.adapter.updateById(id, { "$set": sets })
+					if (this.settings.useDotNotation)
+						sets = flatten(sets, { safe: true });
+
+					return sets;
+				})
+				.then((sets)=>this.adapter.updateById(id, { "$set": sets }))
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(id));
@@ -918,7 +1049,9 @@ module.exports = {
 		 */
 		_remove(ctx, params) {
 			const id = this.decodeID(params.id);
-			return this.adapter.removeById(id)
+			return Promise.resolve()
+				.then(()=>this.beforeEntityChange("remove", params, ctx))
+				.then(()=>this.adapter.removeById(id))
 				.then(doc => {
 					if (!doc)
 						return Promise.reject(new EntityNotFoundError(params.id));
@@ -934,7 +1067,11 @@ module.exports = {
 	created() {
 		// Compatibility with < 0.4
 		if (_.isString(this.settings.fields)) {
-			this.settings.fields = this.settings.fields.split(" ");
+			this.settings.fields = this.settings.fields.split(/\s+/);
+		}
+
+		if (_.isString(this.settings.excludeFields)) {
+			this.settings.excludeFields = this.settings.excludeFields.split(/\s+/);
 		}
 
 		if (!this.schema.adapter)

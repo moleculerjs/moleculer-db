@@ -9,7 +9,7 @@ Mongoose adapter for Moleculer DB service
 ## Install
 
 ```bash
-$ npm install moleculer-db moleculer-db-adapter-mongoose mongoose@5.8.11 --save
+$ npm install moleculer-db moleculer-db-adapter-mongoose mongoose@6.5.4 --save
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ const broker = new ServiceBroker();
 broker.createService({
     name: "posts",
     mixins: [DbService],
-    adapter: new MongooseAdapter("mongodb://localhost/moleculer-demo"),
+    adapter: new MongooseAdapter("mongodb://127.0.0.1/moleculer-demo"),
     model: mongoose.model("Post", mongoose.Schema({
         title: { type: String },
         content: { type: String },
@@ -53,7 +53,7 @@ broker.start()
 
 **Example with connection URI**
 ```js
-new MongooseAdapter("mongodb://localhost/moleculer-db")
+new MongooseAdapter("mongodb://127.0.0.1/moleculer-db")
 ```
 
 **Example with URI and options**

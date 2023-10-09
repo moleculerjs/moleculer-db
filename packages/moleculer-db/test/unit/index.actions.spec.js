@@ -58,6 +58,7 @@ describe("Test DbService actions", () => {
 		expect(service.settings).toEqual({
 			entityValidator: null,
 			fields: null,
+			excludeFields: null,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
@@ -195,7 +196,7 @@ describe("Test DbService actions", () => {
 
 	it("should call the 'update' method", () => {
 		service._update.mockClear();
-		const p = { _id: 1, name: "John Smith", age: 45 };
+		const p = { id: 1, name: "John Smith", age: 45 };
 
 		return broker.call("store.update", p).catch(protectReject).then(ctx => {
 			expect(service._update).toHaveBeenCalledTimes(1);

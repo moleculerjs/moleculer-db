@@ -1,3 +1,25 @@
+<a name="0.9.3"></a>
+# 0.9.3 (2023-07-15)
+
+## Changes
+- support virtual field population in mongoose adapter [#354](https://github.com/moleculerjs/moleculer-db/pull/354)
+
+--------------------------------------------------
+<a name="0.9.2"></a>
+# 0.9.2 (2023-02-11)
+
+## Changes
+- fix constructor signature of MongoDB adapter in TypeScript [#346](https://github.com/moleculerjs/moleculer-db/pull/346)
+- update mongoose to 6.9.0 [#347](https://github.com/moleculerjs/moleculer-db/pull/347)
+
+--------------------------------------------------
+<a name="0.9.0"></a>
+# 0.9.0 (2022-10-23)
+
+## Changes
+support mongoose@6.x.x by @devalexandre in [#324](https://github.com/moleculerjs/moleculer-db/pull/324)
+
+--------------------------------------------------
 <a name="0.8.9"></a>
 # 0.8.9 (2020-11-16)
 
@@ -47,7 +69,7 @@ $ npm install moleculer-db moleculer-db-adapter-mongoose mongoose --save
 
 **Example with connection URI**
 ```js
-new MongooseAdapter("mongodb://localhost/moleculer-db")
+new MongooseAdapter("mongodb://127.0.0.1/moleculer-db")
 ```
 
 **Example with URI and options**

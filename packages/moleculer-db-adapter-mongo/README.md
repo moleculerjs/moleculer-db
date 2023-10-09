@@ -29,7 +29,7 @@ const broker = new ServiceBroker();
 broker.createService({
     name: "posts",
     mixins: [DbService],
-    adapter: new MongoDBAdapter("mongodb://localhost/moleculer-demo"),
+    adapter: new MongoDBAdapter("mongodb://127.0.0.1/moleculer-demo"),
     collection: "posts"
 });
 
@@ -50,7 +50,7 @@ broker.start()
 
 **Example with connection URI**
 ```js
-new MongoDBAdapter("mongodb://localhost/moleculer-db")
+new MongoDBAdapter("mongodb://127.0.0.1/moleculer-db")
 ```
 
 **Example with connection URI & options**

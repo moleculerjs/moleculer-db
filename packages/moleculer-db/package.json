@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db",
-  "version": "0.8.17",
+  "version": "0.8.24",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
@@ -30,15 +30,15 @@
   "devDependencies": {
     "benchmarkify": "^3.0.0",
     "coveralls": "^3.1.1",
-    "eslint": "^8.0.1",
-    "fakerator": "^0.3.3",
+    "eslint": "^8.21.0",
+    "fakerator": "^0.3.6",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6",
-    "kleur": "^4.1.4",
+    "kleur": "^4.1.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.14.14",
+    "moleculer": "^0.14.22",
     "moleculer-docgen": "^0.3.0",
-    "nodemon": "^2.0.10"
+    "nodemon": "^2.0.19"
   },
   "jest": {
     "testEnvironment": "node",
@@ -51,7 +51,7 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
-    "@seald-io/nedb": "^2.0.4",
+    "@seald-io/nedb": "^3.0.0",
     "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.21"

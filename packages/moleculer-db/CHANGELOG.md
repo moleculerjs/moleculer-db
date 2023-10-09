@@ -1,3 +1,41 @@
+<a name="0.8.23"></a>
+# 0.8.23 (2023-02-19)
+
+## Changes
+- fix issues with exclude fields [#349](https://github.com/moleculerjs/moleculer-db/pull/349) [#350](https://github.com/moleculerjs/moleculer-db/pull/350)
+ 
+--------------------------------------------------
+
+<a name="0.8.22"></a>
+# 0.8.22 (2023-02-11)
+
+## Changes
+- if param.fields is null, use this.settings.fields directly [#340](https://github.com/moleculerjs/moleculer-db/pull/340)
+- split improve [#339](https://github.com/moleculerjs/moleculer-db/pull/339)
+- new settings.excludeFields feature to exclude fields [#341](https://github.com/moleculerjs/moleculer-db/pull/341)
+ 
+--------------------------------------------------
+
+<a name="0.8.21"></a>
+# 0.8.21 (2022-12-17)
+
+## Changes
+- Fix bug - populate not working - idField mapped to undefined [#327](https://github.com/moleculerjs/moleculer-db/pull/327)
+- moleculer-db-adapter-mongoose crashing if in state "connecting" fix [#329](https://github.com/moleculerjs/moleculer-db/pull/329)
+- Recursive deep populate [#331](https://github.com/moleculerjs/moleculer-db/pull/331)
+- beforeEntity(Change|Update|Remove) lifecycle events [#330](https://github.com/moleculerjs/moleculer-db/pull/330)
+- fix authorize fields unsafe check [#335](https://github.com/moleculerjs/moleculer-db/pull/335)
+ 
+--------------------------------------------------
+<a name="0.8.18"></a>
+# 0.8.18 (2022-05-25)
+
+## Changes
+- upgrade `seald-io/nedb` to 3.0.0 [#315](https://github.com/moleculerjs/moleculer-db/pull/315)
+- async custom validation [#306](https://github.com/moleculerjs/moleculer-db/pull/306)
+- fix `count` just the right number of row [#304](https://github.com/moleculerjs/moleculer-db/pull/304)
+- fix RegExp throw error if search startsWith '.' or '+' [#316](https://github.com/moleculerjs/moleculer-db/pull/316)
+ 
 --------------------------------------------------
 <a name="0.8.13"></a>
 # 0.8.13 (2021-04-26)

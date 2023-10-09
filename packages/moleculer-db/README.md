@@ -74,15 +74,16 @@ broker.start()
 # Settings
 
 <!-- AUTO-CONTENT-START:SETTINGS -->
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-| `idField` | `String` | **required** | Name of ID field. |
-| `fields` | `Array.<String>` | `null` | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
-| `populates` | `Array` | `null` | Schema for population. [Read more](#populating). |
-| `pageSize` | `Number` | **required** | Default page size in `list` action. |
-| `maxPageSize` | `Number` | **required** | Maximum page size in `list` action. |
-| `maxLimit` | `Number` | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit) |
-| `entityValidator` | `Object`, `function` | `null` | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. |
+| Property          | Type                 | Default      | Description                                                                                                               |
+|-------------------|----------------------|--------------|---------------------------------------------------------------------------------------------------------------------------|
+| `idField`         | `String`             | **required** | Name of ID field.                                                                                                         |
+| `fields`          | `Array.<String>`     | `null`       | Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. |
+| `excludeFields`   | `Array.<String>`     | `null`       | Exclude fields from list. It must be an `Array`.                                                                          |
+| `populates`       | `Array`              | `null`       | Schema for population. [Read more](#populating).                                                                          |
+| `pageSize`        | `Number`             | **required** | Default page size in `list` action.                                                                                       |
+| `maxPageSize`     | `Number`             | **required** | Maximum page size in `list` action.                                                                                       |
+| `maxLimit`        | `Number`             | **required** | Maximum value of limit in `find` action. Default: `-1` (no limit)                                                         |
+| `entityValidator` | `Object`, `function` | `null`       | Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.                            |
 
 <!-- AUTO-CONTENT-END:SETTINGS -->
 
