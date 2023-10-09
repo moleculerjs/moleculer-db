@@ -225,7 +225,7 @@ describe("Test DbService methods", () => {
 				expect(service.beforeEntityChange).toHaveBeenCalledTimes(0); //since entities array is empty
 
 				expect(service.entityChanged).toHaveBeenCalledTimes(1);
-				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context);
+				expect(service.entityChanged).toHaveBeenCalledWith("created", docs, Context, docs);
 			});
 		});
 
