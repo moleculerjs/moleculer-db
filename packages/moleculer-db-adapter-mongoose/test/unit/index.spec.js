@@ -907,5 +907,35 @@ if (process.versions.node.split(".")[0] < 14) {
 				});
 			});
 		});
+
+		describe("mapVirtualsToLocalFields", () => {
+			it("should map virtual field to localField", () => {
+				const adapter = new MongooseStoreAdapter();
+				const service = broker.createService({
+					name: "store",
+					model: {
+						schema: {
+							virtuals: {
+								idVirtual: {options: {localField: "_id"}},
+								fooVirtual: {options: {localField: "foo"}},
+								barVirtual: {},
+							}
+						}
+					},
+				});
+				adapter.init(broker, service);
+				const ctx = { service, params: {}};
+				const json = {_id: "xxx", foo: "yyy", bar: "zzz"};
+				const res = adapter.mapVirtualsToLocalFields(ctx, json);
+
+				expect(json).toEqual({
+					_id: "xxx",
+					foo: "yyy",
+					bar: "zzz",
+					idVirtual: "xxx",
+					fooVirtual: "yyy"
+				});
+			});
+		});
 	});
 }
