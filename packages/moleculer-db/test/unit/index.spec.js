@@ -345,6 +345,7 @@ describe("Test entityChanged method", () => {
 
 	let ctx = {};
 	let doc = { id: 5 };
+	let docRaw = { id: 5, foo: "bar" };
 
 	it("should call `beforeEntityCreate` event", () => {
 		return service.beforeEntityChange("create", {}, ctx).catch(protectReject).then(() => {
@@ -368,31 +369,31 @@ describe("Test entityChanged method", () => {
 	});
 
 	it("should call `entityCreated` event", () => {
-		return service.entityChanged("created", doc, ctx).catch(protectReject).then(() => {
+		return service.entityChanged("created", doc, ctx, docRaw).catch(protectReject).then(() => {
 			expect(service.clearCache).toHaveBeenCalledTimes(1);
 
 			expect(service.schema.entityCreated).toHaveBeenCalledTimes(1);
-			expect(service.schema.entityCreated).toHaveBeenCalledWith(doc, ctx);
+			expect(service.schema.entityCreated).toHaveBeenCalledWith(doc, ctx, docRaw);
 		});
 	});
 
 	it("should call `entityUpdated` event", () => {
 		service.clearCache.mockClear();
-		return service.entityChanged("updated", doc, ctx).catch(protectReject).then(() => {
+		return service.entityChanged("updated", doc, ctx, docRaw).catch(protectReject).then(() => {
 			expect(service.clearCache).toHaveBeenCalledTimes(1);
 
 			expect(service.schema.entityUpdated).toHaveBeenCalledTimes(1);
-			expect(service.schema.entityUpdated).toHaveBeenCalledWith(doc, ctx);
+			expect(service.schema.entityUpdated).toHaveBeenCalledWith(doc, ctx, docRaw);
 		});
 	});
 
 	it("should call `entityRemoved` event", () => {
 		service.clearCache.mockClear();
-		return service.entityChanged("removed", doc, ctx).catch(protectReject).then(() => {
+		return service.entityChanged("removed", doc, ctx, docRaw).catch(protectReject).then(() => {
 			expect(service.clearCache).toHaveBeenCalledTimes(1);
 
 			expect(service.schema.entityRemoved).toHaveBeenCalledTimes(1);
-			expect(service.schema.entityRemoved).toHaveBeenCalledWith(doc, ctx);
+			expect(service.schema.entityRemoved).toHaveBeenCalledWith(doc, ctx, docRaw);
 		});
 	});
 
