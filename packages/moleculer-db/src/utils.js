@@ -1,18 +1,18 @@
-function getField(doc, paths, res, pathIndex = 0, cachePaths = []) {
+function copyFieldValueByPath(doc, paths, res, pathIndex = 0, cachePaths = []) {
 	if (pathIndex < paths.length) {
 		const path = paths[pathIndex];
 		if (Array.isArray(doc)) {
 			cachePaths[cachePaths.length - 1].type = "array";
 			if (path === "$") {
 				doc.forEach((item, itemIndex) => {
-					getField(item, paths, res, pathIndex + 1, cachePaths.concat({path: itemIndex}));
+					copyFieldValueByPath(item, paths, res, pathIndex + 1, cachePaths.concat({path: itemIndex}));
 				});
 			} else if (Object.prototype.hasOwnProperty.call(doc, path)) {
-				getField(doc[path], paths, res, pathIndex + 1, cachePaths.concat({path: path}));
+				copyFieldValueByPath(doc[path], paths, res, pathIndex + 1, cachePaths.concat({path: path}));
 			}
 		} else if (doc != null && Object.prototype.hasOwnProperty.call(doc, path)) {
 			cachePaths.push({ path });
-			getField(doc[path], paths, res, pathIndex + 1, cachePaths);
+			copyFieldValueByPath(doc[path], paths, res, pathIndex + 1, cachePaths);
 		}
 	} else {
 		let obj = res;
@@ -31,4 +31,4 @@ function getField(doc, paths, res, pathIndex = 0, cachePaths = []) {
 	}
 }
 
-exports.getField = getField;
+exports.copyFieldValueByPath = copyFieldValueByPath;

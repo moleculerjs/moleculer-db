@@ -13,7 +13,7 @@ const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
 const pkg = require("../package.json");
-const { getField } = require("./utils");
+const { copyFieldValueByPath } = require("./utils");
 const stringToPath = require("lodash/_stringToPath");
 
 /**
@@ -555,7 +555,7 @@ module.exports = {
 				const res = {};
 				fields.forEach(field => {
 					const paths = stringToPath(field);
-					getField(doc, paths, res);
+					copyFieldValueByPath(doc, paths, res);
 				});
 				return res;
 			}
