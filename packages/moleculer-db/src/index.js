@@ -13,6 +13,8 @@ const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
 const pkg = require("../package.json");
+const { copyFieldValueByPath } = require("./utils");
+const stringToPath = require("lodash/_stringToPath");
 
 /**
  * Service mixin to access database entities
@@ -591,17 +593,14 @@ module.exports = {
 		 * @returns	{Object}
 		 */
 		filterFields(doc, fields) {
-			// Apply field filter (support nested paths)
 			if (Array.isArray(fields)) {
-				let res = {};
-				fields.forEach(n => {
-					const v = _.get(doc, n);
-					if (v !== undefined)
-						_.set(res, n, v);
+				const res = {};
+				fields.forEach(field => {
+					const paths = stringToPath(field);
+					copyFieldValueByPath(doc, paths, res);
 				});
 				return res;
 			}
-
 			return doc;
 		},
 

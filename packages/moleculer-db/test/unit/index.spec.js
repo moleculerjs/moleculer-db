@@ -761,49 +761,257 @@ describe("Test authorizeFields method", () => {
 });
 
 describe("Test filterFields method", () => {
-	const doc = {
-		id : 1,
-		name: "Walter",
-		address: {
-			city: "Albuquerque",
-			state: "NM",
-			zip: 87111
-		}
-	};
-
 	const broker = new ServiceBroker({ logger: false, validation: false });
 	const service = broker.createService(DbService, {
-		name: "store",
-		adapter: mockAdapter,
-		settings: {
-			fields: "id name address"
-		}
+		name: "store"
 	});
 
-	it("should not touch the doc", () => {
-		const res = service.filterFields(doc);
-		expect(res).toBe(doc);
-	});
-
-	it("should filter the fields", () => {
-		const res = service.filterFields(doc, ["name", "address"]);
-		expect(res).toEqual({
-			name: "Walter",
-			address: doc.address
-		});
-	});
-
-	it("should filter with nested fields", () => {
-		const res = service.filterFields(doc, ["name", "address.city", "address.zip"]);
-		expect(res).toEqual({
+	describe("Object test", () => {
+		const doc = {
+			id : 1,
 			name: "Walter",
 			address: {
 				city: "Albuquerque",
+				state: "NM",
 				zip: 87111
 			}
+		};
+
+		it("should not touch the doc", () => {
+			const res = service.filterFields(doc);
+			expect(res).toBe(doc);
+		});
+
+		it("should filter the fields", () => {
+			const res = service.filterFields(doc, ["name", "address"]);
+			expect(res).toEqual({
+				name: "Walter",
+				address: doc.address
+			});
+		});
+
+		it("should filter with nested fields", () => {
+			const res = service.filterFields(doc, ["name", "address.city", "address.zip"]);
+			expect(res).toEqual({
+				name: "Walter",
+				address: {
+					city: "Albuquerque",
+					zip: 87111
+				}
+			});
 		});
 	});
 
+	describe("Array test", () => {
+		describe("common case", () => {
+			const doc = {
+				id : 1,
+				name: "Walter",
+				cars: [
+					{id: 1, name: "BMW", model: "320i", wheels: [
+						{ placement: "front-left", id: 1},
+						{ placement: "front-right", id: 2},
+						{ placement: "behind-left", id: 3},
+						{ placement: "behind-right", id: 4},
+					]},
+					{id: 2, name: "BMW", model: "520i", wheels: [
+						{ placement: "front-left", id: 1},
+						{ placement: "front-right", id: 2},
+						{ placement: "behind-left", id: 3},
+						{ placement: "behind-right", id: 4},
+					]},
+					{id: 3, name: "AUDI", model: "Q7", wheels: [
+						{ placement: "front-left", id: 1, histories: []},
+						{ placement: "front-right", id: 2, histories: [
+							{date: "11/11/2011", message: "replace new 2011"}
+						]},
+						{ placement: "behind-left", id: 3, histories: []},
+						{ placement: "behind-right", id: 4, histories: [
+							{date: "12/12/2012", message: "replace new 2012"}
+						]},
+					]},
+				],
+				models: {
+					id: 1,
+					desc: "not an array",
+					items: [
+						{id: 0, desc: "0 desc", name: "0 name"},
+						{id: 1, desc: "1 desc", name: "1 name"},
+						{id: 2, desc: "2 desc", name: "2 name"},
+					]
+				}
+			};
+			it("should pass", () => {
+				const res = service.filterFields(doc, ["name", "cars.$.id", "cars.$.name", "cars.$.wheels.$.placement", "cars.$.wheels.$.histories.$.date", "cars.$.wheels.$.histories.$.non-existed"]);
+				expect(res).toEqual({
+					name: "Walter",
+					cars: [
+						{id: 1, name: "BMW", wheels: [
+							{ placement: "front-left" },
+							{ placement: "front-right" },
+							{ placement: "behind-left" },
+							{ placement: "behind-right" },
+						]},
+						{id: 2, name: "BMW", wheels: [
+							{ placement: "front-left" },
+							{ placement: "front-right" },
+							{ placement: "behind-left" },
+							{ placement: "behind-right" },
+						]},
+						{id: 3, name: "AUDI", wheels: [
+							{ placement: "front-left" },
+							{ placement: "front-right", histories: [{date: "11/11/2011"}] },
+							{ placement: "behind-left" },
+							{ placement: "behind-right", histories: [{date: "12/12/2012"}] },
+						]},
+					]
+				});
+			});
+
+			it("test .$. with object", () => {
+				const res = service.filterFields(doc, ["models.$.desc", "name"]);
+				expect(res).toEqual({
+					name: "Walter",
+				});
+			});
+
+			describe("doc.models test", function () {
+				it("test .$", () => {
+					const res = service.filterFields(doc, ["name", "models.items.$.id"]);
+					expect(res).toEqual({
+						name: "Walter",
+						models: {
+							items: [
+								{id: 0},
+								{id: 1},
+								{id: 2},
+							]
+						},
+					});
+				});
+				it("test .0", () => {
+					const res = service.filterFields(doc, ["name", "models.items.0.id"]);
+					expect(res).toEqual({
+						name: "Walter",
+						models: {
+							items: [
+								{id: 0},
+							]
+						},
+					});
+				});
+				it("test .1", () => {
+					const res = service.filterFields(doc, ["name", "models.items.1.id"]);
+					expect(res).toEqual({
+						name: "Walter",
+						models: {
+							items: [
+								undefined,
+								{id: 1},
+							]
+						},
+					});
+				});
+				it("test multiple array indexes", () => {
+					const res = service.filterFields(doc, ["name", "models.items.0.id", "models.items.1.desc", "models.items.2.name", "models.items.3.invalid"]);
+					expect(res).toEqual({
+						name: "Walter",
+						models: {
+							items: [
+								{ id:0 },
+								{ desc: "1 desc" },
+								{ name: "2 name"},
+							]
+						},
+					});
+				});
+			});
+		});
+
+		describe("array-index vs object key", function () {
+			const doc = {
+				a: {
+					2: {
+						b: [
+							{
+								c: [
+									{ d: 3, e: 4 },
+									{ d: 5, e: 6 },
+								]
+							}
+						]
+					}
+				}
+			};
+			it("object key", () => {
+				const res = service.filterFields(doc, ["a.2.b.$.c.$.e"]);
+				expect(res).toEqual({a: { 2: { b: [{c: [{e: 4}, {e: 6}]}] } }});
+			});
+			it("asked array but got object key", () => {
+				const res = service.filterFields(doc, ["a.$.b.$.c.2.e"]);
+				expect(res).toEqual({});
+			});
+			it("array index", () => {
+				const res = service.filterFields(doc, ["a.2.b.$.c.1.e"]);
+				expect(res).toEqual({a: { 2: { b: [{c: [undefined, {e: 6}]}] } }});
+			});
+			describe("multiple fields", function () {
+				it("should overwrite", () => {
+					const res = service.filterFields(doc, ["a.2.b", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: doc.a["2"].b } }});
+				});
+				it("should merge", () => {
+					const res = service.filterFields(doc, ["a.2.b.$.c.1.d", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: [{c: [undefined, {d: 5, e: 6}]}] } }});
+				});
+				it("should pass", () => {
+					const res = service.filterFields(doc, ["a.2.b.$.c.$.d", "a.2.b.$.c.1.e"]);
+					expect(res).toEqual({a: { 2: { b: [{c: [{d: 3}, {d: 5, e: 6}]}] } }});
+				});
+			});
+		});
+		describe("Object with key '$'", function () {
+			const doc = {
+				$: [
+					{
+						a: {
+							$: {
+								b: [
+									{c: 1, d: 2},
+									{c: 3, d: 4},
+								]
+							}
+						}
+					},
+					{
+						a: {
+							$: {
+								b: [
+									{c: 5, d: 6},
+									{c: 7, d: 8},
+								]
+							}
+						}
+					},
+				]
+			};
+			it("should handleable $", () => {
+				const res = service.filterFields(doc, ["$.$.a.$.b.$.c"]);
+				expect(res).toEqual({
+					$: [
+						{a: { $: { b: [
+							{ c: 1 },
+							{ c: 3 },
+						]}}},
+						{a: { $: { b: [
+							{ c: 5 },
+							{ c: 7 },
+						]}}}
+					]
+				});
+			});
+		});
+	});
 });
 
 describe("Test excludeFields method", () => {
