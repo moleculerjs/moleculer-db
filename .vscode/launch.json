@@ -31,6 +31,25 @@
 		{
 			"type": "node",
 			"request": "launch",
+			"name": "Launch benchmark",
+			"program": "${workspaceRoot}/benchmark/index.js",
+			"cwd": "${workspaceRoot}",
+			"args": [
+				"common"
+			]
+		},
+		{
+			"name": "Attach by Benchmark",
+			"processId": "${command:PickProcess}",
+			"request": "attach",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
+		},
+		{
+			"type": "node",
+			"request": "launch",
 			"name": "Launch readme",
 			"program": "${workspaceRoot}/readme-generator",
 			"cwd": "${workspaceRoot}"
