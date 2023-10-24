@@ -39,6 +39,7 @@ class MongooseDbAdapter {
 	init(broker, service) {
 		this.broker = broker;
 		this.service = service;
+		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals
 
 		if (this.service.schema.model) {
 			this.model = this.service.schema.model;
@@ -310,14 +311,14 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	getNativeVirtualPopulateQuery(ctx) {
-		const fieldsToPopulate = _.get(ctx, "params.populate", []);
+		const fieldsToPopulate = ctx.params?.populate || [];
 
 		if (fieldsToPopulate.length === 0) return [];
 
-		const virtualFields = Object.entries(_.get(this, "model.schema.virtuals", {}))
+		const virtualFields = Object.entries( this.model?.schema?.virtuals || {})
 			.reduce((acc, [path, virtual]) => {
-				const hasRef = !!(_.get(virtual, "options.ref") || _.get(virtual, "options.refPath"));
-				const hasMatch = !!_.get(virtual, "options.match");
+				const hasRef = !!(virtual.options?.ref || virtual.options?.refPath);
+				const hasMatch = !! virtual.options?.match;
 				if (hasRef) acc[path] = hasMatch;
 				return acc;
 			}, {});
@@ -352,9 +353,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	mapVirtualsToLocalFields(ctx, json) {
-		Object.entries(_.get(this, "model.schema.virtuals", {}))
+		Object.entries(this.model?.schema?.virtuals || {})
 			.forEach(([path, virtual]) => {
-				const localField = _.get(virtual, "options.localField");
+				const localField = virtual.options?.localField;
 				if (localField) json[path] = json[localField];
 			});
 	}
@@ -368,8 +369,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity, ctx) {
-		const useNativeMongooseVirtuals = _.get(ctx, "service.settings.useNativeMongooseVirtuals", false);
-		const populate = useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx) : [];
+		const populate = this.useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx) : [];
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
@@ -381,7 +381,7 @@ class MongooseDbAdapter {
 					json._id = entity._id.toString();
 				}
 
-				if (!useNativeMongooseVirtuals) {
+				if (!this.useNativeMongooseVirtuals) {
 					this.mapVirtualsToLocalFields(ctx, json);
 				}
 

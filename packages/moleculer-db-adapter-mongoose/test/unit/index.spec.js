@@ -926,7 +926,7 @@ if (process.versions.node.split(".")[0] < 14) {
 				adapter.init(broker, service);
 				const ctx = { service, params: {}};
 				const json = {_id: "xxx", foo: "yyy", bar: "zzz"};
-				const res = adapter.mapVirtualsToLocalFields(ctx, json);
+				adapter.mapVirtualsToLocalFields(ctx, json);
 
 				expect(json).toEqual({
 					_id: "xxx",
