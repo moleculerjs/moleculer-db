@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "setup": "npm install && lerna bootstrap",
-    "setup-no-old-node": "npm install && lerna bootstrap --ignore moleculer-db-adapter-prisma --ignore moleculer-db-adapter-mongoose",
+    "setup-no-old-node": "npm install && lerna bootstrap --ignore moleculer-db-adapter-mongoose",
     "clean": "lerna clean",
     "dev": "nodemon dev.js",
     "demo": "node dev.js",
