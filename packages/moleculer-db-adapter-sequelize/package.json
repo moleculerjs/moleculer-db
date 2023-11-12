@@ -45,8 +45,8 @@
     "npm-check": "^6.0.1",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.21.3",
-    "sqlite3": "^5.0.11",
+    "sequelize": "^6.35.0",
+    "sqlite3": "^5.1.6",
     "tedious": "^11.0.8"
   },
   "jest": {
