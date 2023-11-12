@@ -39,6 +39,7 @@ class MongooseDbAdapter {
 	init(broker, service) {
 		this.broker = broker;
 		this.service = service;
+		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals
 
 		if (this.service.schema.model) {
 			this.model = this.service.schema.model;
@@ -303,6 +304,63 @@ class MongooseDbAdapter {
 	}
 
 	/**
+	 * Return proper query to populate virtuals depending on service populate params
+	 *
+	 * @param {Context} ctx - moleculer context
+	 * @returns {Object[]}
+	 * @memberof MongooseDbAdapter
+	 */
+	getNativeVirtualPopulateQuery(ctx) {
+		const fieldsToPopulate = ctx.params?.populate || [];
+
+		if (fieldsToPopulate.length === 0) return [];
+
+		const virtualFields = Object.entries( this.model?.schema?.virtuals || {})
+			.reduce((acc, [path, virtual]) => {
+				const hasRef = !!(virtual.options?.ref || virtual.options?.refPath);
+				const hasMatch = !! virtual.options?.match;
+				if (hasRef) acc[path] = hasMatch;
+				return acc;
+			}, {});
+		const virtualsToPopulate = _.intersection(fieldsToPopulate, Object.keys(virtualFields));
+
+		if (virtualsToPopulate.length === 0) return [];
+
+		const getPathOptions = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.options`, {skipInvalidIds: true, lean: true});
+
+		const getPathTransform = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.transform`, (doc) => doc._id);
+
+		const getPathSelect = (path) =>
+			_.get(ctx, `service.settings.virtuals.${path}.select`, _.get(virtualFields, path) ? undefined : "_id");
+
+		return virtualsToPopulate.map((path) => ({
+			path,
+			select: getPathSelect(path),
+			options : getPathOptions(path),
+			transform: getPathTransform(path)
+		}));
+	}
+
+	/**
+	 * Replace virtuals that would trigger subqueries by the localField
+	 * they target to be used later in action propagation
+	 *
+	 * @param {Context} ctx - moleculer context
+	 * @param {Object} json - the JSONified entity
+	 * @returns {Object}
+	 * @memberof MongooseDbAdapter
+	 */
+	mapVirtualsToLocalFields(ctx, json) {
+		Object.entries(this.model?.schema?.virtuals || {})
+			.forEach(([path, virtual]) => {
+				const localField = virtual.options?.localField;
+				if (localField) json[path] = json[localField];
+			});
+	}
+
+	/**
 	 * Convert DB entity to JSON object
 	 *
 	 * @param {any} entity
@@ -311,13 +369,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	entityToObject(entity, ctx) {
-		const fieldsToPopulate = _.get(ctx, "params.populate", []);
-		const virtualFields = Object.values(_.get(this, "model.schema.virtuals", {}))
-			.reduce((acc, virtual) => _.get(virtual, "options.ref") ? [...acc, virtual.path] : acc, []);
-		const virtualsToPopulate = _.intersection(fieldsToPopulate, virtualFields);
-		const options = {skipInvalidIds: true, lean: true};
-		const transform = (doc) => doc._id;
-		const populate = virtualsToPopulate.map(path => ({path, select: "_id", options, transform}));
+		const populate = this.useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx) : [];
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {
@@ -327,6 +379,10 @@ class MongooseDbAdapter {
 					json._id = entity._id.toHexString();
 				} else if (entity._id && entity._id.toString) {
 					json._id = entity._id.toString();
+				}
+
+				if (!this.useNativeMongooseVirtuals) {
+					this.mapVirtualsToLocalFields(ctx, json);
 				}
 
 				return json;

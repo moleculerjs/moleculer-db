@@ -14,6 +14,10 @@ const UserSchema = new Schema(
 			required: true,
 			trim: true,
 		},
+		postRef: {
+			type: String,
+			default: "Post"
+		}
 	},
 	{
 		timestamps: true,
@@ -35,7 +39,7 @@ const UserSchema = new Schema(
 			},
 			postCount: {
 				options: {
-					ref: "Post",
+					refPath: "postRef",
 					localField: "_id",
 					foreignField: "author",
 					count: true,
@@ -53,6 +57,15 @@ const UserSchema = new Schema(
 		},
 	}
 );
+
+UserSchema.virtual("lastPostWithVotes", {
+	ref: "Post",
+	localField: "_id",
+	foreignField: "author",
+	justOne: true,
+	match: { votes: { $gt: 0 } },
+	options: { sort: "-createdAt" },
+});
 
 module.exports = {
 	Model: model("User", UserSchema),
