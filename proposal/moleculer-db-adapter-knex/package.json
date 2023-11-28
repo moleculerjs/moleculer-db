@@ -51,6 +51,6 @@
     "node": ">= 6.x.x"
   },
   "dependencies": {
-    "knex": "0.19.5"
+    "knex": "0.95.0"
   }
 }
