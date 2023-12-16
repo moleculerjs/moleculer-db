@@ -11,8 +11,8 @@
 			"program": "${workspaceRoot}/dev",
 			"cwd": "${workspaceRoot}",
 			"args": [
-				"moleculer-db-adapter-mongo",
-				"issue"
+				"moleculer-db-adapter-mongoose",
+				"simple"
 			]
 		},
 		{
@@ -27,6 +27,25 @@
 			],
 			"stopOnEntry": true
 
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch benchmark",
+			"program": "${workspaceRoot}/benchmark/index.js",
+			"cwd": "${workspaceRoot}",
+			"args": [
+				"common"
+			]
+		},
+		{
+			"name": "Attach by Benchmark",
+			"processId": "${command:PickProcess}",
+			"request": "attach",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
 		},
 		{
 			"type": "node",

@@ -60,7 +60,7 @@ new MongooseAdapter("mongodb://127.0.0.1/moleculer-db")
 ```js
 new MongooseAdapter("mongodb://db-server-hostname/my-db", {
     user: process.env.MONGO_USERNAME,
-    pass: process.env.MONGO_PASSWORD
+    pass: process.env.MONGO_PASSWORD,
     keepAlive: true
 })
 ```

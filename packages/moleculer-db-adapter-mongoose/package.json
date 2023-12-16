@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db-adapter-mongoose",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Mongoose adapter for Moleculer DB service",
   "main": "index.js",
   "types": "index.d.ts",
@@ -37,7 +37,7 @@
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
     "moleculer": "^0.14.22",
-    "mongoose": "^6.9.0",
+    "mongoose": "^6.12.3",
     "nodemon": "^2.0.19",
     "npm-check": "^5.9.2"
   },
