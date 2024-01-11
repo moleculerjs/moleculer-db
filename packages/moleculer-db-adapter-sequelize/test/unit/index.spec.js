@@ -5,8 +5,6 @@ const { ServiceBroker } = require("moleculer");
 jest.mock("sequelize");
 
 const model = {
-	tableName: "posts",
-	primaryKeyAttribute: 'id',
 	sync: jest.fn(() => Promise.resolve()),
 	findAll: jest.fn(() => Promise.resolve()),
 	count: jest.fn(() => Promise.resolve()),
@@ -42,7 +40,6 @@ function protectReject(err) {
 const fakeModel = {
 	name: "posts",
 	define: {
-		id: { type: "number", primaryKey: true },
 		a: 5
 	},
 	options: {
@@ -166,10 +163,7 @@ describe("Test SequelizeAdapter", () => {
 				adapter.model.findAll.mockClear();
 				adapter.createCursor(null, true);
 				expect(adapter.model.count).toHaveBeenCalledTimes(1);
-				expect(adapter.model.count).toHaveBeenCalledWith({
-					distinct: true,
-					col: `${model.tableName}.${model.primaryKeyAttribute}`
-				});
+				expect(adapter.model.count).toHaveBeenCalledWith();
 			});
 
 			it("call with query", () => {
@@ -185,11 +179,7 @@ describe("Test SequelizeAdapter", () => {
 				let query = {};
 				adapter.createCursor({ query }, true);
 				expect(adapter.model.count).toHaveBeenCalledTimes(1);
-				expect(adapter.model.count).toHaveBeenCalledWith({
-					distinct: true,
-					col: `${model.tableName}.${model.primaryKeyAttribute}`,
-					where: query
-				});
+				expect(adapter.model.count).toHaveBeenCalledWith({ where: query });
 			});
 
 			it("call with sort string", () => {
