@@ -1,7 +1,6 @@
 "use strict";
 
-let mongoose = require("mongoose");
-let Schema = mongoose.Schema;
+const {Schema, model} = require("mongoose");
 
 let PostSchema = new Schema({
 	title: {
@@ -33,6 +32,7 @@ PostSchema.index({
 });
 
 module.exports = {
-	Model: mongoose.model("Post", PostSchema),
+	getModel: (connection) => connection.model("Post", PostSchema),
+	Model: model("Post", PostSchema),
 	Schema: PostSchema
 };

@@ -68,6 +68,7 @@ UserSchema.virtual("lastPostWithVotes", {
 });
 
 module.exports = {
+	getModel: (connection) => connection.model("User", UserSchema),
 	Model: model("User", UserSchema),
 	Schema: UserSchema,
 };

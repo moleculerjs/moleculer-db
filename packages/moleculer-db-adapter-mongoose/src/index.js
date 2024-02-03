@@ -11,21 +11,25 @@ const Promise	= require("bluebird");
 const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
 
-
 mongoose.set("strictQuery", true);
 
 class MongooseDbAdapter {
 
 	/**
 	 * Creates an instance of MongooseDbAdapter.
-	 * @param {String} uri
-	 * @param {Object?} opts
+	 *
+	 * @param {String} uri - The connection URI for the MongoDB server.
+	 * @param {Object} [mongooseOpts] - Optional mongoose options.
+	 * @param {Object} [opts] - Optional additional options.
+	 * @param {boolean} [opts.replaceVirtualsRefById=true] - Flag indicating whether to replace virtual fields with their referenced document's ID.
+	 * 														 Discussed here : https://github.com/moleculerjs/moleculer-db/pull/354#issuecomment-1736853966
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	constructor(uri, opts) {
+	constructor(uri, mongooseOpts, opts = { replaceVirtualsRefById: true }) {
 		this.uri = uri;
-		this.opts = opts;
+		this.mongooseOpts = mongooseOpts;
+		this.opts = opts
 	}
 
 	/**
@@ -42,6 +46,12 @@ class MongooseDbAdapter {
 		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals
 
 		if (this.service.schema.model) {
+			/**
+			 * using model here is not a problem because we will dismantle it, and re-create a model with the correct connection later
+			 * note : when creating models before the DB, they're linked to the default connection, and not the current one
+			 * @link https://mongoosejs.com/docs/connections.html#multiple_connections
+			 * @type {Mongoose.Model}
+			 */
 			this.model = this.service.schema.model;
 		} else if (this.service.schema.schema) {
 			if (!this.service.schema.modelName) {
@@ -65,42 +75,26 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let conn;
+		return mongoose.createConnection(this.uri, this.mongooseOpts).asPromise().then(conn => {
+            this.conn = conn;
 
-		if (this.model) {
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection.asPromise();
-			} else {
-				conn = mongoose.connect(this.uri, this.opts);
-			}
-		} else if (this.schema) {
-			conn = new Promise(resolve =>{
-				const 	c = mongoose.createConnection(this.uri, this.opts);
-				this.model = c.model(this.modelName, this.schema);
-				resolve(c);
-			});
-		}
-
-		return conn.then(() => {
-			this.conn = mongoose.connection;
-
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
+			if (this.conn.readyState !== mongoose.connection.states.connected) {
 				throw new MoleculerError(
 					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
+						mongoose.states[this.conn._readyState]
 					}"`
 				);
 			}
 
+
 			if(this.model) {
-				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
+				this.model = this.conn.model(this.model["modelName"],this.model["schema"]);
+			}
+			if(this.schema) {
+				this.model = this.conn.model(this.modelName, this.schema);
 			}
 
-			this.db = mongoose.connection.db;
+			this.db = this.conn.db;
 
 			if (!this.db) {
 				throw new MoleculerError("MongoDB connection failed to get DB object");
@@ -108,12 +102,10 @@ class MongooseDbAdapter {
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
-
 			/* istanbul ignore next */
-			mongoose.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			mongoose.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			mongoose.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
-
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
 	}
 
@@ -125,15 +117,13 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	disconnect() {
-		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
-				this.conn.close(resolve);
-			} else {
-				mongoose.connection.close(resolve);
-			}
-		});
+		if (this.db && this.db.close) {
+			return this.db.close();
+		} else if (this.conn && this.conn.close) {
+			return this.conn.close();
+		} else {
+			return mongoose.connection.close();
+		}
 	}
 
 	/**
@@ -196,7 +186,7 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	 * Get count of filtered entites
+	 * Get count of filtered entities
 	 *
 	 * Available filter props:
 	 *  - search
@@ -375,10 +365,15 @@ class MongooseDbAdapter {
 			.then(entity => {
 				const json = entity.toJSON();
 
-				if (entity._id && entity._id.toHexString) {
-					json._id = entity._id.toHexString();
-				} else if (entity._id && entity._id.toString) {
-					json._id = entity._id.toString();
+				json._id = this.convertObjectIdToString(entity._id);
+
+				if(this.opts.replaceVirtualsRefById && virtualsToPopulate.length > 0) {
+					virtualsToPopulate
+						.map((fieldName) => [fieldName, _.get(this, "model.schema.virtuals", {})[fieldName]])
+						.filter(([, virtual]) => !!virtual)
+						.forEach(([field, virtual]) => {
+							json[field] = this.convertObjectIdToString(entity[virtual.options.localField])
+						})
 				}
 
 				if (!this.useNativeMongooseVirtuals) {
@@ -387,6 +382,22 @@ class MongooseDbAdapter {
 
 				return json;
 			});
+	}
+
+	/**
+	 * Converts an object id to a string representation.
+	 *
+	 * @param {Object} _id - The object id to convert.
+	 * @return {string|Object} The string representation of the object id. (or the object in case we fail to convert it)
+	 */
+	convertObjectIdToString(_id) {
+		if (_id && _id.toHexString) {
+			return _id.toHexString();
+		} else if (_id && _id.toString) {
+			return _id.toString();
+		}
+
+		return _id
 	}
 
 	/**

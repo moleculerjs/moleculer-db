@@ -58,7 +58,7 @@ if (process.versions.node.split(".")[0] < 14) {
 
 	let fakeDb = {
 		on: jest.fn(),
-		close: jest.fn((fn) => fn()),
+		close: jest.fn().mockResolvedValue(),
 		model: jest.fn(() => fakeModel),
 	};
 
@@ -76,7 +76,7 @@ if (process.versions.node.split(".")[0] < 14) {
 		it("should be created", () => {
 			expect(adapter).toBeDefined();
 			expect(adapter.uri).toBe(uri);
-			expect(adapter.opts).toBe(opts);
+			expect(adapter.mongooseOpts).toBe(opts);
 			expect(adapter.init).toBeDefined();
 			expect(adapter.connect).toBeDefined();
 			expect(adapter.disconnect).toBeDefined();
@@ -137,34 +137,31 @@ if (process.versions.node.split(".")[0] < 14) {
 
 		describe("Test connect", () => {
 			beforeEach(() => {
-				mongoose.connection.readyState =
-					mongoose.connection.states.disconnected;
-				mongoose.connect = jest.fn(() => {
-					mongoose.connection.readyState =
-						mongoose.connection.states.connected;
-					return Promise.resolve();
+				mongoose.createConnection = jest.fn(() => {
+					return {
+						asPromise: jest.fn(
+							() => Promise.resolve({
+					 			...fakeDb,
+								db: fakeDb,
+								readyState: mongoose.connection.states.connected,
+							})
+						)
+					};
 				});
-
-				mongoose.model = jest.fn(() => fakeModel);
-
-				Object.entries(fakeDb).forEach(([k, v]) => {
-					mongoose.connection[k] = v;
-				});
-				mongoose.connection.db = fakeDb;
 			});
 
 			it("call connect with uri", () => {
 				fakeDb.on.mockClear();
 
-				adapter.opts = undefined;
+				adapter.mongooseOpts = undefined;
 				adapter.model = jest.fn(() => fakeModel);
 
 				return adapter
 					.connect()
 					.catch(protectReject)
 					.then(() => {
-						expect(mongoose.connect).toHaveBeenCalledTimes(1);
-						expect(mongoose.connect).toHaveBeenCalledWith(
+						expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
+						expect(mongoose.createConnection).toHaveBeenCalledWith(
 							"mongodb://127.0.0.1",
 							undefined
 						);
@@ -185,7 +182,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			it("call connect with uri & opts", () => {
 				fakeDb.on.mockClear();
 
-				adapter.opts = {
+				adapter.mongooseOpts = {
 					user: "admin",
 					pass: "123456",
 				};
@@ -194,10 +191,10 @@ if (process.versions.node.split(".")[0] < 14) {
 					.connect()
 					.catch(protectReject)
 					.then(() => {
-						expect(mongoose.connect).toHaveBeenCalledTimes(1);
-						expect(mongoose.connect).toHaveBeenCalledWith(
+						expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
+						expect(mongoose.createConnection).toHaveBeenCalledWith(
 							adapter.uri,
-							adapter.opts
+							adapter.mongooseOpts
 						);
 					});
 			});
@@ -251,15 +248,18 @@ if (process.versions.node.split(".")[0] < 14) {
 				adapter.init(broker, service);
 
 				mongoose.createConnection = jest.fn(() => {
-					mongoose.connection.readyState =
-						mongoose.connection.states.connected;
 					return {
-						connection: { db: fakeDb, ...fakeDb },
-						model: jest.fn(() => fakeModel),
+						asPromise: jest.fn(
+							() => Promise.resolve({
+								...fakeDb,
+								db: fakeDb,
+								readyState: mongoose.connection.states.connected,
+							})
+						)
 					};
 				});
 
-				adapter.opts = {
+				adapter.mongooseOpts = {
 					user: "admin",
 					pass: "123456",
 				};
@@ -273,7 +273,7 @@ if (process.versions.node.split(".")[0] < 14) {
 						);
 						expect(mongoose.createConnection).toHaveBeenCalledWith(
 							adapter.uri,
-							adapter.opts
+							adapter.mongooseOpts
 						);
 						expect(adapter.model).toBe(fakeModel);
 					});
