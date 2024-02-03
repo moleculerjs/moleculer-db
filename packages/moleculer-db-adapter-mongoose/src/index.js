@@ -65,55 +65,62 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	connect() {
-		let conn;
+		return new Promise((resolve) => {
+			if (this.model) {
+				// model field exists in service schema, should check if model has been connected
+				if (this.model.db) {
+					// if this.model.db is existed, adapter had connected before, just return this.model.db
+					// Model.prototype.db
+					// Connection the model uses.
+					// https://mongoosejs.com/docs/api/model.html#model_Model-db
+					resolve(this.model.db);
+					return;
+				}
+				/* istanbul ignore next */
+				if (
+					mongoose.connection.readyState === mongoose.connection.states.connected ||
+					mongoose.connection.readyState === mongoose.connection.states.connecting
+				) {
+					// if mongoose is connecting, will handle below
+					resolve(mongoose.connection);
+				} else {
+					// everything else cases mean we not yet do connect before, make it
+					const conn = mongoose.createConnection(this.uri, this.opts);
+					resolve(conn);
+				}
+			} else if (this.schema) {
+				const conn = mongoose.createConnection(this.uri, this.opts);
 
-		if (this.model) {
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection.asPromise();
-			} else {
-				conn = mongoose.connect(this.uri, this.opts);
+				this.model = conn.model(this.modelName, this.schema);
+				resolve(conn);
 			}
-		} else if (this.schema) {
-			conn = new Promise(resolve =>{
-				const 	c = mongoose.createConnection(this.uri, this.opts);
-				this.model = c.model(this.modelName, this.schema);
-				resolve(c);
-			});
-		}
+		}).then(conn => {
+			this.conn = conn;
 
-		return conn.then(() => {
-			this.conn = mongoose.connection;
-
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
-				throw new MoleculerError(
-					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
-					}"`
-				);
+			if (this.conn.db != null) {
+				return this.conn.db;
+			} else if (this.conn.readyState === mongoose.connection.states.connecting) {
+				return new Promise((resolve, reject) => {
+					this.conn.once("error", reject);
+					this.conn.once("connected", () => {
+						this.conn.removeListener("error", reject);
+						resolve(this.conn.db);
+					});
+				});
 			}
 
-			if(this.model) {
-				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
-			}
-
-			this.db = mongoose.connection.db;
-
-			if (!this.db) {
-				throw new MoleculerError("MongoDB connection failed to get DB object");
-			}
+			throw new MoleculerError("MongoDB connection failed to get DB object");
+		}).then(db => {
+			this.db = db;
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
-
+			// do not use this.db.on() because of next line
+			// DeprecationWarning: Listening to events on the Db class has been deprecated and will be removed in the next major version.
 			/* istanbul ignore next */
-			mongoose.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			mongoose.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			mongoose.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
-
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 		});
 	}
 
@@ -126,11 +133,19 @@ class MongooseDbAdapter {
 	 */
 	disconnect() {
 		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
+			if (this.conn == null) {
+				// model was created and mongoose maybe connected before call .connect()
+				mongoose.connection.close(resolve);
+			} else if (this.conn.readyState === mongoose.connection.states.connecting) {
+				// disconnect() was called before connect() success
+				// try to disconnect at nextTick
+				setTimeout(() => resolve(this.disconnect()), 0);
+			} else if (this.conn.close) {
 				this.conn.close(resolve);
+			} else if (this.db != null && this.db.close) {
+				this.db.close(resolve);
 			} else {
+				// for unknown cases
 				mongoose.connection.close(resolve);
 			}
 		});
