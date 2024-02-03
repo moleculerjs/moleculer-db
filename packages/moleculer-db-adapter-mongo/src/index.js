@@ -11,7 +11,7 @@ const Promise		= require("bluebird");
 const { ServiceSchemaError } = require("moleculer").Errors;
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
-const ObjectID 		= mongodb.ObjectID;
+const ObjectID 		= mongodb.ObjectId;
 
 class MongoDbAdapter {
 
@@ -63,9 +63,9 @@ class MongoDbAdapter {
 			this.service.logger.info("MongoDB adapter has connected successfully.");
 
 			/* istanbul ignore next */
-			this.db.on("close", () => this.service.logger.warn("MongoDB adapter has disconnected."));
-			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
-			this.db.on("reconnect", () => this.service.logger.info("MongoDB adapter has reconnected."));
+			this.client.on("close", () => this.service.logger.warn("MongoDB adapter has disconnected."));
+			this.client.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.client.on("reconnect", () => this.service.logger.info("MongoDB adapter has reconnected."));
 		});
 	}
 
@@ -169,8 +169,7 @@ class MongoDbAdapter {
 	 */
 	insert(entity) {
 		return this.collection.insertOne(entity).then(res => {
-			if (res.insertedCount > 0)
-				return res.ops[0];
+			return this.findById(res.insertedId);
 		});
 	}
 
@@ -183,7 +182,9 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	insertMany(entities) {
-		return this.collection.insertMany(entities).then(res => res.ops);
+		return this.collection.insertMany(entities).then(res => {
+			return this.findByIds(Object.values(res.insertedIds));
+		});
 	}
 
 	/**
@@ -209,7 +210,7 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	updateById(_id, update) {
-		return this.collection.findOneAndUpdate({ _id: this.stringToObjectID(_id) }, update, { returnOriginal : false }).then(res => res.value);
+		return this.collection.findOneAndUpdate({ _id: this.stringToObjectID(_id) }, update, { returnDocument : "after" });
 	}
 
 	/**
@@ -360,7 +361,7 @@ class MongoDbAdapter {
 	 */
 	stringToObjectID(id) {
 		if (typeof id == "string" && id.length !== 12 && ObjectID.isValid(id))
-			return new ObjectID.createFromHexString(id);
+			return ObjectID.createFromHexString(id);
 		return id;
 	}
 
