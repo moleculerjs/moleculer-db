@@ -517,7 +517,7 @@ class MongooseDbAdapter {
 	/**
 	* Convert hex string to ObjectID
 	* @param {String} id
-	* @returns ObjectID}
+	* @return {ObjectID}
 	* @memberof MongooseDbAdapter
 	*/
 	stringToObjectID (id) {
