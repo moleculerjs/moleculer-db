@@ -320,12 +320,13 @@ class SequelizeDbAdapter {
 				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
 			}
 
+			const lowerCaseSearch = "%" + (params.search).toLowerCase() + "%";  
 			const searchConditions = fields.map(f => {
-				return {
-					[f]: {
-						[Op.like]: "%" + params.search + "%"
-					}
-				};
+				return Sequelize.where(
+					Sequelize.fn("lower", Sequelize.col(f)),
+					Op.like,
+					lowerCaseSearch
+				);
 			});
 
 			if (params.query) {

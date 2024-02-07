@@ -229,23 +229,23 @@ describe("Test SequelizeAdapter", () => {
 			it("call with full-text search without query", () => {
 				adapter.model.findAll.mockClear();
 				adapter.createCursor({
-					search: "walter",
+					search: "WaLtEr",
 					searchFields: ["title", "content"]
 				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: {
 						[Op.or]: [
-							{
-								title: {
-									[Op.like]: "%walter%"
-								}
-							},
-							{
-								content: {
-									[Op.like]: "%walter%"
-								}
-							}
+							Sequelize.where(
+								Sequelize.fn("lower", Sequelize.col("title")),
+								Op.like,
+								"%walter%"
+							),
+							Sequelize.where(
+								Sequelize.fn("lower", Sequelize.col("content")),
+								Op.like,
+								"%walter%"
+							)
 						]
 					}
 				});
@@ -255,7 +255,7 @@ describe("Test SequelizeAdapter", () => {
 				adapter.model.findAll.mockClear();
 				adapter.createCursor({
 					query: { status: 1 },
-					search: "walter",
+					search: "wAlTeR",
 					searchFields: ["title", "content"]
 				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
@@ -264,18 +264,17 @@ describe("Test SequelizeAdapter", () => {
 						[Op.and]: [
 							{ status: 1 },
 							{ [Op.or]: [
-								{
-									title: {
-										[Op.like]: "%walter%"
-									}
-								},
-								{
-									content: {
-										[Op.like]: "%walter%"
-									}
-								}
-							]
-							}
+								Sequelize.where(
+									Sequelize.fn("lower", Sequelize.col("title")),
+									Op.like,
+									"%walter%"
+								),
+								Sequelize.where(
+									Sequelize.fn("lower", Sequelize.col("content")),
+									Op.like,
+									"%walter%"
+								)
+							] }
 						]
 					}
 				});
@@ -290,7 +289,7 @@ describe("Test SequelizeAdapter", () => {
 							{ deleted: 0 }
 						]
 					},
-					search: "walter",
+					search: "WALTER",
 					searchFields: ["title", "content"]
 				});
 				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
@@ -302,16 +301,16 @@ describe("Test SequelizeAdapter", () => {
 								{ deleted: 0 },
 							] },
 							{ [Op.or]: [
-								{
-									title: {
-										[Op.like]: "%walter%"
-									}
-								},
-								{
-									content: {
-										[Op.like]: "%walter%"
-									}
-								}
+								Sequelize.where(
+									Sequelize.fn("lower", Sequelize.col("title")),
+									Op.like,
+									"%walter%"
+								),
+								Sequelize.where(
+									Sequelize.fn("lower", Sequelize.col("content")),
+									Op.like,
+									"%walter%"
+								)
 							] }
 						]
 					}
