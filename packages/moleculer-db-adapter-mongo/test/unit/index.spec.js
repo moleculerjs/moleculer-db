@@ -29,20 +29,21 @@ const fakeCollection = {
 	countDocuments: jest.fn(() => Promise.resolve(7)),
 	find: jest.fn(() => query()),
 	findOne: jest.fn(() => Promise.resolve(doc)),
-	insertOne: jest.fn(doc => Promise.resolve({ insertedCount: 1, ops: [doc] })),
-	insertMany: jest.fn(arr => Promise.resolve({ insertedCount: arr.length, ops: arr })),
+	insertOne: jest.fn(doc => Promise.resolve({ insertedId: 1, ops: [doc] })),
+	findOneAndUpdate: jest.fn(() => Promise.resolve(doc)),
+	insertMany: jest.fn(arr => Promise.resolve({ insertedIds: arr.map((_,index) => index) })),
 	updateMany: jest.fn(() => Promise.resolve({ modifiedCount: 2 })),
-	findOneAndUpdate: jest.fn(() => Promise.resolve({ value: doc })),
 	deleteMany: jest.fn(() => Promise.resolve({ deletedCount: 2 })),
+	deleteOne: jest.fn(() => Promise.resolve({ value: doc })),
 	findOneAndDelete: jest.fn(() => Promise.resolve({ value: doc })),
 };
 
 let fakeDb = {
-	on: jest.fn(),
 	collection: jest.fn(() => fakeCollection)
 };
 
 let fakeConn = {
+	on: jest.fn(),
 	connect: jest.fn(() => Promise.resolve()),
 	db: jest.fn(() => fakeDb),
 	close: jest.fn(),
@@ -102,7 +103,7 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call connect with uri", () => {
-		fakeDb.on.mockClear();
+		fakeConn.on.mockClear();
 		fakeDb.collection.mockClear();
 
 		adapter.opts = undefined;
@@ -119,10 +120,10 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.client.db).toHaveBeenCalledWith(undefined);
 
 			expect(adapter.db).toBe(fakeDb);
-			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledTimes(3);
+			expect(adapter.client.on).toHaveBeenCalledWith("close", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledWith("error", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
@@ -134,8 +135,8 @@ describe("Test MongoDbAdapter", () => {
 		MongoClient.mockClear();
 		fakeConn.connect.mockClear();
 		fakeConn.db.mockClear();
-
-		fakeDb.on.mockClear();
+		fakeConn.on.mockClear();
+		
 		fakeDb.collection.mockClear();
 
 		adapter.opts = {
@@ -156,10 +157,10 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.client.db).toHaveBeenCalledWith("demo-db");
 
 			expect(adapter.db).toBe(fakeDb);
-			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledTimes(3);
+			expect(adapter.client.on).toHaveBeenCalledWith("close", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledWith("error", expect.any(Function));
+			expect(adapter.client.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
@@ -177,27 +178,27 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call stringToObjectID", () => {
-		mongodb.ObjectID.isValid = jest.fn(() => true);
-		mongodb.ObjectID.createFromHexString = jest.fn();
+		mongodb.ObjectId.isValid = jest.fn(() => true);
+		mongodb.ObjectId.createFromHexString = jest.fn();
 
 		adapter.stringToObjectID({});
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(0);
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledTimes(0);
 
 		adapter.stringToObjectID("123");
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("123");
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledTimes(1);
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledWith("123");
 
 		//test 12 character non hex
-		mongodb.ObjectID.createFromHexString.mockClear();
+		mongodb.ObjectId.createFromHexString.mockClear();
 		let res = adapter.stringToObjectID("qqq.qqq.qqq.");
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(0);
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledTimes(0);
 		expect(res).toEqual("qqq.qqq.qqq.");
 
 		//test 24 character hex
-		mongodb.ObjectID.createFromHexString.mockClear();
+		mongodb.ObjectId.createFromHexString.mockClear();
 		adapter.stringToObjectID("000011112222333344445555");
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledTimes(1);
-		expect(mongodb.ObjectID.createFromHexString).toHaveBeenCalledWith("000011112222333344445555");
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledTimes(1);
+		expect(mongodb.ObjectId.createFromHexString).toHaveBeenCalledWith("000011112222333344445555");
 
 	});
 
@@ -384,9 +385,10 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call insert", () => {
+		adapter.collection.findOne.mockClear();
 		let entity = { a: 5 };
-		return adapter.insert(entity).catch(protectReject).then(res => {
-			expect(res).toEqual(entity);
+		return adapter.insert(entity).catch(protectReject).then(() => {
+			expect(adapter.collection.findOne).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.insertOne).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.insertOne).toHaveBeenCalledWith(entity);
 		});
@@ -394,12 +396,13 @@ describe("Test MongoDbAdapter", () => {
 
 
 	it("call insertMany", () => {
+		adapter.collection.find.mockClear();
 		let entities = [
 			{ a: 5 },
 			{ a: 10 }
 		];
-		return adapter.insertMany(entities).catch(protectReject).then(res => {
-			expect(res).toEqual(entities);
+		return adapter.insertMany(entities).catch(protectReject).then(() => {
+			expect(adapter.collection.find).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.insertMany).toHaveBeenCalledTimes(1);
 			expect(adapter.collection.insertMany).toHaveBeenCalledWith(entities);
 		});
@@ -423,7 +426,7 @@ describe("Test MongoDbAdapter", () => {
 		return adapter.updateById(5, update).catch(protectReject).then(res => {
 			expect(res).toEqual(doc);
 			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledTimes(1);
-			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledWith({ _id: 5 }, update, { returnOriginal: false });
+			expect(adapter.collection.findOneAndUpdate).toHaveBeenCalledWith({ _id: 5 }, update, { returnDocument: "after" });
 		});
 	});
 
@@ -519,4 +522,3 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 });
-

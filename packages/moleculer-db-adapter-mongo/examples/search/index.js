@@ -71,4 +71,7 @@ broker.start()
 			search: "Dianne"
 		}).then(res => console.log(res));
 	})
+	.then(() => {
+		return broker.stop();
+	})
 	.catch(err => broker.logger.error(err));

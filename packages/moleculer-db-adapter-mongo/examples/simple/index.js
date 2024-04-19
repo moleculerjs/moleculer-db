@@ -28,7 +28,7 @@ broker.createService(StoreService, {
 	}
 });
 
-const checker = new ModuleChecker(24);
+const checker = new ModuleChecker(23);
 
 // Start checks
 function start() {
@@ -55,7 +55,7 @@ checker.add("COUNT", () => adapter.count(), res => {
 checker.add("INSERT", () => adapter.insert({ title: "Hello", content: "Post content", votes: 3, status: true, createdAt: date }), doc => {
 	ids[0] = doc._id.toHexString();
 	console.log("Saved: ", doc);
-	return doc._id && doc.title === "Hello" && doc.content === "Post content" && doc.votes === 3 && doc.status === true && doc.createdAt === date;
+	return doc._id && doc.title === "Hello" && doc.content === "Post content" && doc.votes === 3 && doc.status === true && doc.createdAt.toISOString() === date.toISOString();
 });
 
 // Find
