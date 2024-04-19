@@ -51,6 +51,6 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "fakerator": "^0.3.6",
-    "mongodb": "^6.3.0"
+    "mongodb": "^6.5.0"
   }
 }
