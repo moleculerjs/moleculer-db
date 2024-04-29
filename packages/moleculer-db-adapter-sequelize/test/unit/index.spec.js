@@ -236,6 +236,23 @@ describe("Test SequelizeAdapter", () => {
 				expect(adapter.model.findAll).toHaveBeenCalledWith({
 					where: {
 						[Op.or]: [
+							{ "title": { [Op.like]: "%WaLtEr%" } },
+							{ "content": { [Op.like]: "%WaLtEr%" } }
+						]
+					}
+				});
+			});
+
+			it("call with full-text search (insensitive case) without query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					iSearch: "WaLtEr",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.or]: [
 							Sequelize.where(
 								Sequelize.fn("lower", Sequelize.col("title")),
 								Op.like,
@@ -246,6 +263,24 @@ describe("Test SequelizeAdapter", () => {
 								Op.like,
 								"%walter%"
 							)
+						]
+					}
+				});
+			});
+
+			it("call with full-text search and full-text insensitive case search without query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					search: "WaLtEr",
+					iSearch: "WaLtEr",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.or]: [
+							{ "title": { [Op.like]: "%WaLtEr%" } },
+							{ "content": { [Op.like]: "%WaLtEr%" } }
 						]
 					}
 				});
@@ -264,6 +299,27 @@ describe("Test SequelizeAdapter", () => {
 						[Op.and]: [
 							{ status: 1 },
 							{ [Op.or]: [
+								{ "title": { [Op.like]: "%wAlTeR%" } },
+								{ "content": { [Op.like]: "%wAlTeR%" } }
+							] }
+						]
+					}
+				});
+			});
+
+			it("call with full-text search (insensitive case) with query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: { status: 1 },
+					iSearch: "wAlTeR",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ status: 1 },
+							{ [Op.or]: [
 								Sequelize.where(
 									Sequelize.fn("lower", Sequelize.col("title")),
 									Op.like,
@@ -274,6 +330,28 @@ describe("Test SequelizeAdapter", () => {
 									Op.like,
 									"%walter%"
 								)
+							] }
+						]
+					}
+				});
+			});
+
+			it("call with full-text search and full-text insensitive case search with query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: { status: 1 },
+					search: "wAlTeR",
+					iSearch: "wAlTeR",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ status: 1 },
+							{ [Op.or]: [
+								{ "title": { [Op.like]: "%wAlTeR%" } },
+								{ "content": { [Op.like]: "%wAlTeR%" } }
 							] }
 						]
 					}
@@ -301,6 +379,35 @@ describe("Test SequelizeAdapter", () => {
 								{ deleted: 0 },
 							] },
 							{ [Op.or]: [
+								{ "title": { [Op.like]: "%WALTER%" } },
+								{ "content": { [Op.like]: "%WALTER%" } }
+							] }
+						]
+					}
+				});
+			});
+
+			it("call with full-text search (insensitive case) & advanced query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: {
+						[Op.or]: [
+							{ status: 1 },
+							{ deleted: 0 }
+						]
+					},
+					iSearch: "WALTER",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ [Op.or]: [
+								{ status: 1 },
+								{ deleted: 0 },
+							] },
+							{ [Op.or]: [
 								Sequelize.where(
 									Sequelize.fn("lower", Sequelize.col("title")),
 									Op.like,
@@ -317,6 +424,35 @@ describe("Test SequelizeAdapter", () => {
 				});
 			});
 
+			it("call with full-text search and full-text insensitive case search & advanced query", () => {
+				adapter.model.findAll.mockClear();
+				adapter.createCursor({
+					query: {
+						[Op.or]: [
+							{ status: 1 },
+							{ deleted: 0 }
+						]
+					},
+					search: "WALTER",
+					iSearch: "WALTER",
+					searchFields: ["title", "content"]
+				});
+				expect(adapter.model.findAll).toHaveBeenCalledTimes(1);
+				expect(adapter.model.findAll).toHaveBeenCalledWith({
+					where: {
+						[Op.and]: [
+							{ [Op.or]: [
+								{ status: 1 },
+								{ deleted: 0 },
+							] },
+							{ [Op.or]: [
+								{ "title": { [Op.like]: "%WALTER%" } },
+								{ "content": { [Op.like]: "%WALTER%" } }
+							] }
+						]
+					}
+				});
+			});
 		});
 
 

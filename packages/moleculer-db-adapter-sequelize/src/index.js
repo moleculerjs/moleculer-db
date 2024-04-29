@@ -313,6 +313,8 @@ class SequelizeDbAdapter {
 			where: {}
 		};
 
+		const searchConditions = [];
+
 		// Text search
 		if (_.isString(params.search) && params.search !== "") {
 			let fields = [];
@@ -320,15 +322,38 @@ class SequelizeDbAdapter {
 				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
 			}
 
-			const lowerCaseSearch = "%" + (params.search).toLowerCase() + "%";  
-			const searchConditions = fields.map(f => {
-				return Sequelize.where(
+			for (const f of fields) {
+				searchConditions.push({
+					[f]: {
+						[Op.like]: "%" + params.search + "%"
+					}
+				});
+			}
+		}
+		// Case insensitive search
+		else if (_.isString(params.iSearch) && params.iSearch !== "") {
+			let fields = [];
+			if (params.searchFields) {
+				fields = _.isString(params.searchFields) ? params.searchFields.split(" ") : params.searchFields;
+			}
+			const lowerCaseSearch = "%" + (params.iSearch).toLowerCase() + "%";  
+
+			for (const f of fields) {
+				searchConditions.push(Sequelize.where(
 					Sequelize.fn("lower", Sequelize.col(f)),
 					Op.like,
 					lowerCaseSearch
-				);
-			});
-
+				));
+			}
+		}
+		
+		// Assign only query params
+		if (searchConditions.length == 0) {
+			if (params.query) {
+				Object.assign(q.where, params.query);
+			}
+		// Assign query and search params
+		} else {
 			if (params.query) {
 				q.where[Op.and] = [
 					params.query,
@@ -337,8 +362,6 @@ class SequelizeDbAdapter {
 			} else {
 				q.where[Op.or] = searchConditions;
 			}
-		} else if (params.query) {
-			Object.assign(q.where, params.query);
 		}
 
 		// Sort
