@@ -289,7 +289,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	removeById(_id) {
-		return this.model.findByIdAndRemove(_id);
+		return this.model.findByIdAndDelete(_id);
 	}
 
 	/**
