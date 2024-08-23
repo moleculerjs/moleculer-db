@@ -49,7 +49,6 @@
     "node": ">= 8.x.x"
   },
   "dependencies": {
-    "bluebird": "^3.7.2",
     "fakerator": "^0.3.6",
     "mongodb": "^3.6.10"
   }
