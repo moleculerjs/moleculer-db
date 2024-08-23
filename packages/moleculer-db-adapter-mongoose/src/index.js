@@ -7,10 +7,8 @@
 "use strict";
 
 const _ 		= require("lodash");
-const Promise	= require("bluebird");
 const { ServiceSchemaError, MoleculerError } = require("moleculer").Errors;
 const mongoose  = require("mongoose");
-
 
 mongoose.set("strictQuery", true);
 
