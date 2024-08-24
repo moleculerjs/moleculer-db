@@ -1,13 +1,14 @@
 "use strict";
 
-let { ServiceBroker } = require("moleculer");
-let StoreService = require("../../../moleculer-db/index");
-let MongoAdapter = require("../../index");
-let ModuleChecker = require("../../../moleculer-db/test/checker");
-let Promise = require("bluebird");
+const { ServiceBroker } = require("moleculer");
+const StoreService = require("../../../moleculer-db/index");
+const MongoAdapter = require("../../index");
+const ModuleChecker = require("../../../moleculer-db/test/checker");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -45,7 +46,7 @@ const checker = new ModuleChecker(11);
 // Start checks
 function start() {
 	Promise.resolve()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())

@@ -1,13 +1,14 @@
 "use strict";
 
-let { ServiceBroker } = require("moleculer");
-let StoreService = require("../../../moleculer-db/index");
-let ModuleChecker = require("../../../moleculer-db/test/checker");
-let MongoAdapter = require("../../index");
-let Promise = require("bluebird");
+const { ServiceBroker } = require("moleculer");
+const StoreService = require("../../../moleculer-db/index");
+const ModuleChecker = require("../../../moleculer-db/test/checker");
+const MongoAdapter = require("../../index");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -33,7 +34,7 @@ const checker = new ModuleChecker(24);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
@@ -42,8 +43,8 @@ function start() {
 
 // --- TEST CASES ---
 
-let ids =[];
-let date = new Date();
+const ids =[];
+const date = new Date();
 
 // Count of posts
 checker.add("COUNT", () => adapter.count(), res => {

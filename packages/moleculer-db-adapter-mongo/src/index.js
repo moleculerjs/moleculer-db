@@ -7,7 +7,6 @@
 "use strict";
 
 const _ 			= require("lodash");
-const Promise		= require("bluebird");
 const { ServiceSchemaError } = require("moleculer").Errors;
 const mongodb 		= require("mongodb");
 const MongoClient 	= mongodb.MongoClient;
@@ -255,7 +254,7 @@ class MongoDbAdapter {
 	 * @memberof MongoDbAdapter
 	 */
 	entityToObject(entity) {
-		let json = Object.assign({}, entity);
+		const json = Object.assign({}, entity);
 		if (entity._id)
 			json._id = this.objectIDToString(entity._id);
 		return json;
@@ -303,7 +302,7 @@ class MongoDbAdapter {
 
 				// Sort
 				if (params.sort && q.sort) {
-					let sort = this.transformSort(params.sort);
+					const sort = this.transformSort(params.sort);
 					if (sort)
 						q.sort(sort);
 				}
@@ -337,7 +336,7 @@ class MongoDbAdapter {
 			sort = sort.replace(/,/, " ").split(" ");
 
 		if (Array.isArray(sort)) {
-			let sortObj = {};
+			const sortObj = {};
 			sort.forEach(s => {
 				if (s.startsWith("-"))
 					sortObj[s.slice(1)] = -1;
@@ -387,7 +386,7 @@ class MongoDbAdapter {
 	* @returns {Object} Modified entity
 	*/
 	beforeSaveTransformID (entity, idField) {
-		let newEntity = _.cloneDeep(entity);
+		const newEntity = _.cloneDeep(entity);
 
 		if (idField !== "_id" && entity[idField] !== undefined) {
 			newEntity._id = this.stringToObjectID(newEntity[idField]);
