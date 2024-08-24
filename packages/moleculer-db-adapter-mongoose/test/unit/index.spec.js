@@ -50,7 +50,7 @@ if (process.versions.node.split(".")[0] < 14) {
 			updateMany: jest.fn(() => Promise.resolve({ modifiedCount: 2 })),
 			findByIdAndUpdate: jest.fn(() => Promise.resolve(doc)),
 			deleteMany: jest.fn(() => Promise.resolve({ deletedCount: 2 })),
-			findByIdAndRemove: jest.fn(() => Promise.resolve()),
+			findByIdAndDelete: jest.fn(() => Promise.resolve()),
 		}
 	);
 
@@ -643,10 +643,10 @@ if (process.versions.node.split(".")[0] < 14) {
 				.catch(protectReject)
 				.then(() => {
 					expect(
-						adapter.model.findByIdAndRemove
+						adapter.model.findByIdAndDelete
 					).toHaveBeenCalledTimes(1);
 					expect(
-						adapter.model.findByIdAndRemove
+						adapter.model.findByIdAndDelete
 					).toHaveBeenCalledWith(5);
 				});
 		});
