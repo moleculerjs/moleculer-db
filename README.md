@@ -1,11 +1,11 @@
 ![Moleculer logo](https://moleculer.services/images/banner.png)
 
+![CI test](https://github.com/moleculerjs/moleculer-db/workflows/CI%20test/badge.svg)
 [![Build Status](https://travis-ci.org/moleculerjs/moleculer-db.svg?branch=master)](https://travis-ci.org/moleculerjs/moleculer-db)
 [![Coverage Status](https://coveralls.io/repos/github/moleculerjs/moleculer-db/badge.svg?branch=master)](https://coveralls.io/github/moleculerjs/moleculer-db?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ea41176f5d764839969633e854b9905a)](https://www.codacy.com/app/mereg-norbert/moleculer-db?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=moleculerjs/moleculer-db&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0c7fa55afd189410eff3/maintainability)](https://codeclimate.com/github/moleculerjs/moleculer-db/maintainability)
 [![Known Vulnerabilities](https://snyk.io/test/github/moleculerjs/moleculer-db/badge.svg)](https://snyk.io/test/github/moleculerjs/moleculer-db)
-[![Join the chat at https://gitter.im/moleculerjs/moleculer](https://badges.gitter.im/moleculerjs/moleculer.svg)](https://gitter.im/moleculerjs/moleculer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Discord chat](https://img.shields.io/discord/585148559155003392)](https://discord.gg/TSEcDRP)
 
 # Official DB addons for Moleculer framework
 
