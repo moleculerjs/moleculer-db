@@ -309,11 +309,11 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	getNativeVirtualPopulateQuery(ctx) {
-		const fieldsToPopulate = ctx.params ? ctx.params.populate : [];
+		const fieldsToPopulate = (ctx.params && ctx.params.populate) ? ctx.params.populate : [];
 
 		if (fieldsToPopulate.length === 0) return [];
 
-		const virtualFields = Object.entries((this.model && this.model.schema) ? this.model.schema.virtuals : {})
+		const virtualFields = Object.entries((this.model && this.model.schema && this.model.schema.virtuals) ? this.model.schema.virtuals : {})
 			.reduce((acc, [path, virtual]) => {
 				const hasRef = !!(virtual.options ? (virtual.options.ref || virtual.options.refPath) : undefined);
 				const hasMatch = !!(virtual.options ? virtual.options.match : undefined);
@@ -351,7 +351,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	mapVirtualsToLocalFields(ctx, json) {
-		Object.entries((this.model && this.model.schema) ? this.model.schema.virtuals : {})
+		Object.entries((this.model && this.model.schema && this.model.schema.virtuals) ? this.model.schema.virtuals : {})
 			.forEach(([path, virtual]) => {
 				const localField = virtual.options ? virtual.options.localField : undefined;
 				if (localField) json[path] = json[localField];
