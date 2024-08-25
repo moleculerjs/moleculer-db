@@ -37,7 +37,7 @@ class MongooseDbAdapter {
 	init(broker, service) {
 		this.broker = broker;
 		this.service = service;
-		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals
+		this.useNativeMongooseVirtuals = !!(service.settings ? service.settings.useNativeMongooseVirtuals : undefined);
 
 		if (this.service.schema.model) {
 			this.model = this.service.schema.model;
@@ -309,14 +309,14 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	getNativeVirtualPopulateQuery(ctx) {
-		const fieldsToPopulate = ctx.params?.populate || [];
+		const fieldsToPopulate = ctx.params ? ctx.params.populate : [];
 
 		if (fieldsToPopulate.length === 0) return [];
 
-		const virtualFields = Object.entries( this.model?.schema?.virtuals || {})
+		const virtualFields = Object.entries((this.model && this.model.schema) ? this.model.schema.virtuals : {})
 			.reduce((acc, [path, virtual]) => {
-				const hasRef = !!(virtual.options?.ref || virtual.options?.refPath);
-				const hasMatch = !! virtual.options?.match;
+				const hasRef = !!(virtual.options ? (virtual.options.ref || virtual.options.refPath) : undefined);
+				const hasMatch = !!(virtual.options ? virtual.options.match : undefined);
 				if (hasRef) acc[path] = hasMatch;
 				return acc;
 			}, {});
@@ -351,9 +351,9 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	mapVirtualsToLocalFields(ctx, json) {
-		Object.entries(this.model?.schema?.virtuals || {})
+		Object.entries((this.model && this.model.schema) ? this.model.schema.virtuals : {})
 			.forEach(([path, virtual]) => {
-				const localField = virtual.options?.localField;
+				const localField = virtual.options ? virtual.options.localField : undefined;
 				if (localField) json[path] = json[localField];
 			});
 	}
