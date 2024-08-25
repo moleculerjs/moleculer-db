@@ -37,7 +37,7 @@ class MongooseDbAdapter {
 	init(broker, service) {
 		this.broker = broker;
 		this.service = service;
-		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals
+		this.useNativeMongooseVirtuals = !!service.settings?.useNativeMongooseVirtuals;
 
 		if (this.service.schema.model) {
 			this.model = this.service.schema.model;
