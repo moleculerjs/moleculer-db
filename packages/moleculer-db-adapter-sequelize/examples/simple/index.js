@@ -7,6 +7,8 @@ const SequelizeAdapter = require("../../index");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 process.on("warning", e => console.warn(e.stack));
 
 // Create broker
@@ -46,7 +48,7 @@ const checker = new ModuleChecker(22);
 // Start checks
 function start() {
 	broker.start()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())

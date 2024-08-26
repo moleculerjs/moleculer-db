@@ -6,6 +6,8 @@ const SequelizeAdapter = require("../../index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
 const Sequelize = require("sequelize");
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Create broker
 const broker = new ServiceBroker({
 	logger: console,
@@ -93,7 +95,7 @@ const checker = new ModuleChecker(12);
 // Start checks
 function start() {
 	broker.start()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())

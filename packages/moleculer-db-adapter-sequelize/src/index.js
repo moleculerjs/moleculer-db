@@ -8,7 +8,6 @@
 
 const _ 		= require("lodash");
 const { ServiceSchemaError } = require("moleculer").Errors;
-const Promise	= require("bluebird");
 const Sequelize = require("sequelize");
 
 const { Model, Op } = Sequelize;
@@ -59,7 +58,7 @@ class SequelizeDbAdapter {
 			this.db = new Sequelize(...this.opts);
 
 		return this.db.authenticate().then(() => {
-			let modelDefinitionOrInstance = this.service.schema.model;
+			const modelDefinitionOrInstance = this.service.schema.model;
 
 			let noSync = false;
 			if (this.opts[0] && Object.prototype.hasOwnProperty.call(this.opts[0],"noSync")) {
@@ -73,7 +72,7 @@ class SequelizeDbAdapter {
 			}
 
 			let modelReadyPromise;
-			let isModelInstance = modelDefinitionOrInstance
+			const isModelInstance = modelDefinitionOrInstance
 				&& (Object.prototype.hasOwnProperty.call(modelDefinitionOrInstance, "attributes")
 					|| modelDefinitionOrInstance.prototype instanceof Model);
 			if (isModelInstance) {
@@ -366,7 +365,7 @@ class SequelizeDbAdapter {
 
 		// Sort
 		if (params.sort) {
-			let sort = this.transformSort(params.sort);
+			const sort = this.transformSort(params.sort);
 			if (sort)
 				q.order = sort;
 		}
@@ -398,7 +397,7 @@ class SequelizeDbAdapter {
 			sort = sort.replace(/,/, " ").split(" ");
 
 		if (Array.isArray(sort)) {
-			let sortObj = [];
+			const sortObj = [];
 			sort.forEach(s => {
 				if (s.startsWith("-"))
 					sortObj.push([s.slice(1), "DESC"]);
