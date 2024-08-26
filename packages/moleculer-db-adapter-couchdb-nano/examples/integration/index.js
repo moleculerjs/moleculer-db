@@ -4,7 +4,8 @@ const {ServiceBroker} = require("moleculer");
 const StoreService = require("../../../moleculer-db/index");
 const CouchAdapter = require("../../index");
 const ModuleChecker = require("../../../moleculer-db/test/checker");
-const Promise = require("bluebird");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
 const broker = new ServiceBroker({
@@ -36,7 +37,7 @@ const checker = new ModuleChecker(11);
 // Start checks
 function start() {
 	Promise.resolve()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
