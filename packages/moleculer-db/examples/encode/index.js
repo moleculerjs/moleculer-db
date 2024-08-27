@@ -1,13 +1,14 @@
 "use strict";
 
-let { ServiceBroker } = require("moleculer");
-let DbService = require("../../index");
-let _ = require("lodash");
-let ModuleChecker = require("../../test/checker");
-let Promise = require("bluebird");
+const { ServiceBroker } = require("moleculer");
+const DbService = require("../../index");
+const _ = require("lodash");
+const ModuleChecker = require("../../test/checker");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -39,7 +40,7 @@ broker.createService(DbService, {
 		return this.adapter.count().delay(500).then(count => {
 			if (count == 0) {
 				this.logger.info("Seed products...");
-				let products = _.times(20, i => {
+				const products = _.times(20, i => {
 					return {
 						name: "Product " + i
 					};
@@ -58,7 +59,7 @@ const checker = new ModuleChecker(6);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.then(() => delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())

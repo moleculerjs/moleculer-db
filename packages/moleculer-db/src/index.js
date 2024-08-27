@@ -7,12 +7,12 @@
 "use strict";
 
 const _ = require("lodash");
-const Promise = require("bluebird");
 const { flatten } = require("flat");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
 const pkg = require("../package.json");
+const util = require("util");
 const { copyFieldValueByPath } = require("./utils");
 const stringToPath = require("lodash/_stringToPath");
 
@@ -129,7 +129,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
+				const params = this.sanitizeParams(ctx, ctx.params);
 				return this._find(ctx, params);
 			}
 		},
@@ -162,7 +162,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
+				const params = this.sanitizeParams(ctx, ctx.params);
 				return this._count(ctx, params);
 			}
 		},
@@ -217,7 +217,7 @@ module.exports = {
 				],
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
+				const params = this.sanitizeParams(ctx, ctx.params);
 				return this._list(ctx, params);
 			}
 		},
@@ -300,9 +300,8 @@ module.exports = {
 				mapping: { type: "boolean", optional: true }
 			},
 			handler(ctx) {
-				let params = this.sanitizeParams(ctx, ctx.params);
+				const params = this.sanitizeParams(ctx, ctx.params);
 				return this._get(ctx, params);
-
 			}
 		},
 
@@ -388,7 +387,7 @@ module.exports = {
 		 * @returns {Object}
 		 */
 		sanitizeParams(ctx, params) {
-			let p = Object.assign({}, params);
+			const p = Object.assign({}, params);
 
 			// Convert from string to number
 			if (typeof(p.limit) === "string")
@@ -647,7 +646,7 @@ module.exports = {
 						}
 
 						if (askedField.indexOf(".") !== -1) {
-							let parts = askedField.split(".");
+							const parts = askedField.split(".");
 							while (parts.length > 1) {
 								parts.pop();
 								if (this.settings.fields.indexOf(parts.join(".")) !== -1) {
@@ -657,7 +656,7 @@ module.exports = {
 							}
 						}
 
-						let nestedFields = this.settings.fields.filter(settingField => settingField.startsWith(askedField + "."));
+						const nestedFields = this.settings.fields.filter(settingField => settingField.startsWith(askedField + "."));
 						if (nestedFields.length > 0) {
 							allowedFields = allowedFields.concat(nestedFields);
 						}
@@ -703,7 +702,7 @@ module.exports = {
 				return obj;
 			}, {});
 
-			let promises = [];
+			const promises = [];
 			for (const populatesField of settingPopulateFields) {
 				let rule = this.settings.populates[populatesField];
 				if (groupedPopulateFields[populatesField] == null)
@@ -711,8 +710,15 @@ module.exports = {
 
 				// if the rule is a function, save as a custom handler
 				if (_.isFunction(rule)) {
+					const _r = rule;
 					rule = {
-						handler: Promise.method(rule)
+						handler: function(...args) {
+							try {
+								return Promise.resolve(_r.apply(this, args));
+							} catch (err) {
+								return Promise.reject(err);
+							}
+						}
 					};
 				}
 
@@ -725,16 +731,16 @@ module.exports = {
 
 				if (rule.field === undefined) rule.field = populatesField;
 
-				let arr = Array.isArray(docs) ? docs : [docs];
+				const arr = Array.isArray(docs) ? docs : [docs];
 
 				// Collect IDs from field of docs (flatten, compact & unique list)
-				let idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => _.get(doc, rule.field)))));
+				const idList = _.uniq(_.flattenDeep(_.compact(arr.map(doc => _.get(doc, rule.field)))));
 				// Replace the received models according to IDs in the original docs
 				const resultTransform = (populatedDocs) => {
 					arr.forEach(doc => {
-						let id = _.get(doc, rule.field);
+						const id = _.get(doc, rule.field);
 						if (_.isArray(id)) {
-							let models = _.compact(id.map(id => populatedDocs[id]));
+							const models = _.compact(id.map(id => populatedDocs[id]));
 							_.set(doc, populatesField, models);
 						} else {
 							_.set(doc, populatesField, populatedDocs[id]);
@@ -777,7 +783,7 @@ module.exports = {
 			if (!_.isFunction(this.settings.entityValidator))
 				return Promise.resolve(entity);
 
-			let entities = Array.isArray(entity) ? entity : [entity];
+			const entities = Array.isArray(entity) ? entity : [entity];
 			return Promise.all(entities.map(entity => this.settings.entityValidator.call(this, entity))).then(() => entity);
 		},
 
@@ -848,7 +854,7 @@ module.exports = {
 		 * @returns {Object} List of found entities and count.
 		 */
 		_list(ctx, params) {
-			let countParams = Object.assign({}, params);
+			const countParams = Object.assign({}, params);
 			// Remove pagination params
 			if (countParams && countParams.limit)
 				countParams.limit = null;
@@ -895,8 +901,7 @@ module.exports = {
 		 * @returns {Object} Saved entity.
 		 */
 		_create(ctx, params) {
-			let entity = params;
-			return this.beforeEntityChange("create", entity, ctx)
+			return this.beforeEntityChange("create", params, ctx)
 				.then((entity)=>this.validateEntity(entity))
 				// Apply idField
 				.then(entity =>
@@ -963,9 +968,9 @@ module.exports = {
 		 * @throws {EntityNotFoundError} - 404 Entity not found
 		 */
 		_get(ctx, params) {
-			let id = params.id;
+			const id = params.id;
 			let origDoc;
-			let shouldMapping = params.mapping === true;
+			const shouldMapping = params.mapping === true;
 			return this.getById(id, true)
 				.then(doc => {
 					if (!doc)
@@ -981,7 +986,7 @@ module.exports = {
 				.then(json => {
 					if (params.mapping !== true) return json;
 
-					let res = {};
+					const res = {};
 					if (_.isArray(json)) {
 						json.forEach((doc, i) => {
 							const id = this.encodeID(this.adapter.afterRetrieveTransformID(origDoc[i], this.settings.idField)[this.settings.idField]);
@@ -1101,7 +1106,7 @@ module.exports = {
 	started() {
 		if (this.adapter) {
 			return new Promise(resolve => {
-				let connecting = () => {
+				const connecting = () => {
 					this.connect().then(resolve).catch(err => {
 						this.logger.error("Connection error!", err);
 						setTimeout(() => {

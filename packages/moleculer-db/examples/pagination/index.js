@@ -1,14 +1,15 @@
 "use strict";
 
-let _ = require("lodash");
-let kleur = require("kleur");
-let { ServiceBroker } = require("moleculer");
-let DbService = require("../../index");
-let ModuleChecker = require("../../test/checker");
-let Promise = require("bluebird");
+const _ = require("lodash");
+const kleur = require("kleur");
+const { ServiceBroker } = require("moleculer");
+const DbService = require("../../index");
+const ModuleChecker = require("../../test/checker");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -42,7 +43,7 @@ const checker = new ModuleChecker(14);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.then(()=> delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
@@ -50,8 +51,6 @@ function start() {
 }
 
 // --- TEST CASES ---
-
-let id;
 
 // Count of posts
 checker.add("COUNT", () => broker.call("posts.count"), res => {
@@ -68,7 +67,7 @@ checker.add("FIND", () => broker.call("posts.find", { sort: "title" }), res => {
 // List posts
 checker.add("LIST FIRST 10", () => broker.call("posts.list", { sort: "title" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 28 && res.page === 1 && res.pageSize === 10 && res.totalPages === 3,
 		rows.length === 10 && rows[0].title == "Post #01" && rows[9].title === "Post #10"
@@ -78,7 +77,7 @@ checker.add("LIST FIRST 10", () => broker.call("posts.list", { sort: "title" }),
 // List posts
 checker.add("LIST LAST 10", () => broker.call("posts.list", { sort: "-title" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 28 && res.page === 1 && res.pageSize === 10 && res.totalPages === 3,
 		rows.length === 10 && rows[0].title == "Post #28" && rows[9].title === "Post #19"
@@ -88,7 +87,7 @@ checker.add("LIST LAST 10", () => broker.call("posts.list", { sort: "-title" }),
 // List posts
 checker.add("LIST FIRST 25", () => broker.call("posts.list", { page: 1, pageSize: 25, sort: "title" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 28 && res.page === 1 && res.pageSize === 25 && res.totalPages === 2,
 		rows.length === 25 && rows[0].title == "Post #01" && rows[24].title === "Post #25"
@@ -98,7 +97,7 @@ checker.add("LIST FIRST 25", () => broker.call("posts.list", { page: 1, pageSize
 // List posts
 checker.add("LIST NEXT 25", () => broker.call("posts.list", { page: 2, pageSize: 25, sort: "title" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 28 && res.page === 2 && res.pageSize === 25 && res.totalPages === 2,
 		rows.length === 3 && rows[0].title == "Post #26" && rows[2].title === "Post #28"
@@ -108,7 +107,7 @@ checker.add("LIST NEXT 25", () => broker.call("posts.list", { page: 2, pageSize:
 // List posts
 checker.add("LIST NEXT2 25", () => broker.call("posts.list", { page: 3, pageSize: 25, sort: "title" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 28 && res.page === 3 && res.pageSize === 25 && res.totalPages === 2,
 		rows.length === 0
@@ -118,7 +117,7 @@ checker.add("LIST NEXT2 25", () => broker.call("posts.list", { page: 3, pageSize
 // List posts with search
 checker.add("LIST SEARCH 5", () => broker.call("posts.list", { page: 1, pageSize: 5, search: "#2" }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 9 && res.page === 1 && res.pageSize === 5 && res.totalPages === 2,
 		rows.length === 5

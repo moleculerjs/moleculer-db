@@ -7,8 +7,9 @@
 "use strict";
 
 const _ 		= require("lodash");
-const Promise	= require("bluebird");
 const Datastore = require("@seald-io/nedb");
+const util = require("util");
+const {method} = require("lodash");
 
 /**
  * NeDB adapter for `moleculer-db`
@@ -52,10 +53,18 @@ class MemoryDbAdapter {
 			this.db = new Datastore(this.opts); // in-memory
 
 		["loadDatabase", "insert", "findOne", "count", "remove", "ensureIndex", "removeIndex"].forEach(method => {
-			this.db[method] = Promise.promisify(this.db[method]);
+			this.db[method] = util.promisify(this.db[method]);
 		});
-		["update"].forEach(method => {
-			this.db[method] = Promise.promisify(this.db[method], { multiArgs: true });
+
+		const _update = this.db["update"];
+
+		this.db["update"] = util.promisify(function(...args) {
+			return new Promise(() => {
+				const cb = args.pop();
+				return _update.call(this, ...args, (err, ...results) => {
+					return cb(err, results);
+				});
+			});
 		});
 
 		return this.db.loadDatabase();
@@ -334,7 +343,7 @@ class MemoryDbAdapter {
 	* @returns {Object} Modified entity
 	*/
 	beforeSaveTransformID (entity, idField) {
-		let newEntity = _.cloneDeep(entity);
+		const newEntity = _.cloneDeep(entity);
 
 		if (idField !== "_id" && entity[idField] !== undefined) {
 			newEntity._id = newEntity[idField];

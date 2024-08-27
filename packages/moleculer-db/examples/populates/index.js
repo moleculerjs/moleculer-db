@@ -1,13 +1,14 @@
 "use strict";
 
-let { ServiceBroker } = require("moleculer");
-let DbService = require("../../index");
-let path = require("path");
-let ModuleChecker = require("../../test/checker");
-let Promise = require("bluebird");
+const { ServiceBroker } = require("moleculer");
+const DbService = require("../../index");
+const path = require("node:path");
+const ModuleChecker = require("../../test/checker");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
-let broker = new ServiceBroker({
+const broker = new ServiceBroker({
 	logger: console,
 	logLevel: "debug"
 });
@@ -108,7 +109,7 @@ const checker = new ModuleChecker(13);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.then(()=> delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
@@ -148,7 +149,7 @@ checker.add("GET POST (page: 2, pageSize: 5, sort: -votes)", () => broker.call("
 
 checker.add("LIST POSTS (page: 2, pageSize: 5, sort: -votes)", () => broker.call("posts.list", { page: 2, pageSize: 2, sort: "-votes", populate: ["author"], fields: ["_id", "title", "votes", "author"] }), res => {
 	console.log(res);
-	let rows = res.rows;
+	const rows = res.rows;
 	return [
 		res.total === 5 && res.page === 2 && res.pageSize === 2 && res.totalPages === 3,
 		rows.length == 2,
