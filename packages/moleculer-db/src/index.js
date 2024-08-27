@@ -532,7 +532,7 @@ module.exports = {
 			return Promise.resolve(docs)
 
 				// Convert entity to JS object
-				.then(docs => Promise.all(docs.map(doc => this.adapter.entityToObject(doc, ctx))))
+				.then(docs => Promise.all(docs.map(doc => this.adapter.entityToObject(doc, ctx, params))))
 
 				// Apply idField
 				.then(docs => docs.map(doc => this.adapter.afterRetrieveTransformID(doc, this.settings.idField)))
