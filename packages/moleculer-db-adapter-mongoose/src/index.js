@@ -62,57 +62,45 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	connect() {
-		let conn;
+	async connect() {
+		try {
+			if (this.model) {
+				/* istanbul ignore next */
+				if (mongoose.connection.readyState !== 1) {
+					await mongoose.connect(this.uri, this.opts);
+				}
 
-		if (this.model) {
-			/* istanbul ignore next */
-			if (mongoose.connection.readyState == 1) {
-				this.db = mongoose.connection;
-				return Promise.resolve();
-			} else if (mongoose.connection.readyState == 2) {
-				conn = mongoose.connection.asPromise();
-			} else {
-				conn = mongoose.connect(this.uri, this.opts);
+				await mongoose.connection.asPromise();
+
+				this.conn = mongoose.connection;
+				this.model = mongoose.model(this.model["modelName"], this.model["schema"]);
+			} else if (this.schema) {
+				await mongoose.createConnection(this.uri, this.opts);
+				await mongoose.connection.asPromise();
+
+				this.conn = mongoose.connection;
+				this.model = this.conn.model(this.modelName, this.schema);
 			}
-		} else if (this.schema) {
-			conn = new Promise(resolve =>{
-				const 	c = mongoose.createConnection(this.uri, this.opts);
-				this.model = c.model(this.modelName, this.schema);
-				resolve(c);
-			});
+		} catch (e) {
+			throw new MoleculerError(
+				`MongoDB connection failed . Status is "${
+					mongoose.connection.states[mongoose.connection.readyState]
+				}"`
+			);
 		}
 
-		return conn.then(() => {
-			this.conn = mongoose.connection;
+		this.db = this.conn.db;
 
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
-				throw new MoleculerError(
-					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
-					}"`
-				);
-			}
+		if (!this.db) {
+			throw new MoleculerError("MongoDB connection failed to get DB object");
+		}
 
-			if(this.model) {
-				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
-			}
+		this.service.logger.info("MongoDB adapter has connected successfully.");
 
-			this.db = mongoose.connection.db;
-
-			if (!this.db) {
-				throw new MoleculerError("MongoDB connection failed to get DB object");
-			}
-
-			this.service.logger.info("MongoDB adapter has connected successfully.");
-
-
-			/* istanbul ignore next */
-			mongoose.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			mongoose.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			mongoose.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
-
-		});
+		/* istanbul ignore next */
+		this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+		this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+		this.conn.on("reconnected", () => this.service.logger.info("Mongoose adapter has reconnected."));
 	}
 
 	/**
@@ -122,16 +110,14 @@ class MongooseDbAdapter {
 	 *
 	 * @memberof MongooseDbAdapter
 	 */
-	disconnect() {
-		return new Promise(resolve => {
-			if (this.db && this.db.close) {
-				this.db.close(resolve);
-			} else if (this.conn && this.conn.close) {
-				this.conn.close(resolve);
-			} else {
-				mongoose.connection.close(resolve);
-			}
-		});
+	async disconnect() {
+		if (typeof this.db?.close === "function") {
+			await this.db.close();
+		} else if (typeof this.conn?.close === "function") {
+			await this.conn.close();
+		} else {
+			await mongoose.connection.close();
+		}
 	}
 
 	/**
@@ -194,7 +180,7 @@ class MongooseDbAdapter {
 	}
 
 	/**
-	 * Get count of filtered entites
+	 * Get count of filtered entities
 	 *
 	 * Available filter props:
 	 *  - search
@@ -246,7 +232,7 @@ class MongooseDbAdapter {
 	 * @memberof MongooseDbAdapter
 	 */
 	updateMany(query, update) {
-		return this.model.updateMany(query, update, { multi: true, "new": true }).then(res => {
+		return this.model.updateMany(query, update).then(res => {
 			return res.modifiedCount;
 		});
 	}

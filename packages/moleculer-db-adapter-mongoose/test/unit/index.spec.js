@@ -58,7 +58,7 @@ if (process.versions.node.split(".")[0] < 14) {
 
 	let fakeDb = {
 		on: jest.fn(),
-		close: jest.fn((fn) => fn()),
+		close: jest.fn(() => {}),
 		model: jest.fn(() => fakeModel),
 	};
 
@@ -176,7 +176,7 @@ if (process.versions.node.split(".")[0] < 14) {
 							expect.any(Function)
 						);
 						expect(adapter.db.on).toHaveBeenCalledWith(
-							"reconnect",
+							"reconnected",
 							expect.any(Function)
 						);
 					});
@@ -599,8 +599,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					expect(adapter.model.updateMany).toHaveBeenCalledTimes(1);
 					expect(adapter.model.updateMany).toHaveBeenCalledWith(
 						query,
-						update,
-						{ multi: true, new: true }
+						update
 					);
 				});
 		});
