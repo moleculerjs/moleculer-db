@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/moleculerjs/moleculer-db.git"
+    "url": "git+ssh://git@github.com/moleculerjs/moleculer-db.git"
   },
   "keywords": [],
   "author": "MoleculerJS",
@@ -51,5 +51,12 @@
       "/node_modules/",
       "/test/services/"
     ]
-  }
+  },
+  "workspaces": [
+    "packages/moleculer-db",
+    "packages/moleculer-db-adapter-couchdb-nano",
+    "packages/moleculer-db-adapter-mongo",
+    "packages/moleculer-db-adapter-mongoose",
+    "packages/moleculer-db-adapter-sequelize"
+  ]
 }

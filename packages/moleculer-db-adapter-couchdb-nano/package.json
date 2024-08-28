@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/moleculerjs/moleculer-db.git"
+    "url": "git+ssh://git@github.com/moleculerjs/moleculer-db.git"
   },
   "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db-adapter-couchdb-nano#readme",
   "author": "Mr. Kutin",
@@ -51,5 +51,12 @@
   },
   "dependencies": {
     "nano": "^9.0.5"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "bugs": {
+    "url": "https://github.com/moleculerjs/moleculer-db/issues"
   }
 }
