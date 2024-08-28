@@ -6,11 +6,14 @@
   "types": "index.d.ts",
   "scripts": {
     "dev": "nodemon examples/index.js",
-    "ci": "jest --watch",
-    "test:unit": "jest --testMatch \"**/unit/**/*.spec.js\" --coverage",
-    "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest --testMatch \"**/unit/**/*.spec.js\"",
+    "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u",
+    "deps": "ncu -i --format group --install always --peer",
+    "postdeps": "npm audit fix",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "keywords": [
@@ -39,7 +42,7 @@
     "moleculer": "^0.14.22",
     "mongoose": "^6.12.3",
     "nodemon": "^2.0.19",
-    "npm-check": "^5.9.2"
+    "npm-check-updates": "^17.1.0"
   },
   "jest": {
     "testEnvironment": "node",

@@ -3,19 +3,18 @@
   "description": ":gift: Official database addons for Moleculer framework",
   "version": "1.0.0",
   "scripts": {
-    "setup": "npm install && lerna bootstrap",
-    "setup-no-old-node": "npm install && lerna bootstrap --ignore moleculer-db-adapter-mongoose",
-    "clean": "lerna clean",
     "dev": "nodemon dev.js",
     "demo": "node dev.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "test:unit": "jest --testMatch \"**/unit/**/*.spec.js\" --coverage",
     "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand --coverage",
-    "ci": "jest --watch",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "init": "cd packages && moleculer init addon",
     "bench": "node benchmark/index.js",
-    "deps": "lerna exec --concurrency 1 npm run deps",
-    "audit": "lerna exec --concurrency 1 npm audit fix",
+    "deps": "ncu -i --format group --install always --peer",
+    "postdeps": "npm audit fix",
     "release": "lerna publish",
     "readme": "node readme-generator.js"
   },
@@ -40,6 +39,7 @@
     "markdown-magic": "^2.5.2",
     "moleculer": "^0.14.17",
     "nodemon": "^2.0.13",
+    "npm-check-updates": "^17.1.0",
     "sequelize": "^6.33.0"
   },
   "dependencies": {

@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon examples/index.js",
-    "ci": "jest --watch",
-    "test": "jest --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u",
+    "deps": "ncu -i --format group --install always --peer",
+    "postdeps": "npm audit fix",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
@@ -37,7 +39,7 @@
     "moleculer": "^0.14.22",
     "moleculer-docgen": "^0.3.0",
     "nodemon": "^2.0.19",
-    "npm-check": "^6.0.1"
+    "npm-check-updates": "^17.1.0"
   },
   "jest": {
     "testEnvironment": "node",
