@@ -13,7 +13,7 @@
     "test:integration": "jest --testMatch \"**/integration/**/*.spec.js\" --runInBand",
     "lint": "eslint --ext=.js src test",
     "deps": "ncu -i --format group --install always --peer",
-    "postdeps": "npm audit fix",
+    "postdeps": "npm audit fix --audit-level=none",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "keywords": [

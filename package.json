@@ -14,7 +14,7 @@
     "init": "cd packages && moleculer init addon",
     "bench": "node benchmark/index.js",
     "deps": "ncu -i --format group --install always --peer",
-    "postdeps": "npm audit fix",
+    "postdeps": "npm audit fix --audit-level=none",
     "release": "lerna publish",
     "readme": "node readme-generator.js"
   },
