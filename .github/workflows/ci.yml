@@ -9,8 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # node-version: [10.x, 12.x, 14.x, 15.x]
-        node-version: [10.x, 12.x, 14.x, 16.x]
+        node-version: [16.x, 18.x, 20.x, 22.x]
       fail-fast: false
 
     steps:
@@ -35,12 +34,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install dependencies
-      run: npm run setup-no-old-node
-      if: ${{ matrix.node-version == '10.x' || matrix.node-version == '12.x' }}
-
-    - name: Install dependencies
-      run: npm run setup
-      if: ${{ matrix.node-version != '10.x' && matrix.node-version != '12.x' }}
+      run: npm ci --workspaces
 
     - name: Execute unit tests
       run: npm run test:unit

@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon examples/index.js",
-    "ci": "jest --watch",
-    "test": "jest --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u",
+    "deps": "ncu -i --format group --install always --peer",
+    "postdeps": "npm audit fix --audit-level=none",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
@@ -18,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/moleculerjs/moleculer-db.git"
+    "url": "git+ssh://git@github.com/moleculerjs/moleculer-db.git"
   },
   "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db-adapter-mongo#readme",
   "author": "MoleculerJS",
@@ -36,7 +38,7 @@
     "moleculer": "^0.14.22",
     "moleculer-docgen": "^0.3.0",
     "nodemon": "^2.0.19",
-    "npm-check": "^5.9.2"
+    "npm-check-updates": "^17.1.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -51,5 +53,13 @@
   "dependencies": {
     "fakerator": "^0.3.6",
     "mongodb": "^3.6.10"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "types": "./index.d.ts",
+  "bugs": {
+    "url": "https://github.com/moleculerjs/moleculer-db/issues"
   }
 }

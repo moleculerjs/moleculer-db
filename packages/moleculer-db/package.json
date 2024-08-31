@@ -6,10 +6,12 @@
   "types": "./moleculer-db.d.ts",
   "scripts": {
     "dev": "nodemon examples/index.js",
-    "ci": "jest --watch",
-    "test": "jest --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint": "eslint --ext=.js src test",
-    "deps": "npm-check -u",
+    "deps": "ncu -i --format group --install always --peer",
+    "postdeps": "npm audit fix --audit-level=none",
     "readme": "node node_modules/moleculer-docgen/index.js -t README.md src/index.js",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
@@ -19,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/moleculerjs/moleculer-db.git"
+    "url": "git+ssh://git@github.com/moleculerjs/moleculer-db.git"
   },
   "homepage": "https://github.com/moleculerjs/moleculer-db/tree/master/packages/moleculer-db#readme",
   "author": "MoleculerJS",
@@ -37,7 +39,8 @@
     "lolex": "^6.0.0",
     "moleculer": "^0.14.22",
     "moleculer-docgen": "^0.3.0",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "npm-check-updates": "^17.1.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -54,5 +57,12 @@
     "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.21"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "bugs": {
+    "url": "https://github.com/moleculerjs/moleculer-db/issues"
   }
 }

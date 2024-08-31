@@ -24,8 +24,31 @@
 
 ## Install dependencies
 ```bash
-$ npm run setup
+$ npm ci
 ```
+this command will run a clean installation of all workspaces based on their respective `package-lock.json`.  
+
+## Add dependencies
+```bash
+$ npm i -S <dependency> -w <package>
+```
+to install a dependency for a specific workspace.  
+
+## Upgrade dependencies
+```bash
+$ npm run deps
+```
+This command will display an interactive check that will prompt for new dependency version to install, 
+then automatically run `npm audit fix`.  
+
+Use `npm run deps --workspaces` to run against all packages.  
+Or `npm run deps -w <package>` to run against a specific workspace.  
+
+## Audit dependencies
+```bash
+$ npm audit fix --workspaces
+```
+This command will run an audit against all packages dependencies and try to fix them if possible.
 
 ## Development
 **Run the `simple` example in `moleculer-db` service with watching**
@@ -42,10 +65,11 @@ $ npm run demo moleculer-db full
 ```bash
 $ npm test
 ```
+or run `npm test -w <package>` to run a specific package test.
 
 ## Create a new addon
 ```bash
-$ npm run init moleculer-<modulename>
+$ npm init -w ./packages/moleculer-db-<modulename>
 ```
 
 ## Publish new releases
