@@ -4,7 +4,8 @@ const kleur = require("kleur");
 const { ServiceBroker } = require("moleculer");
 const DbService = require("../../index");
 const ModuleChecker = require("../../test/checker");
-const Promise = require("bluebird");
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Create broker
 const broker = new ServiceBroker({
@@ -53,7 +54,7 @@ const checker = new ModuleChecker(15);
 // Start checks
 function start() {
 	return Promise.resolve()
-		.delay(500)
+		.then(()=> delay(500))
 		.then(() => checker.execute())
 		.catch(console.error)
 		.then(() => broker.stop())
@@ -63,7 +64,7 @@ function start() {
 // --- TEST CASES ---
 
 let id;
-let date = new Date();
+const date = new Date();
 
 // Count of posts
 checker.add("COUNT", () => broker.call("posts.count"), res => {

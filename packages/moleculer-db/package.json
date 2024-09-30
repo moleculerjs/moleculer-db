@@ -51,7 +51,6 @@
   },
   "dependencies": {
     "@seald-io/nedb": "^3.0.0",
-    "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.21"
   }
