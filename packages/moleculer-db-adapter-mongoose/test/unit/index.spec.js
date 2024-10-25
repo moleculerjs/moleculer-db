@@ -253,10 +253,7 @@ if (process.versions.node.split(".")[0] < 14) {
 				mongoose.createConnection = jest.fn(() => {
 					mongoose.connection.readyState =
 						mongoose.connection.states.connected;
-					return {
-						connection: { db: fakeDb, ...fakeDb },
-						model: jest.fn(() => fakeModel),
-					};
+					return mongoose.connection;
 				});
 
 				adapter.opts = {
