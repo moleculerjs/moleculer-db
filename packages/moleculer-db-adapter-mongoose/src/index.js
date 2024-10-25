@@ -64,6 +64,7 @@ class MongooseDbAdapter {
 	 */
 	connect() {
 		let conn;
+		let multipleConns;
 
 		if (this.model) {
 			/* istanbul ignore next */
@@ -77,19 +78,20 @@ class MongooseDbAdapter {
 			}
 		} else if (this.schema) {
 			conn = new Promise(resolve =>{
-				const 	c = mongoose.createConnection(this.uri, this.opts);
+				const c = mongoose.createConnection(this.uri, this.opts);
 				this.model = c.model(this.modelName, this.schema);
+				multipleConns = c;
 				resolve(c);
 			});
 		}
-
+		
 		return conn.then(() => {
-			this.conn = mongoose.connection;
+			this.conn = multipleConns || mongoose.connection;
 
-			if (mongoose.connection.readyState != mongoose.connection.states.connected) {
+			if (this.conn.readyState != this.conn.states.connected) {
 				throw new MoleculerError(
 					`MongoDB connection failed . Status is "${
-						mongoose.connection.states[mongoose.connection._readyState]
+						this.conn.states[this.conn._readyState]
 					}"`
 				);
 			}
@@ -98,7 +100,7 @@ class MongooseDbAdapter {
 				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
 			}
 
-			this.db = mongoose.connection.db;
+			this.db = this.conn.db;
 
 			if (!this.db) {
 				throw new MoleculerError("MongoDB connection failed to get DB object");
@@ -108,9 +110,9 @@ class MongooseDbAdapter {
 
 
 			/* istanbul ignore next */
-			mongoose.connection.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-			mongoose.connection.on("error", err => this.service.logger.error("MongoDB error.", err));
-			mongoose.connection.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
+			this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
+			this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
+			this.conn.on("reconnect", () => this.service.logger.info("Mongoose adapter has reconnected."));
 
 		});
 	}
