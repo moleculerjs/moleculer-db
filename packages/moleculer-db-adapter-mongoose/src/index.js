@@ -94,7 +94,7 @@ class MongooseDbAdapter {
 				);
 			}
 
-			if(this.model) {
+			if(!this.model) {
 				this.model = mongoose.model(this.model["modelName"],this.model["schema"]);
 			}
 
