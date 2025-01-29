@@ -7,7 +7,6 @@
 "use strict";
 
 const _ = require("lodash");
-const Promise = require("bluebird");
 const kleur = require("kleur");
 
 class ModuleChecker {
@@ -30,7 +29,7 @@ class ModuleChecker {
 	}
 
 	execute() {
-		return Promise.each(this.tests, fn => fn());
+		return this.tests.reduce((p, fn) => p.then(fn).catch(fn), Promise.resolve());
 	}
 
 	printTitle(text) {

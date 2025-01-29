@@ -1,6 +1,6 @@
 {
   "name": "moleculer-db",
-  "version": "0.8.26",
+  "version": "0.8.27",
   "description": "Moleculer service to store entities in database",
   "main": "index.js",
   "types": "./moleculer-db.d.ts",
@@ -51,7 +51,6 @@
   },
   "dependencies": {
     "@seald-io/nedb": "^3.0.0",
-    "bluebird": "^3.7.2",
     "flat": "^5.0.2",
     "lodash": "^4.17.21"
   }
