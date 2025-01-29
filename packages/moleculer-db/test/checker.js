@@ -29,10 +29,7 @@ class ModuleChecker {
 	}
 
 	execute() {
-		const promises = [];
-		this.tests.forEach(fn => {promises.push(fn());});
-
-		return Promise.allSettled(promises);
+		return this.tests.reduce((p, fn) => p.then(fn).catch(fn), Promise.resolve());
 	}
 
 	printTitle(text) {
