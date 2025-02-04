@@ -294,8 +294,8 @@ class MongooseDbAdapter {
 	 * @returns {Object[]}
 	 * @memberof MongooseDbAdapter
 	 */
-	getNativeVirtualPopulateQuery(ctx) {
-		const fieldsToPopulate = ctx.params?.populate || [];
+	getNativeVirtualPopulateQuery(ctx, params) {
+		const fieldsToPopulate = params?.populate || [];
 
 		if (fieldsToPopulate.length === 0) return [];
 
@@ -352,8 +352,8 @@ class MongooseDbAdapter {
 	 * @returns {Object}
 	 * @memberof MongooseDbAdapter
 	 */
-	entityToObject(entity, ctx) {
-		const populate = this.useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx) : [];
+	entityToObject(entity, ctx, params) {
+		const populate = this.useNativeMongooseVirtuals ? this.getNativeVirtualPopulateQuery(ctx, params) : [];
 
 		return Promise.resolve(populate.length > 0 ? entity.populate(populate) : entity)
 			.then(entity => {

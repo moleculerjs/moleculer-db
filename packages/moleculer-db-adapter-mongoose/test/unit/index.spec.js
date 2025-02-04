@@ -814,8 +814,9 @@ if (process.versions.node.split(".")[0] < 14) {
 						},
 					});
 					adapter.init(broker, service);
-					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual", "fourthVirtual"]}};
-					const res = adapter.getNativeVirtualPopulateQuery(ctx);
+					const params = { populate: ["firstVirtual", "secondVirtual", "thirdVirtual", "fourthVirtual"]};
+					const ctx = { service, params };
+					const res = adapter.getNativeVirtualPopulateQuery(ctx, params);
 
 					expect(res).toHaveLength(3);
 
@@ -877,8 +878,9 @@ if (process.versions.node.split(".")[0] < 14) {
 						},
 					});
 					adapter.init(broker, service);
-					const ctx = { service, params: { populate: ["firstVirtual", "secondVirtual", "thirdVirtual"]}};
-					const res = adapter.getNativeVirtualPopulateQuery(ctx);
+					const params = { populate: ["firstVirtual", "secondVirtual", "thirdVirtual"]};
+					const ctx = { service, params };
+					const res = adapter.getNativeVirtualPopulateQuery(ctx, params);
 
 					expect(res).toHaveLength(3);
 
