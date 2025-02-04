@@ -1026,7 +1026,7 @@ module.exports = {
 					});
 
 					if (this.settings.useDotNotation)
-						sets = flatten(sets, { safe: true });
+						sets = flatten(sets);
 
 					return sets;
 				})
