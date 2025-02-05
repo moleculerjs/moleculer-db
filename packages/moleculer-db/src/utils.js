@@ -79,11 +79,7 @@ function flatten(obj, prefix = "") {
 		const value = obj[key];
 
 		// Check if value is a plain object (not array, not null, and constructor is Object)
-		const isPlainObject =
-			typeof value === "object" &&
-			value !== null &&
-			!Array.isArray(value) &&
-			value.constructor === Object;
+		const isPlainObject = typeof value === "object" && value && value.constructor === Object;
 
 		// If it's a plain object, flatten it recursively
 		// Otherwise, keep the value as is (handles primitives, null, undefined, arrays, dates, ObjectId, etc.)

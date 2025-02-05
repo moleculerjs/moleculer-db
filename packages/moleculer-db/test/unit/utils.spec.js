@@ -15,6 +15,7 @@ if (process.versions.node.split(".")[0] < 14) {
 				const date = new Date("2024-01-01");
 				const obj = {
 					name: "John",
+					active: true,
 					address: {
 						street: "Main St",
 						location: {
@@ -25,6 +26,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					account: {
 						createdAt: date,
 						identifier: uuid,
+						isSync: false,
 						settings: {
 							theme: null,
 							language: undefined
@@ -35,6 +37,7 @@ if (process.versions.node.split(".")[0] < 14) {
 
 				const expected = {
 					"name": "John",
+					"active": true,
 					"address.street": "Main St",
 					"address.location.city": "Boston",
 					"address.location.country": "USA",
@@ -42,6 +45,7 @@ if (process.versions.node.split(".")[0] < 14) {
 					"account.identifier": uuid,
 					"account.settings.theme": null,
 					"account.settings.language": undefined,
+					"account.isSync": false,
 					"scores": [85, 90, 95],
 				};
 
