@@ -7,13 +7,11 @@
 "use strict";
 
 const _ = require("lodash");
-const { flatten } = require("flat");
 const { MoleculerClientError, ValidationError } = require("moleculer").Errors;
 const { EntityNotFoundError } = require("./errors");
 const MemoryAdapter = require("./memory-adapter");
 const pkg = require("../package.json");
-const util = require("util");
-const { copyFieldValueByPath } = require("./utils");
+const { copyFieldValueByPath, flatten } = require("./utils");
 const stringToPath = require("lodash/_stringToPath");
 
 /**
@@ -1028,7 +1026,7 @@ module.exports = {
 					});
 
 					if (this.settings.useDotNotation)
-						sets = flatten(sets, { safe: true });
+						sets = flatten(sets);
 
 					return sets;
 				})
