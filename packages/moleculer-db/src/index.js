@@ -47,13 +47,13 @@ module.exports = {
 		idField: "_id",
 
 		/** @type {Array<String>?} Field filtering list. It must be an `Array`. If the value is `null` or `undefined` doesn't filter the fields of entities. */
-		fields: null,
+		fields: undefined,
 
 		/** @type {Array<String>?} List of excluded fields. It must be an `Array`. The value is `null` or `undefined` will be ignored. */
-		excludeFields: null,
+		excludeFields: undefined,
 
 		/** @type {Array?} Schema for population. [Read more](#populating). */
-		populates: null,
+		populates: undefined,
 
 		/** @type {Number} Default page size in `list` action. */
 		pageSize: 10,
@@ -65,7 +65,7 @@ module.exports = {
 		maxLimit: -1,
 
 		/** @type {Object|Function} Validator schema or a function to validate the incoming entity in `create` & 'insert' actions. */
-		entityValidator: null,
+		entityValidator: undefined,
 
 		/** @type {Boolean} Whether to use dot notation or not when updating an entity. Will **not** convert Array to dot notation. Default: `false` */
 		useDotNotation: false,
