@@ -91,6 +91,7 @@ module.exports = {
 		 * @param {Number?} offset - Count of skipped rows.
 		 * @param {String?} sort - Sorted fields.
 		 * @param {String?} search - Search text.
+		 * @param {String?} iSearch - Search text (case insensitive).
 		 * @param {String|Array<String>} searchFields - Fields for searching.
 		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
@@ -98,7 +99,7 @@ module.exports = {
 		 */
 		find: {
 			cache: {
-				keys: ["populate", "fields", "excludeFields", "limit", "offset", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "limit", "offset", "sort", "search", "iSearch", "searchFields", "query"]
 			},
 			params: {
 				populate: [
@@ -117,6 +118,7 @@ module.exports = {
 				offset: { type: "number", integer: true, min: 0, optional: true, convert: true },
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
+				iSearch: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
@@ -139,6 +141,7 @@ module.exports = {
 		 * @cached
 		 *
 		 * @param {String?} search - Search text.
+		 * @param {String?} iSearch - Search text (case insensitive).
 		 * @param {String|Array<String>} searchFields - Fields list for searching.
 		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
@@ -146,10 +149,11 @@ module.exports = {
 		 */
 		count: {
 			cache: {
-				keys: ["search", "searchFields", "query"]
+				keys: ["search", "iSearch", "searchFields", "query"]
 			},
 			params: {
 				search: { type: "string", optional: true },
+				iSearch: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
@@ -178,6 +182,7 @@ module.exports = {
 		 * @param {Number?} pageSize - Size of a page.
 		 * @param {String?} sort - Sorted fields.
 		 * @param {String?} search - Search text.
+		 * @param {String?} iSearch - Search text (case insensitive).
 		 * @param {String|Array<String>} searchFields - Fields for searching.
 		 * @param {Object?} query - Query object. Passes to adapter.
 		 *
@@ -185,7 +190,7 @@ module.exports = {
 		 */
 		list: {
 			cache: {
-				keys: ["populate", "fields", "excludeFields", "page", "pageSize", "sort", "search", "searchFields", "query"]
+				keys: ["populate", "fields", "excludeFields", "page", "pageSize", "sort", "search", "iSearch", "searchFields", "query"]
 			},
 			rest: "GET /",
 			params: {
@@ -205,6 +210,7 @@ module.exports = {
 				pageSize: { type: "number", integer: true, min: 0, optional: true, convert: true },
 				sort: { type: "string", optional: true },
 				search: { type: "string", optional: true },
+				iSearch: { type: "string", optional: true },
 				searchFields: [
 					{ type: "string", optional: true },
 					{ type: "array", optional: true, items: "string" },
