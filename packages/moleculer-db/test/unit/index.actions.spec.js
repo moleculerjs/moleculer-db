@@ -56,14 +56,14 @@ describe("Test DbService actions", () => {
 	it("should set default settings", () => {
 		expect(service.adapter).toEqual(adapter);
 		expect(service.settings).toEqual({
-			entityValidator: null,
-			fields: null,
-			excludeFields: null,
+			entityValidator: undefined,
+			fields: undefined,
+			excludeFields: undefined,
 			idField: "_id",
 			maxLimit: -1,
 			maxPageSize: 100,
 			pageSize: 10,
-			populates: null,
+			populates: undefined,
 			useDotNotation: false,
 			cacheCleanEventType: "broadcast"
 		});
