@@ -24,7 +24,7 @@ class MongoDbAdapter {
 	 */
 	constructor(uri, opts, dbName) {
 		this.uri = uri,
-		this.opts = opts;
+		this.opts = opts || {};
 		this.dbName = dbName;
 	}
 
@@ -256,7 +256,7 @@ class MongoDbAdapter {
 	entityToObject(entity) {
 		const json = Object.assign({}, entity);
 		if (entity._id)
-			json._id = this.objectIDToString(entity._id);
+			json[this.opts.jsonId ? this.opts.jsonId : "_id"] = this.objectIDToString(entity._id);
 		return json;
 	}
 
