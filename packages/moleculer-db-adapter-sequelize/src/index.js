@@ -363,6 +363,15 @@ class SequelizeDbAdapter {
 			}
 		}
 
+		// Fields & excludeFields
+		if (params.fields || params.excludeFields) {
+			q.attributes = {};
+			if (params.fields)
+				q.attributes.include = params.fields;
+			if (params.excludeFields)
+				q.attributes.exclude = params.excludeFields;
+		}
+
 		// Sort
 		if (params.sort) {
 			const sort = this.transformSort(params.sort);
