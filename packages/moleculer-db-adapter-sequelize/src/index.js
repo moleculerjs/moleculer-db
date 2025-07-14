@@ -183,7 +183,12 @@ class SequelizeDbAdapter {
 	 * @memberof SequelizeDbAdapter
 	 */
 	count(filters = {}) {
-		return this.createCursor(filters, true);
+		// Only forward supported filters of sequelize count, to prevent errors with advanced sequelize features used in list() calls, like include and popualate (list() uses count for pagination and passes all params)
+		return this.createCursor({
+			query: filters.query,
+			searchFields: filters.searchFields,
+			search: filters.search
+		}, true);
 	}
 
 	/**
