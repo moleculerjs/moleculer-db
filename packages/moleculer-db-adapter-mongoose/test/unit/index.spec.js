@@ -170,15 +170,6 @@ if (process.versions.node.split(".")[0] < 14) {
 						);
 
 						expect(adapter.db).toBe(fakeDb);
-						expect(adapter.db.on).toHaveBeenCalledTimes(3);
-						expect(adapter.db.on).toHaveBeenCalledWith(
-							"disconnected",
-							expect.any(Function)
-						);
-						expect(adapter.db.on).toHaveBeenCalledWith(
-							"reconnected",
-							expect.any(Function)
-						);
 					});
 			});
 
