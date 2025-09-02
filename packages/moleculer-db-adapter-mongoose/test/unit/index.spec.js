@@ -154,8 +154,6 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 
 			it("call connect with uri", () => {
-				fakeDb.on.mockClear();
-
 				adapter.opts = undefined;
 				adapter.model = jest.fn(() => fakeModel);
 
@@ -174,8 +172,6 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 
 			it("call connect with uri & opts", () => {
-				fakeDb.on.mockClear();
-
 				adapter.opts = {
 					user: "admin",
 					pass: "123456",
@@ -232,7 +228,6 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 
 			it("call connect with schema and modelName", () => {
-				fakeDb.on.mockClear();
 				const service = broker.createService({
 					name: "store",
 					schema: fakeSchema,
