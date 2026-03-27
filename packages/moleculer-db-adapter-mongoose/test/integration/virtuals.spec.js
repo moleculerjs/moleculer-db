@@ -28,7 +28,8 @@ if (process.versions.node.split(".")[0] < 14) {
 
 			beforeAll(async () => {
 				// Load posts service
-				broker.createService(DbService, {
+				broker.createService({
+					mixins: [DbService],
 					name: "posts",
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: Post.Model,
@@ -41,7 +42,8 @@ if (process.versions.node.split(".")[0] < 14) {
 				});
 
 				// Load users service
-				broker.createService(DbService, {
+				broker.createService({
+					mixins: [DbService],
 					name: "users",
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: User.Model,
@@ -157,7 +159,8 @@ if (process.versions.node.split(".")[0] < 14) {
 
 			beforeAll(async () => {
 				// Load posts service
-				broker.createService(DbService, {
+				broker.createService({
+					mixins: [DbService],
 					name: "posts",
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: Post.Model,
@@ -203,7 +206,8 @@ if (process.versions.node.split(".")[0] < 14) {
 				});
 
 				// Load users service
-				broker.createService(DbService, {
+				broker.createService({
+					mixins: [DbService],
 					name: "users",
 					adapter: new MongooseStoreAdapter("mongodb://127.0.0.1:27017"),
 					model: User.Model,
