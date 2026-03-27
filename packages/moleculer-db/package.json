@@ -35,7 +35,7 @@
     "jest-cli": "^29.7.0",
     "kleur": "^4.1.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.15.0",
+    "moleculer": "^0.15.0-beta2",
     "moleculer-docgen": "^0.3.0",
     "nodemon": "^2.0.19"
   },
