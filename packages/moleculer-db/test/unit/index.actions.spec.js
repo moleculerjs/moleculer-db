@@ -36,8 +36,9 @@ describe("Test DbService actions", () => {
 	};
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		adapter,
 	});
 

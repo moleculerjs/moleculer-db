@@ -38,8 +38,9 @@ describe("Test DbService methods", () => {
 	const afterConnected = jest.fn();
 
 	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		version: 1,
 		adapter,
 		afterConnected,
@@ -383,8 +384,9 @@ describe("Test 'entityChanged' method", () => {
 	const afterConnected = jest.fn();
 
 	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		version: 1,
 		adapter,
 		afterConnected,

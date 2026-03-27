@@ -12,13 +12,14 @@ describe("Test CRUD methods with idField", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, Object.assign({
+	broker.createService({
 		name: "posts",
+		mixins: [DbService],
 		settings: {
 			idField: "myID"
 		},
 		adapter: new Adapter()
-	}));
+	});
 
 	beforeAll(() => {
 		return broker.start().delay(1000);
@@ -207,8 +208,9 @@ describe("Test CRUD methods with idField and encoding", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, Object.assign({
+	broker.createService({
 		name: "posts",
+		mixins: [DbService],
 		settings: {
 			idField: "myID"
 		},
@@ -221,7 +223,7 @@ describe("Test CRUD methods with idField and encoding", () => {
 				return id.substring(4);
 			}
 		}
-	}));
+	});
 
 	beforeAll(() => {
 		return broker.start().delay(1000);

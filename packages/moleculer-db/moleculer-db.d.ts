@@ -40,7 +40,7 @@ declare module "moleculer-db" {
 
 		/**
 		 *  Schema for population.
-		 *  @see https://moleculer.services/docs/0.14/moleculer-db.html#Populating
+		 *  @see https://moleculer.services/docs/0.15/moleculer-db.html#Populating
 		 */
 		populates?: { [k: string]: Populate.Rule };
 
@@ -66,6 +66,19 @@ declare module "moleculer-db" {
 		 * Validator schema or a function to validate the incoming entity in `create` & 'insert' actions.
 		 */
 		entityValidator?: object | Function;
+
+		/**
+		 * Whether to use dot notation or not when updating an entity.
+		 * Will **not** convert Array to dot notation.
+		 * @default false
+		 */
+		useDotNotation?: boolean;
+
+		/**
+		 * Type of cache clean event type.
+		 * @default "broadcast"
+		 */
+		cacheCleanEventType?: "broadcast" | "emit";
 	}
 
 	export interface QueryOptions {

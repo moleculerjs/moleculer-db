@@ -33,7 +33,7 @@
     "jest": "^27.2.5",
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.14.22",
+    "moleculer": "^0.15.0",
     "moleculer-docgen": "^0.3.0",
     "nodemon": "^2.0.19",
     "npm-check": "^5.9.2"
@@ -46,7 +46,7 @@
     ]
   },
   "engines": {
-    "node": ">= 8.x.x"
+    "node": ">= 22.x.x"
   },
   "dependencies": {
     "fakerator": "^0.3.6",

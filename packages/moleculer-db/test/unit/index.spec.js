@@ -38,8 +38,9 @@ describe("Test DbService actions", () => {
 	};
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		adapter,
 	});
 
@@ -182,8 +183,9 @@ describe("Test reconnecting", () => {
 		disconnect: jest.fn(() => Promise.resolve())
 	};
 	const broker = new ServiceBroker({ logger: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		adapter,
 	});
 
@@ -221,8 +223,9 @@ describe("Test DbService methods", () => {
 	const afterConnected = jest.fn();
 
 	const broker = new ServiceBroker({ logger: false, validation: false, cacher: true });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		version: 1,
 		adapter,
 		afterConnected
@@ -330,8 +333,9 @@ describe("Test DbService methods", () => {
 
 describe("Test entityChanged method", () => {
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		settings: {},
 		beforeEntityCreate: jest.fn(() => Promise.resolve()),
 		beforeEntityUpdate: jest.fn(() => Promise.resolve()),
@@ -401,8 +405,9 @@ describe("Test entityChanged method", () => {
 
 describe("Test sanitizeParams method", () => {
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		settings: {
 			maxPageSize: 50,
 			maxLimit: 200,
@@ -504,8 +509,9 @@ describe("Test transformDocuments method", () => {
 		const doc = { _id : 1 };
 
 		const broker = new ServiceBroker({ logger: false, validation: false });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter
 		});
 
@@ -586,8 +592,9 @@ describe("Test transformDocuments method", () => {
 		];
 
 		const broker = new ServiceBroker({ logger: false, validation: false });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter
 		});
 
@@ -625,8 +632,9 @@ describe("Test transformDocuments method", () => {
 			const docs = { _id : 2, a: { b: 6, c: 7, d: { e: { f: 8 }, g: 9} } };
 
 			const broker = new ServiceBroker({ logger: false, validation: false });
-			const service = broker.createService(DbService, {
+			const service = broker.createService({
 				name: "store",
+				mixins: [DbService],
 				adapter: mockAdapter
 			});
 
@@ -709,8 +717,9 @@ describe("Test authorizeFields method", () => {
 
 	describe("Test with nested fields", () => {
 		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter,
 			settings: {
 				fields: ["id", "name", "address", "bio.body", "mobile.carrier.name"]
@@ -740,8 +749,9 @@ describe("Test authorizeFields method", () => {
 
 	describe("Test with enabled nested fields", () => {
 		const broker = new ServiceBroker({ logger: false });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter,
 			settings: {
 				fields: ["id", "name", "address.city", "address.state", "address.country", "bio.body.height", "bio.male", "bio.body.hair.color"]
@@ -762,8 +772,9 @@ describe("Test authorizeFields method", () => {
 
 describe("Test filterFields method", () => {
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
-		name: "store"
+	const service = broker.createService({
+		name: "store",
+		mixins: [DbService],
 	});
 
 	describe("Object test", () => {
@@ -1026,8 +1037,9 @@ describe("Test excludeFields method", () => {
 	};
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 	});
 
 	it("should not touch the doc", () => {
@@ -1060,8 +1072,9 @@ describe("Test populateDocs method", () => {
 	const docs = [{ id: 1, author: 3, rate: 4 }, { id: 2, author: 5, comments: [8, 3, 8], rate: 0 }, { id: 3, author: 8, rate: 5 }];
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		adapter: mockAdapter,
 		settings: {
 			populates: {
@@ -1268,8 +1281,9 @@ describe("Test validateEntity method", () => {
 		const validator = jest.fn();
 
 		const broker = new ServiceBroker({ logger: false, validation: false });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter,
 			settings: {
 				entityValidator: validator
@@ -1303,8 +1317,9 @@ describe("Test validateEntity method", () => {
 		const broker = new ServiceBroker({ logger: false, validation: {
 			options: { useNewCustomCheckerFunction: true } // Enable async validations
 		} });
-		const service = broker.createService(DbService, {
+		const service = broker.createService({
 			name: "store",
+			mixins: [DbService],
 			adapter: mockAdapter,
 			settings: {
 				entityValidator: {
@@ -1315,8 +1330,9 @@ describe("Test validateEntity method", () => {
 		});
 
 		// Service with async validation
-		const otherService = broker.createService(DbService, {
+		const otherService = broker.createService({
 			name: "shop",
+			mixins: [DbService],
 			adapter: mockAdapter,
 			settings: {
 				entityValidator: {
@@ -1380,8 +1396,9 @@ describe("Test validateEntity method", () => {
 describe("Test encodeID/decodeID method", () => {
 
 	const broker = new ServiceBroker({ logger: false, validation: false });
-	const service = broker.createService(DbService, {
+	const service = broker.createService({
 		name: "store",
+		mixins: [DbService],
 		adapter: mockAdapter,
 		settings: {}
 	});
