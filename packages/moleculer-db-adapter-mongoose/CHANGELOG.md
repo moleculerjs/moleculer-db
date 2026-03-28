@@ -1,3 +1,14 @@
+<a name="0.10.1"></a>
+# 0.10.1 (2026-03-28)
+
+## Changes
+- update to Moleculer v0.15 compatibility
+- migrate tests from `createService(schema, schemaMods)` to mixin pattern
+- update minimum Node.js version to 22
+- update `moleculer` devDependency to `^0.15.0`
+
+--------------------------------------------------
+
 <a name="0.9.3"></a>
 # 0.9.3 (2023-07-15)
 

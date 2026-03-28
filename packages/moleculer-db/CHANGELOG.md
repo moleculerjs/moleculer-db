@@ -1,3 +1,15 @@
+<a name="0.8.29"></a>
+# 0.8.29 (2026-03-28)
+
+## Changes
+- update to Moleculer v0.15 compatibility
+- update TypeScript definitions: add `useDotNotation` and `cacheCleanEventType` settings, update docs URL to 0.15
+- migrate tests from `createService(schema, schemaMods)` to mixin pattern (Moleculer 0.15 removed the second argument)
+- update minimum Node.js version to 22
+- update `moleculer` devDependency to `^0.15.0`
+
+--------------------------------------------------
+
 <a name="0.8.23"></a>
 # 0.8.23 (2023-02-19)
 

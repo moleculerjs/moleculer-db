@@ -1,3 +1,13 @@
+<a name="0.2.19"></a>
+# 0.2.19 (2026-03-28)
+
+## Changes
+- update to Moleculer v0.15 compatibility
+- update minimum Node.js version to 22
+- update `moleculer` devDependency to `^0.15.0`
+
+--------------------------------------------------
+
 <a name="0.2.10"></a>
 # 0.2.10 (2020-10-16)
 
