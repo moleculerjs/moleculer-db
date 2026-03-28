@@ -20,8 +20,9 @@ describe("Test populates feature", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, {
+	broker.createService({
 		name: "posts",
+		mixins: [DbService],
 		adapter: new Adapter(),
 		settings: {
 			fields: ["_id", "title", "content", "author", "reviewer", "reviewerId", "liked"],
@@ -39,8 +40,9 @@ describe("Test populates feature", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, {
+	broker.createService({
 		name: "users",
+		mixins: [DbService],
 		settings: {
 			fields: ["_id", "group", "username", "name"],
 			populates: {
@@ -52,8 +54,9 @@ describe("Test populates feature", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, {
+	broker.createService({
 		name: "groups",
+		mixins: [DbService],
 		settings: {
 			fields: ["_id", "name"],
 		}

@@ -29,10 +29,11 @@ describe("Test CRUD methods", () => {
 	});
 
 	// Load my service
-	broker.createService(DbService, Object.assign({
+	broker.createService({
 		name: "posts",
+		mixins: [DbService],
 		adapter: new Adapter(),
-	}));
+	});
 
 	beforeAll(() => {
 		return broker.start().delay(1000);

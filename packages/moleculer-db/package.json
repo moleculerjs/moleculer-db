@@ -31,11 +31,11 @@
     "coveralls": "^3.1.1",
     "eslint": "^8.21.0",
     "fakerator": "^0.3.6",
-    "jest": "^27.0.6",
-    "jest-cli": "^27.0.6",
+    "jest": "^29.7.0",
+    "jest-cli": "^29.7.0",
     "kleur": "^4.1.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.14.22",
+    "moleculer": "^0.15.0",
     "moleculer-docgen": "^0.3.0",
     "nodemon": "^2.0.19"
   },
@@ -47,7 +47,7 @@
     ]
   },
   "engines": {
-    "node": ">= 8.x.x"
+    "node": ">= 22.x.x"
   },
   "dependencies": {
     "@seald-io/nedb": "^3.0.0",
