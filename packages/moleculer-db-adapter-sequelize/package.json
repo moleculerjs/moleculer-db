@@ -38,7 +38,7 @@
     "jest": "^27.2.5",
     "jest-cli": "^27.2.5",
     "lolex": "^6.0.0",
-    "moleculer": "^0.15.0-beta2",
+    "moleculer": "^0.15.0",
     "moleculer-docgen": "^0.3.0",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.19",
