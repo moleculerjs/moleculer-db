@@ -1,5 +1,5 @@
-<a name="0.1.15"></a>
-# 0.1.15 (2026-03-28)
+<a name="0.2.0"></a>
+# 0.2.0 (2026-03-28)
 
 ## Changes
 - update to Moleculer v0.15 compatibility
