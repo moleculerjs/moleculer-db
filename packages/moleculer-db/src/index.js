@@ -72,6 +72,9 @@ module.exports = {
 
 		/** @type {String} Type of cache clean event type. Values: "broadcast" or "emit" */
 		cacheCleanEventType: "broadcast",
+
+		/** @type {Boolean} Enable actions cache. Default: `true` */
+		cacheEnabled: true,
 	},
 
 	/**
@@ -99,6 +102,7 @@ module.exports = {
 		 */
 		find: {
 			cache: {
+				enabled: ctx => ctx.service.settings.cacheEnabled === true,
 				keys: ["populate", "fields", "excludeFields", "limit", "offset", "sort", "search", "iSearch", "searchFields", "query"]
 			},
 			params: {
@@ -149,6 +153,7 @@ module.exports = {
 		 */
 		count: {
 			cache: {
+				enabled: ctx => ctx.service.settings.cacheEnabled === true,
 				keys: ["search", "iSearch", "searchFields", "query"]
 			},
 			params: {
@@ -190,6 +195,7 @@ module.exports = {
 		 */
 		list: {
 			cache: {
+				enabled: ctx => ctx.service.settings.cacheEnabled === true,
 				keys: ["populate", "fields", "excludeFields", "page", "pageSize", "sort", "search", "iSearch", "searchFields", "query"]
 			},
 			rest: "GET /",
@@ -280,6 +286,7 @@ module.exports = {
 		 */
 		get: {
 			cache: {
+				enabled: ctx => ctx.service.settings.cacheEnabled === true,
 				keys: ["id", "populate", "fields", "excludeFields", "mapping"]
 			},
 			rest: "GET /:id",
@@ -507,9 +514,11 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		clearCache() {
-			this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
-			if (this.broker.cacher)
-				return this.broker.cacher.clean(`${this.fullName}.**`);
+			if (this.broker[this.settings.cacheCleanEventType]) {
+				this.broker[this.settings.cacheCleanEventType](`cache.clean.${this.fullName}`);
+				if (this.broker.cacher)
+					return this.broker.cacher.clean(`${this.fullName}.**`);
+			}
 			return Promise.resolve();
 		},
 
