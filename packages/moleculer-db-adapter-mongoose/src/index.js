@@ -96,11 +96,6 @@ class MongooseDbAdapter {
 		}
 
 		this.service.logger.info("MongoDB adapter has connected successfully.");
-
-		/* istanbul ignore next */
-		this.conn.on("disconnected", () => this.service.logger.warn("Mongoose adapter has disconnected."));
-		this.conn.on("error", err => this.service.logger.error("MongoDB error.", err));
-		this.conn.on("reconnected", () => this.service.logger.info("Mongoose adapter has reconnected."));
 	}
 
 	/**

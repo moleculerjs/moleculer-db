@@ -154,8 +154,6 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 
 			it("call connect with uri", () => {
-				fakeDb.on.mockClear();
-
 				adapter.opts = undefined;
 				adapter.model = jest.fn(() => fakeModel);
 
@@ -170,21 +168,10 @@ if (process.versions.node.split(".")[0] < 14) {
 						);
 
 						expect(adapter.db).toBe(fakeDb);
-						expect(adapter.db.on).toHaveBeenCalledTimes(3);
-						expect(adapter.db.on).toHaveBeenCalledWith(
-							"disconnected",
-							expect.any(Function)
-						);
-						expect(adapter.db.on).toHaveBeenCalledWith(
-							"reconnected",
-							expect.any(Function)
-						);
 					});
 			});
 
 			it("call connect with uri & opts", () => {
-				fakeDb.on.mockClear();
-
 				adapter.opts = {
 					user: "admin",
 					pass: "123456",
@@ -241,7 +228,6 @@ if (process.versions.node.split(".")[0] < 14) {
 			});
 
 			it("call connect with schema and modelName", () => {
-				fakeDb.on.mockClear();
 				const service = broker.createService({
 					name: "store",
 					schema: fakeSchema,

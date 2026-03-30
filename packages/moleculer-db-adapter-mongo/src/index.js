@@ -60,11 +60,6 @@ class MongoDbAdapter {
 			this.collection = this.db.collection(this.service.schema.collection);
 
 			this.service.logger.info("MongoDB adapter has connected successfully.");
-
-			/* istanbul ignore next */
-			this.db.on("close", () => this.service.logger.warn("MongoDB adapter has disconnected."));
-			this.db.on("error", err => this.service.logger.error("MongoDB error.", err));
-			this.db.on("reconnect", () => this.service.logger.info("MongoDB adapter has reconnected."));
 		});
 	}
 

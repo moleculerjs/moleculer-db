@@ -102,7 +102,6 @@ describe("Test MongoDbAdapter", () => {
 	});
 
 	it("call connect with uri", () => {
-		fakeDb.on.mockClear();
 		fakeDb.collection.mockClear();
 
 		adapter.opts = undefined;
@@ -119,10 +118,6 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.client.db).toHaveBeenCalledWith(undefined);
 
 			expect(adapter.db).toBe(fakeDb);
-			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
@@ -135,7 +130,6 @@ describe("Test MongoDbAdapter", () => {
 		fakeConn.connect.mockClear();
 		fakeConn.db.mockClear();
 
-		fakeDb.on.mockClear();
 		fakeDb.collection.mockClear();
 
 		adapter.opts = {
@@ -156,10 +150,6 @@ describe("Test MongoDbAdapter", () => {
 			expect(adapter.client.db).toHaveBeenCalledWith("demo-db");
 
 			expect(adapter.db).toBe(fakeDb);
-			expect(adapter.db.on).toHaveBeenCalledTimes(3);
-			expect(adapter.db.on).toHaveBeenCalledWith("close", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("error", expect.any(Function));
-			expect(adapter.db.on).toHaveBeenCalledWith("reconnect", expect.any(Function));
 
 			expect(adapter.db.collection).toHaveBeenCalledTimes(1);
 			expect(adapter.db.collection).toHaveBeenCalledWith("posts");
